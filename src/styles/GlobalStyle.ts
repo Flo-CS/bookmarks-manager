@@ -10,7 +10,7 @@ export const GlobalStyle = createGlobalStyle<{theme: typeof theme}>`
 
   body, html, #root {
     font-family: "Open Sans", sans-serif;
-    font-size: ${props => props.theme.fontSizes.medium};
+    font-size: 16px;
     color: #FFFBFF;
     width: 100%;
     height: 100%;
