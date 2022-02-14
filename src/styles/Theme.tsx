@@ -14,11 +14,16 @@ export const theme = {
         verySmall: 0.75,
         small: 0.875,
         medium: 1,
-        large: 1.125
+        big: 1.125
     },
     radius: {
-        little: "3px",
+        small: "3px",
         medium: "5px"
+    },
+    spacing: {
+        small: "5px",
+        medium: "10px",
+        big: "20px",
     }
 }
 
