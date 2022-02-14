@@ -11,8 +11,8 @@ const Container = styled.div`
   height: 30px;
   display: inline-flex;
   align-items: center;
-  padding: 0 10px;
-  border-radius: 5px;
+  padding: 0 ${props => props.theme.spacing.medium};
+  border-radius: ${props => props.theme.radius.small};
   cursor: pointer;
 
   &.accent2 {
