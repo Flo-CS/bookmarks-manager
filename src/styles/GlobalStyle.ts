@@ -14,5 +14,6 @@ export const GlobalStyle = createGlobalStyle<{theme: typeof theme}>`
     color: #FFFBFF;
     width: 100%;
     height: 100%;
+    background-color: ${props => props.theme.colors.black};
   }
 `
