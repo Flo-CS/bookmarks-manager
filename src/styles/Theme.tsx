@@ -15,6 +15,10 @@ export const theme = {
         small: 0.875,
         medium: 1,
         large: 1.125
+    },
+    radius: {
+        little: "3px",
+        medium: "5px"
     }
 }
 
