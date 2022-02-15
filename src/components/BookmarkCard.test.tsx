@@ -1,6 +1,6 @@
 import {render} from "../../tests/utilities"
 import BookmarkCard from "./BookmarkCard";
-import {screen} from "@testing-library/react";
+import {fireEvent, screen} from "@testing-library/react";
 import {formatDistanceToNow} from "date-fns";
 
 describe('BookmarkCard component', () => {
@@ -8,16 +8,16 @@ describe('BookmarkCard component', () => {
     jest.useFakeTimers().setSystemTime(new Date("2022-02-14T20:00:00"))
 
     const props = {
-        variant:"preview" as const,
-        title:"This is a title",
+        variant: "preview" as const,
+        title: "This is a title",
         id: "e6c1b24d-f999-4fa9-b204-54713e735c84",
         link: "https://google.com",
-        picturePath:"https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+        picturePath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
         description: "Google, moteur de recherche",
         tags: ["tag1", "tag2"],
-        datetime:new Date("2022-02-14T08:00:00")
+        datetime: new Date("2022-02-14T08:00:00")
     }
-    beforeAll(() => {
+    beforeEach(() => {
         render(<BookmarkCard {...props}/>)
     })
 
@@ -48,8 +48,27 @@ describe('BookmarkCard component', () => {
         }
 
     })
-    it.todo("show menu and three buttons on hover and hide date")
-    it.todo("copy link to clipboard on copy button click" )
+    it("show menu and three buttons on hover and hide date", () => {
+        const card = screen.getByRole("article");
+        let datetime = screen.queryByTestId("datetime")
+        let menu = screen.getByTestId("menu");
+
+        expect(datetime).toBeVisible()
+        expect(menu).not.toBeVisible()
+
+        fireEvent.mouseEnter(card)
+        datetime = screen.queryByTestId("datetime")
+        menu = screen.getByTestId("menu");
+        expect(datetime).not.toBeInTheDocument()
+        expect(menu).toBeVisible()
+
+        fireEvent.mouseLeave(card)
+        datetime = screen.queryByTestId("datetime")
+        menu = screen.getByTestId("menu");
+        expect(datetime).toBeInTheDocument()
+        expect(menu).not.toBeVisible()
+    })
+    it.todo("copy link to clipboard on copy button click")
     it.todo("call onDelete function (with id) on delete button clicked")
     it.todo("call onEdit (with id) function on edit button clicked")
     it.todo("call onTagRemove function with the correct tag name as params on tag delete button click")

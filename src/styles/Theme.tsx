@@ -7,6 +7,7 @@ export const theme = {
         accent2: "#2F5179",
         white: "#FFFBFF",
         whiteAlternative: "#A3A3A3",
+        lightGrey: "#5C5C5C",
         grey: "#262626",
         darkGrey: "#1D1D1D",
         black: "#141414",
