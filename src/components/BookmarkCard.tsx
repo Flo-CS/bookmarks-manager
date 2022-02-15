@@ -135,15 +135,36 @@ type Props = {
     picturePath: string;
     description: string,
     tags: string[],
-    datetime: Date
+    datetime: Date,
+    onEdit?: (id: string) => void,
+    onDelete?: (id: string) => void
 }
 
-export default function BookmarkCard({variant, title, id, link, picturePath, description, tags, datetime}: Props) {
+export default function BookmarkCard({
+                                         variant,
+                                         title,
+                                         id,
+                                         link,
+                                         picturePath,
+                                         description,
+                                         tags,
+                                         datetime,
+                                         onEdit,
+                                         onDelete
+                                     }: Props) {
     const ref = useRef(null);
     const isHovered = useHover(ref);
 
     function handleCopyLinkButtonClick() {
         navigator.clipboard.writeText(link);
+    }
+
+    function handleDeleteButtonClick() {
+        onDelete && onDelete(id);
+    }
+
+    function handleEditButtonClick() {
+        onEdit && onEdit(id)
     }
 
     return <Card ref={ref}>
@@ -171,10 +192,10 @@ export default function BookmarkCard({variant, title, id, link, picturePath, des
             <MenuButton aria-label="copy" onClick={handleCopyLinkButtonClick}>
                 <MdContentCopy/>
             </MenuButton>
-            <MenuButton aria-label="edit">
+            <MenuButton aria-label="edit" onClick={handleEditButtonClick}>
                 <MdEdit/>
             </MenuButton>
-            <MenuButton aria-label="delete">
+            <MenuButton aria-label="delete" onClick={handleDeleteButtonClick}>
                 <MdDelete/>
             </MenuButton>
         </CardMenu>

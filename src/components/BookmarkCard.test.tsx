@@ -23,7 +23,9 @@ describe('BookmarkCard component', () => {
         picturePath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
         description: "Google, moteur de recherche",
         tags: ["tag1", "tag2"],
-        datetime: new Date("2022-02-14T08:00:00")
+        datetime: new Date("2022-02-14T08:00:00"),
+        onDelete: jest.fn(),
+        onEdit: jest.fn()
     }
     beforeEach(() => {
         render(<BookmarkCard {...props}/>)
@@ -84,7 +86,15 @@ describe('BookmarkCard component', () => {
         expect(navigator.clipboard.writeText).toBeCalledTimes(2);
         expect(navigator.clipboard.writeText).toHaveBeenCalledWith(props.link);
     })
-    it.todo("call onDelete function (with id) on delete button clicked")
-    it.todo("call onEdit (with id) function on edit button clicked")
+    it("call onDelete function (with id) on delete button clicked", () => {
+        fireEvent.click(screen.getByRole("button", {name: "delete"}))
+        expect(props.onDelete).toHaveBeenCalledTimes(1)
+        expect(props.onDelete).toHaveBeenCalledWith(props.id)
+    })
+    it("call onEdit (with id) function on edit button clicked", () => {
+        fireEvent.click(screen.getByRole("button", {name: "edit"}))
+        expect(props.onEdit).toHaveBeenCalledTimes(1)
+        expect(props.onEdit).toHaveBeenCalledWith(props.id)
+    })
     it.todo("call onTagRemove function with the correct tag name as params on tag delete button click")
 });
