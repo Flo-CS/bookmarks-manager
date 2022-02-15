@@ -7,6 +7,14 @@ describe('BookmarkCard component', () => {
 
     jest.useFakeTimers().setSystemTime(new Date("2022-02-14T20:00:00"))
 
+    Object.assign(navigator, {
+        clipboard: {
+            writeText: () => {},
+        },
+    });
+
+    jest.spyOn(navigator.clipboard, "writeText");
+
     const props = {
         variant: "preview" as const,
         title: "This is a title",
@@ -68,7 +76,14 @@ describe('BookmarkCard component', () => {
         expect(datetime).toBeInTheDocument()
         expect(menu).not.toBeVisible()
     })
-    it.todo("copy link to clipboard on copy button click")
+    it("copy link to clipboard on copy button click", () => {
+        navigator.clipboard.writeText("");
+        expect(navigator.clipboard.writeText).toBeCalledTimes(1);
+        expect(navigator.clipboard.writeText).toHaveBeenCalledWith("");
+        fireEvent.click(screen.getByRole("button", {name: "copy"}))
+        expect(navigator.clipboard.writeText).toBeCalledTimes(2);
+        expect(navigator.clipboard.writeText).toHaveBeenCalledWith(props.link);
+    })
     it.todo("call onDelete function (with id) on delete button clicked")
     it.todo("call onEdit (with id) function on edit button clicked")
     it.todo("call onTagRemove function with the correct tag name as params on tag delete button click")

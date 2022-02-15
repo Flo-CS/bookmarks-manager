@@ -142,6 +142,10 @@ export default function BookmarkCard({variant, title, id, link, picturePath, des
     const ref = useRef(null);
     const isHovered = useHover(ref);
 
+    function handleCopyLinkButtonClick() {
+        navigator.clipboard.writeText(link);
+    }
+
     return <Card ref={ref}>
         <CardInside>
             {variant === "preview" && <Picture src={picturePath} alt="Preview or website icon picture"/>}
@@ -164,13 +168,13 @@ export default function BookmarkCard({variant, title, id, link, picturePath, des
             </CardFlow>
         </CardInside>
         <CardMenu data-testid="menu" isShown={isHovered}>
-            <MenuButton>
+            <MenuButton aria-label="copy" onClick={handleCopyLinkButtonClick}>
                 <MdContentCopy/>
             </MenuButton>
-            <MenuButton>
+            <MenuButton aria-label="edit">
                 <MdEdit/>
             </MenuButton>
-            <MenuButton>
+            <MenuButton aria-label="delete">
                 <MdDelete/>
             </MenuButton>
         </CardMenu>
