@@ -12,19 +12,20 @@ describe("Tag component", () => {
         expect(screen.queryByText(/close/)).toBeNull()
     })
     it("have close button if close function is in props", () => {
-        render(<Tag onClose={() => {}}>Hello</Tag>)
+        render(<Tag onClose={() => {
+        }}>Hello</Tag>)
         expect(screen.queryByRole("button", {name: /close/})).toBeInTheDocument()
     })
     it("call close function on close button clicked", () => {
-        let isClicked = false;
-        render(<Tag onClose={() => {isClicked = true}}>Hello</Tag>)
+        const handleClose = jest.fn()
+        render(<Tag onClose={handleClose}>Hello</Tag>)
         fireEvent.click(screen.getByRole("button", {name: /close/}));
-        expect(isClicked).toBeTruthy();
+        expect(handleClose).toHaveBeenCalledTimes(1)
     })
     it("call click function on tag click", () => {
-        let isClicked = false;
-        render(<Tag onClick={() => {isClicked = true}}>Hello</Tag>)
+        const handleClick = jest.fn()
+        render(<Tag onClick={handleClick}>Hello</Tag>)
         fireEvent.click(screen.getByText("Hello"));
-        expect(isClicked).toBeTruthy();
+        expect(handleClick).toHaveBeenCalledTimes(1)
     })
 })
