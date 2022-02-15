@@ -138,6 +138,7 @@ type Props = {
     datetime: Date,
     onEdit?: (id: string) => void,
     onDelete?: (id: string) => void
+    onTagRemove?: (id: string) => void
 }
 
 export default function BookmarkCard({
@@ -150,7 +151,8 @@ export default function BookmarkCard({
                                          tags,
                                          datetime,
                                          onEdit,
-                                         onDelete
+                                         onDelete,
+                                         onTagRemove
                                      }: Props) {
     const ref = useRef(null);
     const isHovered = useHover(ref);
@@ -165,6 +167,10 @@ export default function BookmarkCard({
 
     function handleEditButtonClick() {
         onEdit && onEdit(id)
+    }
+
+    function handleTagCloseButtonClick(tag: string) {
+        onTagRemove && onTagRemove(tag)
     }
 
     return <Card ref={ref}>
@@ -183,7 +189,7 @@ export default function BookmarkCard({
                 <Description>{description}</Description>
                 <TagsContainer>
                     {tags.map(tag => {
-                        return <Tag size="little" key={tag}>{tag}</Tag>;
+                        return <Tag size="little" key={tag} onClose={() => handleTagCloseButtonClick(tag)}>{tag}</Tag>;
                     })}
                 </TagsContainer>
             </CardFlow>

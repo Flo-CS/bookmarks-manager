@@ -1,6 +1,6 @@
 import {render} from "../../tests/utilities"
 import BookmarkCard from "./BookmarkCard";
-import {fireEvent, screen} from "@testing-library/react";
+import {fireEvent, screen, within} from "@testing-library/react";
 import {formatDistanceToNow} from "date-fns";
 
 describe('BookmarkCard component', () => {
@@ -9,7 +9,8 @@ describe('BookmarkCard component', () => {
 
     Object.assign(navigator, {
         clipboard: {
-            writeText: () => {},
+            writeText: () => {
+            },
         },
     });
 
@@ -25,7 +26,8 @@ describe('BookmarkCard component', () => {
         tags: ["tag1", "tag2"],
         datetime: new Date("2022-02-14T08:00:00"),
         onDelete: jest.fn(),
-        onEdit: jest.fn()
+        onEdit: jest.fn(),
+        onTagRemove: jest.fn()
     }
     beforeEach(() => {
         render(<BookmarkCard {...props}/>)
@@ -96,5 +98,13 @@ describe('BookmarkCard component', () => {
         expect(props.onEdit).toHaveBeenCalledTimes(1)
         expect(props.onEdit).toHaveBeenCalledWith(props.id)
     })
-    it.todo("call onTagRemove function with the correct tag name as params on tag delete button click")
+    it("call onTagRemove function with the correct tag name as params on tag delete button click", () => {
+        props.tags.forEach((tag) => {
+            const tagComponent = screen.getByText(tag)
+            const closeButton = within(tagComponent).getByRole("button")
+            fireEvent.click(closeButton)
+            expect(props.onTagRemove).toHaveBeenCalledWith(tag);
+        })
+        expect(props.onTagRemove).toHaveBeenCalledTimes(props.tags.length);
+    })
 });
