@@ -11,7 +11,7 @@ const ICON_HEIGHT = 40;
 const Card = styled.article`
   border-radius: ${props => props.theme.radius.medium};
   font-size: ${props => props.theme.fontSizes.medium}rem;
-  background-color: ${props => props.theme.colors.grey};
+  background-color: ${props => props.theme.colors.darkGrey};
   display: flex;
   overflow: hidden;
   min-height: 120px;
@@ -77,7 +77,7 @@ const CardInside = styled.div`
 `
 
 const CardMenu = styled.div<{ isShown: boolean }>`
-  background-color: ${props => props.theme.colors.lightGrey};
+  background-color: ${props => props.theme.colors.grey};
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -114,7 +114,7 @@ const MenuButton = styled.button`
   cursor: pointer;
 
   & > svg {
-    color: ${props => props.theme.colors.whiteAlternative};
+    color: ${props => props.theme.colors.lightGrey};
     width: 100%;
     height: 100%;
     transition: color 0.1s;
