@@ -43,9 +43,10 @@ const FoldButton = styled.button`
   height: 25px;
 
   & > svg {
-    color: ${props => props.theme.colors.white};
+    color: ${props => props.theme.colors.whiteAlternative};
     width: 100%;
     height: 100%;
+    
   }
 `
 

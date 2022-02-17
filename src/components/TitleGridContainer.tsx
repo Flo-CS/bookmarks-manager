@@ -13,7 +13,7 @@ const Grid = styled.div`
 const ContainerTitle = styled.h2`
   font-size: ${props => props.theme.fontSizes.medium}rem;
   font-weight: normal;
-  color: ${props => props.theme.colors.whiteAlternative};
+  color: ${props => props.theme.colors.white};
   margin: ${props => props.theme.spacing.medium};
   margin-top: 0;
 `

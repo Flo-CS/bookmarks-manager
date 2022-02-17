@@ -5,7 +5,7 @@ const Container = styled.div`
   height: 25px;
   display: inline-flex;
   align-items: center;
-  color: ${props => props.theme.colors.whiteAlternative};
+  color: ${props => props.theme.colors.white};
 
   & > svg {
     height: 20px;

@@ -5,7 +5,7 @@ import {MdArrowForwardIos} from "react-icons/md";
 const Container = styled.div`
   display: inline-flex;
   align-items: center;
-  color: ${props => props.theme.colors.whiteAlternative};
+  color: ${props => props.theme.colors.white};
   
   & > svg {
     color: ${props => props.theme.colors.whiteAlternative};
