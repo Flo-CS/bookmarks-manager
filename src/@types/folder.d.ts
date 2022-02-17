@@ -5,4 +5,6 @@ export type Folder = {
     name: string,
     icon?: React.ComponentType,
     children?: Folder[],
+    isDefaultFolded?: boolean,
+    count?: number
 }
