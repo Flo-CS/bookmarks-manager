@@ -1,6 +1,6 @@
 import {render} from "../../tests/utilities";
 import {screen} from "@testing-library/react";
-import FolderName from "./FolderName.";
+import FolderName from "./FolderName";
 
 describe("FolderName component", () => {
     it("has a name", () => {

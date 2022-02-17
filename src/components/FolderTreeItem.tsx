@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import FolderName from "./FolderName.";
+import FolderName from "./FolderName";
 import {MdArrowDropDown, MdArrowRight} from "react-icons/md";
 import styled from "styled-components";
 
