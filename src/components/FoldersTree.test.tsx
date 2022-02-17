@@ -2,8 +2,9 @@ import React from "react";
 import FoldersTree from "./FoldersTree"
 import FolderTreeItem from "./FolderTreeItem";
 import {render} from "../../tests/utilities";
-import {screen, within} from "@testing-library/react";
+import {fireEvent, screen, within} from "@testing-library/react";
 import {Folder} from "../@types/folder";
+import {theme} from "../styles/Theme";
 
 
 describe("FolderTreeView component", () => {
@@ -11,12 +12,12 @@ describe("FolderTreeView component", () => {
         {
             id: "1",
             name: "1",
-            icon: () => <svg>1</svg>,
+            icon: () => <svg>1-svg</svg>,
             children: [
                 {
                     id: "11",
                     name: "11",
-                    icon: () => <svg>12</svg>,
+                    icon: () => <svg>12-svg</svg>,
                 },
                 {
                     id: "12",
@@ -33,7 +34,7 @@ describe("FolderTreeView component", () => {
         {
             id: "2",
             name: "2",
-            icon: () => <svg>2</svg>,
+            icon: () => <svg>2-svg</svg>,
             children: [
                 {
                     id: "21",
@@ -74,5 +75,20 @@ describe("FolderTreeView component", () => {
 
         expect(screen.queryByText("children1")).toBeInTheDocument()
         expect(screen.queryByText("children11")).toBeInTheDocument()
+    })
+    it("handles folder click", () => {
+        const onFolderClickMock = jest.fn();
+
+        render(<FoldersTree folders={folders} onFolderClick={onFolderClickMock}/>)
+        fireEvent.click(screen.getByText("1", {exact: true}))
+        expect(onFolderClickMock).toHaveBeenCalledWith("1")
+        expect(onFolderClickMock).toHaveBeenCalledTimes(1)
+        fireEvent.click(screen.getByText("121", {exact: true}))
+        expect(onFolderClickMock).toHaveBeenCalledWith("121")
+        expect(onFolderClickMock).toHaveBeenCalledTimes(2)
+    })
+    it("selects the correct folder with the selectedFolderId in props", () => {
+        render(<FoldersTree folders={folders} selectedFolderId="121"/>)
+        expect(screen.queryByTestId("folder-wrapper-121")).toHaveStyle(`background-color: ${theme.colors.accent1}`) // TODO: Change this
     })
 })
