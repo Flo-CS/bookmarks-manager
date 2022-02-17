@@ -3,6 +3,9 @@ import {GlobalStyle} from "./styles/GlobalStyle";
 import Theme from "./styles/Theme";
 import BookmarkCard from "./components/BookmarkCard";
 import TitleGridContainer from "./components/TitleGridContainer";
+import FolderTreeItem from "./components/FolderTreeItem";
+
+import {MdAddAlarm} from "react-icons/md";
 
 export function App() {
     const props = {
@@ -29,6 +32,10 @@ export function App() {
                 <BookmarkCard {...props}/>
                 <BookmarkCard {...props}/>
             </TitleGridContainer>
+            <FolderTreeItem folderId="dfdjf" name="test" icon={MdAddAlarm} isDefaultFolded={true}>
+                <FolderTreeItem folderId="ddff" name="testé" isSelected={true}/>
+                <FolderTreeItem folderId="ddffdd" name="testé" count={10} />
+            </FolderTreeItem>
         </div>
     </Theme>)
 }
