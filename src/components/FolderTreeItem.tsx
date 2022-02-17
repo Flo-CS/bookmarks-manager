@@ -5,11 +5,23 @@ import styled from "styled-components";
 
 
 const Wrapper = styled.div<{ isSelected: boolean }>`
-  background-color: ${props => props.isSelected ? props.theme.colors.accent1 : props.theme.colors.black};
-  border-radius: ${props => props.theme.radius.small};
+  position: relative;
 
   & & {
     padding-left: ${props => props.theme.spacing.large};
+  }
+
+  &::before {
+    z-index: -99;
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: block;
+    background-color: ${props => props.isSelected ? props.theme.colors.accent1 : props.theme.colors.black};
+    border-radius: ${props => props.theme.radius.small};
+    height: 35px;
+    width: 100%;
   }
 `
 
