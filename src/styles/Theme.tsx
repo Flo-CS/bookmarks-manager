@@ -1,6 +1,8 @@
 import React from "react"
 import {ThemeProvider} from "styled-components";
 
+export type ThemeType = typeof theme;
+
 export const theme = {
     colors: {
         accent1: "#42792F",
