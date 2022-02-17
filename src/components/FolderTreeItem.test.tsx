@@ -71,8 +71,8 @@ describe("FolderTreeItem component", () => {
                 <FolderTreeItem folderId="2" name="2" isSelected={true}/>
             </>
         )
-        const c1 = screen.getByText("1").closest("div[data-testid='folder-wrapper']")
-        const c2 = screen.getByText("2").closest("div[data-testid='folder-wrapper']")
+        const c1 = screen.getByText("1").closest("div[data-testid^='folder-wrapper']")
+        const c2 = screen.getByText("2").closest("div[data-testid^='folder-wrapper']")
 
         expect(c1).toHaveStyle(`background-color: ${theme.colors.black}`)
         expect(c2).toHaveStyle(`background-color: ${theme.colors.accent1}`)

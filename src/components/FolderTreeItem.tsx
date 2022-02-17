@@ -73,7 +73,7 @@ export default function FolderTreeItem({
         onClick && onClick(folderId);
     }
 
-    return <Wrapper isSelected={!!isSelected} data-testid="folder-wrapper">
+    return <Wrapper isSelected={!!isSelected} data-testid={`folder-wrapper-${folderId}`}>
         <Container onClick={handleItemClick} role="button" aria-label="click folder tree item">
             {children && <FoldButton onClick={handleFoldButtonClick} aria-label="toggle children folding">
                 {isFolded ? <MdArrowRight/> : <MdArrowDropDown/>}
