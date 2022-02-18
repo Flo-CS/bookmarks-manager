@@ -5,43 +5,11 @@ import {render} from "../../tests/utilities";
 import {fireEvent, screen, within} from "@testing-library/react";
 import {Folder} from "../@types/folder";
 import {theme} from "../styles/Theme";
+import {folders} from "../../tests/mockData";
 
 
 describe("FolderTreeView component", () => {
-    const folders: Folder[] = [
-        {
-            id: "1",
-            name: "1",
-            icon: () => <svg>1-svg</svg>,
-            children: [
-                {
-                    id: "11",
-                    name: "11",
-                    icon: () => <svg>12-svg</svg>,
-                },
-                {
-                    id: "12",
-                    name: "12",
-                    children: [
-                        {
-                            id: "121",
-                            name: "121"
-                        },
-                    ]
-                },
-            ]
-        },
-        {
-            id: "2",
-            name: "2",
-            icon: () => <svg>2-svg</svg>,
-            children: [
-                {
-                    id: "21",
-                    name: "21"
-                },
-            ]
-        }]
+
     it("renders folders hierarchy correctly", () => {
         render(<FoldersTree folders={folders}/>)
 

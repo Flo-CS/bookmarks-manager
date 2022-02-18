@@ -3,7 +3,7 @@ import React from "react";
 import FolderTreeItem from "./FolderTreeItem";
 
 type Props = {
-    folders: Folder[],
+    folders?: Folder[],
     children?: React.ReactNode,
     selectedFolderId?: string,
     onFolderClick?: (folderId: string) => void
@@ -38,6 +38,6 @@ export default function FoldersTree({folders, children, selectedFolderId, onFold
     }
 
     return <section>
-        {children || foldersToComponent(folders)}
+        {children || folders && foldersToComponent(folders)}
     </section>
 }
