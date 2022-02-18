@@ -55,7 +55,7 @@ const Count = styled.p`
   margin-left: auto;
 `
 
-type Props = {
+export type FolderTreeItemProps = {
     folderId: string,
     name: string
     icon?: React.ComponentType,
@@ -75,7 +75,7 @@ export default function FolderTreeItem({
                                            children,
                                            count,
                                            isSelected
-                                       }: Props) {
+                                       }: FolderTreeItemProps) {
     const [isFolded, setIsFolded] = useState<boolean>(!!isDefaultFolded);
 
     function handleFoldButtonClick(e: React.SyntheticEvent) {

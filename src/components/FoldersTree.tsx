@@ -1,6 +1,6 @@
 import {Folder} from "../@types/folder";
 import React from "react";
-import FolderTreeItem from "./FolderTreeItem";
+import FolderTreeItem, {FolderTreeItemProps} from "./FolderTreeItem";
 
 type Props = {
     folders?: Folder[],
@@ -37,7 +37,19 @@ export default function FoldersTree({folders, children, selectedFolderId, onFold
 
     }
 
+    // Add onClick handler and isSelected prop to children FolderTreeItem
+    // TODO: Improve this ?
+    const childrenWithSelectionHandlers = React.Children.map(children, (child) => {
+        if (React.isValidElement(child)) {
+            return React.cloneElement(child, {
+                ...child.props,
+                onClick: handleFolderClick,
+                isSelected: child.props.folderId === selectedFolderId,
+            } as FolderTreeItemProps)
+        }
+    })
+
     return <section>
-        {children || folders && foldersToComponent(folders)}
+        {childrenWithSelectionHandlers || folders && foldersToComponent(folders)}
     </section>
 }

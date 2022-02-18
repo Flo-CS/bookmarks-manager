@@ -2,7 +2,7 @@ import React from "react";
 import FoldersTree from "./FoldersTree"
 import FolderTreeItem from "./FolderTreeItem";
 import {render} from "../../tests/utilities";
-import {fireEvent, screen, within} from "@testing-library/react";
+import {cleanup, fireEvent, screen, within} from "@testing-library/react";
 import {Folder} from "../@types/folder";
 import {theme} from "../styles/Theme";
 import {folders} from "../../tests/mockData";
@@ -54,6 +54,16 @@ describe("FolderTreeView component", () => {
         fireEvent.click(screen.getByText("121", {exact: true}))
         expect(onFolderClickMock).toHaveBeenCalledWith("121")
         expect(onFolderClickMock).toHaveBeenCalledTimes(2)
+
+        cleanup()
+        render(<FoldersTree onFolderClick={onFolderClickMock}>
+            <FolderTreeItem folderId="1" name="1"/>
+        </FoldersTree>)
+        fireEvent.click(screen.getByText("1", {exact: true}))
+        expect(onFolderClickMock).toHaveBeenCalledWith("1")
+        expect(onFolderClickMock).toHaveBeenCalledTimes(3)
+
+
     })
     // Note: Will no longer works because of the use of pseudo-element
     it.skip("selects the correct folder with the selectedFolderId in props", () => {
