@@ -3,7 +3,7 @@ import FoldersTree from "./FoldersTree"
 import FolderTreeItem from "./FolderTreeItem";
 import {render} from "../../tests/utilities";
 import {cleanup, fireEvent, screen, within} from "@testing-library/react";
-import {Folder} from "../@types/folder";
+import {FolderData} from "../@types/folder";
 import {theme} from "../styles/Theme";
 import {folders} from "../../tests/mockData";
 
@@ -13,14 +13,14 @@ describe("FolderTreeView component", () => {
     it("renders folders hierarchy correctly", () => {
         render(<FoldersTree folders={folders}/>)
 
-        function mapFolders(folders: Folder[], parentElement?: HTMLElement) {
+        function mapFolders(folders: FolderData[], parentElement?: HTMLElement) {
             folders.forEach((folder) => {
 
                 let folderElem;
                 if (parentElement) {
-                    folderElem = within(parentElement).queryByTestId(`folder-wrapper-${folder.id}`)
+                    folderElem = within(parentElement).queryByTestId(`folder-wrapper-${folder.key}`)
                 } else {
-                    folderElem = screen.queryByTestId(`folder-wrapper-${folder.id}`)
+                    folderElem = screen.queryByTestId(`folder-wrapper-${folder.key}`)
                 }
 
                 expect(folderElem).toBeInTheDocument()

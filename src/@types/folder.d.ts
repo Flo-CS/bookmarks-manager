@@ -1,10 +1,12 @@
 import React from "react";
 
-export interface Folder {
-    id: string,
+export interface FolderData {
+    key: string,
     name: string,
+    iconPath?:string,
     icon?: React.ComponentType,
-    children?: Folder[],
-    isDefaultFolded?: boolean,
+    children?: FolderData[],
+    parent?: FolderData,
+    isFolded?: boolean,
     count?: number
 }

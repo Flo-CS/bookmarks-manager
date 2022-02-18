@@ -22,7 +22,7 @@ const Main = styled.main`
 `
 
 export function App() {
-    const props = {
+     const props = {
         variant: "preview" as const,
         title: "This is a title",
         id: "e6c1b24d-f999-4fa9-b204-54713e735c84",

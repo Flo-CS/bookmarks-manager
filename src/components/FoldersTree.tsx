@@ -1,9 +1,9 @@
-import {Folder} from "../@types/folder";
+import {FolderData} from "../@types/folder";
 import React from "react";
 import FolderTreeItem, {FolderTreeItemProps} from "./FolderTreeItem";
 
 type Props = {
-    folders?: Folder[],
+    folders?: FolderData[],
     children?: React.ReactNode,
     selectedFolderId?: string,
     onFolderClick?: (folderId: string) => void
@@ -15,17 +15,17 @@ export default function FoldersTree({folders, children, selectedFolderId, onFold
         onFolderClick && onFolderClick(folderId)
     }
 
-    function foldersToComponent(folders: Folder[]) {
+    function foldersToComponent(folders: FolderData[]) {
         return folders.map((folder) => {
             const commonProps = {
-                key: folder.id,
-                folderId: folder.id,
+                key: folder.key,
+                folderId: folder.key,
                 name: folder.name,
                 icon: folder.icon,
                 count: folder.count,
-                isDefaultFolded: folder.isDefaultFolded,
+                isDefaultFolded: folder.isFolded,
                 onClick: handleFolderClick,
-                isSelected: folder.id === selectedFolderId,
+                isSelected: folder.key === selectedFolderId,
             }
             if (folder.children) {
                 return <FolderTreeItem {...commonProps}>

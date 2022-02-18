@@ -1,5 +1,5 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from "react"
-import {Folder} from "../@types/folder";
+import {FolderData} from "../@types/folder";
 import styled from "styled-components";
 import FoldersTree from "./FoldersTree";
 import FolderTreeItem from "./FolderTreeItem";
@@ -41,8 +41,8 @@ const Separator = styled.hr`
 
 type Props = {
     folders: {
-        main: Folder[],
-        trash?: Folder[]
+        main: FolderData[],
+        trash?: FolderData[]
     },
     onFolderAdd?: (folderName: string) => void,
     selectedFolderId?: string,
