@@ -46,7 +46,7 @@ const FoldButton = styled.button`
     color: ${props => props.theme.colors.whiteAlternative};
     width: 100%;
     height: 100%;
-    
+
   }
 `
 
@@ -78,7 +78,8 @@ export default function FolderTreeItem({
                                        }: Props) {
     const [isFolded, setIsFolded] = useState<boolean>(!!isDefaultFolded);
 
-    function handleFoldButtonClick() {
+    function handleFoldButtonClick(e: React.SyntheticEvent) {
+        e.stopPropagation();
         setIsFolded((isFolded) => !isFolded)
     }
 
