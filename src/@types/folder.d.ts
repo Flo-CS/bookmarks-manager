@@ -1,6 +1,6 @@
 import React from "react";
 
-export type Folder = {
+export interface Folder {
     id: string,
     name: string,
     icon?: React.ComponentType,

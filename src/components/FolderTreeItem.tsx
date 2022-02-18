@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import FolderName from "./FolderName";
 import {MdArrowDropDown, MdArrowRight} from "react-icons/md";
-import styled from "styled-components";
+import styled, {css} from "styled-components";
 
 
 const Wrapper = styled.div<{ isSelected: boolean }>`
@@ -11,19 +11,24 @@ const Wrapper = styled.div<{ isSelected: boolean }>`
     padding-left: ${props => props.theme.spacing.large};
   }
 
-  &::before {
-    z-index: -99;
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    display: block;
-    background-color: ${props => props.isSelected ? props.theme.colors.accent1 : props.theme.colors.black};
-    border-radius: ${props => props.theme.radius.small};
-    height: 35px;
-    width: 100%;
+  ${props => {
+    if (props.isSelected) {
+      return css`
+        &::before {
+          z-index: 0;
+          content: "";
+          position: absolute;
+          top: 0;
+          right: 0;
+          display: block;
+          background-color: ${props => props.theme.colors.accent1};
+          border-radius: ${props => props.theme.radius.small};
+          height: 35px;
+          width: 100%;
+      `
+    }
   }
-`
+  }`
 
 const Container = styled.div`
   height: 35px;
@@ -32,6 +37,11 @@ const Container = styled.div`
   display: inline-flex;
   align-items: center;
   cursor: pointer;
+
+  & > * {
+    z-index: 99;
+
+  }
 `
 
 
