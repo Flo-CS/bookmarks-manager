@@ -1,11 +1,25 @@
-import React from "react";
+import React, {useState} from "react";
 import {GlobalStyle} from "./styles/GlobalStyle";
 import Theme from "./styles/Theme";
 import BookmarkCard from "./components/BookmarkCard";
 import TitleGridContainer from "./components/TitleGridContainer";
-import FolderTreeItem from "./components/FolderTreeItem";
+import Sidebar from "./components/Sidebar";
+import {folders} from "../tests/mockData";
+import {SpecialFolders} from "./helpers/folders";
+import styled from "styled-components";
 
-import {MdAddAlarm} from "react-icons/md";
+const Layout = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  width: 100%;
+  height: 100%;
+`
+
+const Main = styled.section`
+  overflow-y: auto;
+  height: 100%;
+  padding: ${props => props.theme.spacing.medium};
+`
 
 export function App() {
     const props = {
@@ -19,23 +33,28 @@ export function App() {
         datetime: new Date("2022-02-14T08:00:00")
     }
 
+    const [selectedFolderId, setSelectedFolderId] = useState<string>(SpecialFolders.ALL);
+
     return (<Theme>
         <GlobalStyle/>
-        <div className="app">
-            <TitleGridContainer title="December 2021">
-                <BookmarkCard {...props}/>
-                <BookmarkCard {...props}/>
-                <BookmarkCard {...props}/>
-            </TitleGridContainer>
-            <TitleGridContainer title="January 2022">
-                <BookmarkCard {...props}/>
-                <BookmarkCard {...props}/>
-                <BookmarkCard {...props}/>
-            </TitleGridContainer>
-            <FolderTreeItem folderId="dfdjf" name="test" icon={MdAddAlarm} isDefaultFolded={true}>
-                <FolderTreeItem folderId="ddff" name="testé" isSelected={true}/>
-                <FolderTreeItem folderId="ddffdd" name="testé" count={10} />
-            </FolderTreeItem>
-        </div>
+        <Layout className="app">
+            <Sidebar folders={{main: folders}}
+                     onFolderAdd={(name) => console.log(name)}
+                     onSelectedFolderChange={(folderId) => setSelectedFolderId(folderId)}
+                     selectedFolderId={selectedFolderId}/>
+            <Main>
+                <TitleGridContainer title="December 2021">
+                    <BookmarkCard {...props}/>
+                    <BookmarkCard {...props}/>
+                    <BookmarkCard {...props}/>
+                </TitleGridContainer>
+                <TitleGridContainer title="January 2022">
+                    <BookmarkCard {...props}/>
+                    <BookmarkCard {...props}/>
+                    <BookmarkCard {...props}/>
+                </TitleGridContainer>
+            </Main>
+        </Layout>
+
     </Theme>)
 }
