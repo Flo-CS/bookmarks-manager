@@ -15,7 +15,7 @@ const Layout = styled.div`
   height: 100%;
 `
 
-const Main = styled.section`
+const Main = styled.main`
   overflow-y: auto;
   height: 100%;
   padding: ${props => props.theme.spacing.medium};

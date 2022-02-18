@@ -5,6 +5,9 @@ import FoldersTree from "./FoldersTree";
 import FolderTreeItem from "./FolderTreeItem";
 import {SpecialFolders} from "../helpers/folders";
 
+import {MdAllInbox} from "react-icons/md";
+import {IoTrash, IoAlbums} from "react-icons/io5"
+
 const Container = styled.section`
   display: flex;
   flex-direction: column;
@@ -65,9 +68,9 @@ export default function Sidebar({folders, onFolderAdd, selectedFolderId, onSelec
 
     return <Container>
         <FoldersTree onFolderClick={handleFolderClick} selectedFolderId={selectedFolderId}>
-            <FolderTreeItem folderId={SpecialFolders.ALL} name="All"/>
-            <FolderTreeItem folderId={SpecialFolders.WITHOUT_FOLDER} name="Without folder"/>
-            <FolderTreeItem folderId={SpecialFolders.TRASH} name="Trash">
+            <FolderTreeItem folderId={SpecialFolders.ALL} name="All" icon={MdAllInbox}/>
+            <FolderTreeItem folderId={SpecialFolders.WITHOUT_FOLDER} name="Without folder" icon={IoAlbums}/>
+            <FolderTreeItem folderId={SpecialFolders.TRASH} name="Trash" icon={IoTrash}>
                 <FoldersTree folders={folders.trash} selectedFolderId={selectedFolderId}
                              onFolderClick={handleFolderClick}/>
             </FolderTreeItem>
