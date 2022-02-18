@@ -77,4 +77,29 @@ describe("Folders helpers", () => {
         expect(preOrderTraversal.next().value.id).toEqual("2")
         expect(preOrderTraversal.next().done).toEqual(true)
     })
+    it("moves folder correctly", () => {
+        // Doesn't move the folder id source or destination doesn't exist
+        let result = tree.moveFolder("doesn't exist", "root");
+        expect(result).toBe(false)
+        result = tree.moveFolder("1", "doesn't exist");
+        expect(result).toBe(false)
+        // Don't move root
+        result = tree.moveFolder("root", "1")
+        expect(result).toBe(false)
+
+        tree.moveFolder("112", "2")
+        // Old parent folder test
+        const oldParentFolder = tree.find("11")
+        expect(oldParentFolder?.subFolders).toHaveLength(1)
+        expect(oldParentFolder?.subFolders[0].id).toBe("111")
+
+        // Moved folder test
+        const movedFolder = tree.find("112")
+        expect(movedFolder?.parent?.id).toBe("2")
+
+        // New parent folder test
+        const newParentFolder = tree.find("2")
+        expect(newParentFolder?.subFolders).toHaveLength(1)
+        expect(newParentFolder?.subFolders[0].id).toBe("112")
+    })
 })

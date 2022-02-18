@@ -25,7 +25,7 @@ export class FoldersTree<I, D> {
         this.rootFolder = new FolderTreeNode<I, D>(folderId, folderData)
     }
 
-    *preOrderTraversal(folder = this.rootFolder): IterableIterator<FolderTreeNode<I, D>> {
+    * preOrderTraversal(folder = this.rootFolder): IterableIterator<FolderTreeNode<I, D>> {
         yield folder;
         if (folder.subFolders.length) {
             for (const subFolder of folder.subFolders) {
@@ -64,6 +64,21 @@ export class FoldersTree<I, D> {
             if (folder.id === folderId) return folder;
         }
         return null;
+    }
+
+    moveFolder(folderId: I, destinationFolderId: I): boolean {
+        const folder = this.find(folderId);
+        const destinationFolder = this.find(destinationFolderId);
+
+        if (!folder || !destinationFolder) return false;
+        if (folder === this.rootFolder) return false;
+        if (!folder.parent) return false; // Normally, this case will never happen because the only folder without parent is root
+
+        folder.parent.subFolders = folder.parent.subFolders.filter(subFolder => subFolder.id !== folderId)
+        folder.parent = destinationFolder
+        destinationFolder.subFolders.push(folder)
+
+        return true;
     }
 }
 
