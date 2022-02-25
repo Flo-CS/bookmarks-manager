@@ -1,77 +1,73 @@
-export class TreeNode<I, D> {
-    children: TreeNode<I, D>[];
-    key: I;
-    data?: D;
-    parent: TreeNode<I, D> | null;
-
-    constructor(key: I, data?: D) {
-        this.children = [];
-        this.parent = null;
-        this.key = key;
-        this.data = data;
-    }
+export interface TreeNode<K> {
+    children?: TreeNode<K>[];
+    key: K;
 }
 
-export class Tree<I, D> {
-    root: TreeNode<I, D>;
+export default class Tree<K>{
+    readonly root: TreeNode<K>;
 
-    constructor(key: I, data?: D) {
-        this.root = new TreeNode<I, D>(key, data)
+    constructor(root: TreeNode<K>) {
+        this.root = Object.assign({}, root);
     }
 
-    * preOrderTraversal(node = this.root): IterableIterator<TreeNode<I, D>> {
-        yield node;
-        if (node.children.length) {
-            for (const child of node.children) {
+    * preOrderTraversal(root: TreeNode<K> = this.root): IterableIterator<TreeNode<K>> {
+        yield root;
+        if (root.children?.length) {
+            for (const child of root.children) {
                 yield* this.preOrderTraversal(child);
             }
         }
     }
 
-    insert(parentNodeKey: I, nodeKey: I, data?: D) {
-        if (this.find(nodeKey)) return null;
-
-        for (const node of this.preOrderTraversal()) {
-            if (node.key === parentNodeKey) {
-                const newNode = new TreeNode<I, D>(nodeKey, data)
-                newNode.parent = node;
-                node.children.push(newNode);
-                return newNode;
-            }
-        }
-        return null;
-    }
-
-    remove(nodeKey: I) {
-        for (const node of this.preOrderTraversal()) {
-            const filteredChildren = node.children.filter(child => child.key !== nodeKey);
-            if (filteredChildren.length !== node.children.length) {
-                node.children = filteredChildren;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    find(nodeKey: I): TreeNode<I, D> | null {
-        for (const node of this.preOrderTraversal()) {
+    find(nodeKey: K, root: TreeNode<K> = this.root): TreeNode<K> | null {
+        for (const node of this.preOrderTraversal(root)) {
             if (node.key === nodeKey) return node;
         }
         return null;
     }
 
-    moveNode(nodeKey: I, destinationNodeKey: I): boolean {
-        const node = this.find(nodeKey);
-        const destinationNode = this.find(destinationNodeKey);
+    insert(parentNodeKey: K, newNode: TreeNode<K>, index: number = 0): Tree<K> | null {
+        if (this.find(newNode.key, this.root)) return null;
+        index = index < 0 ? 0 : index;
 
-        if (!node || !destinationNode) return false;
-        if (node === this.root) return false;
-        if (!node.parent) return false; // Normally, this case will never happen because the only node without parent is root
+        for (const parentNode of this.preOrderTraversal()) {
+            if (parentNode.key === parentNodeKey) {
+                const parentChildren = parentNode.children || []
 
-        node.parent.children = node.parent.children.filter(subNode => subNode.key !== nodeKey)
-        node.parent = destinationNode
-        destinationNode.children.push(node)
+                parentNode.children = [...parentChildren.slice(0, index), newNode, ...parentChildren.slice(index)];
+                return this
 
-        return true;
+            }
+        }
+
+        return null;
+    }
+
+    remove(nodeKey: K): Tree<K> | null {
+        for (const node of this.preOrderTraversal(this.root)) {
+            if (!node.children) continue
+
+            // No need to filter for other potential nodes because in tree, node have only one predecessor
+            if (node.children.find((val) => val.key === nodeKey)) {
+                node.children = node.children.filter(child => child.key !== nodeKey);
+                return this;
+            }
+        }
+        return null
+    }
+
+    move(nodeKey: K, destinationNodeKey: K, index: number = 0): Tree<K> | null {
+        const node = this.find(nodeKey, this.root);
+        const destinationNode = this.find(destinationNodeKey, this.root);
+
+        if (!node || !destinationNode) return null;
+        if (node === this.root) return null;
+
+        // Return on null ?
+        this.remove(nodeKey)
+        this.insert(destinationNodeKey, node, index)
+
+        return this
     }
 }
+
