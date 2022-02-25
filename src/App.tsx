@@ -4,9 +4,10 @@ import Theme from "./styles/Theme";
 import BookmarkCard from "./components/BookmarkCard";
 import TitleGridContainer from "./components/TitleGridContainer";
 import Sidebar from "./components/Sidebar";
-import {folders} from "../tests/mockData";
+import {folders as foldersMock} from "../tests/mockData";
 import {SpecialFolders} from "./helpers/folders";
 import styled from "styled-components";
+import useFolders from "./hooks/useFolders";
 
 const Layout = styled.div`
   display: grid;
@@ -21,8 +22,10 @@ const Main = styled.main`
   padding: ${props => props.theme.spacing.medium};
 `
 
+// Temporary code, only for the MVP creation process
 export function App() {
-     const props = {
+    const {foldersRoot, insertFolder} = useFolders(foldersMock, "root")
+    const props = {
         variant: "preview" as const,
         title: "This is a title",
         id: "e6c1b24d-f999-4fa9-b204-54713e735c84",
@@ -38,8 +41,11 @@ export function App() {
     return (<Theme>
         <GlobalStyle/>
         <Layout className="app">
-            <Sidebar folders={{main: folders}}
-                     onFolderAdd={(name) => console.log(name)}
+            <Sidebar folders={{main: foldersRoot.children || []}}
+                     onFolderAdd={(name) => insertFolder("root", {
+                         key: name,
+                         name: name
+                     })}
                      onSelectedFolderChange={(folderId) => setSelectedFolderId(folderId)}
                      selectedFolderId={selectedFolderId}/>
             <Main>
