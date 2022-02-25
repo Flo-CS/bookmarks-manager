@@ -99,7 +99,7 @@ export default function FolderTreeItem({
 
     return <Wrapper isSelected={!!isSelected} data-testid={`folder-wrapper-${folderId}`}>
         <Container onClick={handleItemClick} role="button" aria-label="click folder tree item">
-            {children && <FoldButton onClick={handleFoldButtonClick} aria-label="toggle children folding">
+            {React.Children.count(children) !== 0 && <FoldButton onClick={handleFoldButtonClick} aria-label="toggle children folding">
                 {isFolded ? <MdArrowRight/> : <MdArrowDropDown/>}
             </FoldButton>}
             <FolderName name={name} icon={icon}/>

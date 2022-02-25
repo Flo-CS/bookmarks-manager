@@ -41,7 +41,9 @@ describe("FolderTreeItem component", () => {
         expect(toggleFoldingButton).toBeInTheDocument()
     })
     it("doesn't show toggle folding button if it doesn't have children", () => {
-        render(<FolderTreeItem {...props}/>)
+        render(<FolderTreeItem {...props} >
+
+        </FolderTreeItem>)
 
         const toggleFoldingButton = screen.queryByRole("button", {name: /toggle children folding/i})
         expect(toggleFoldingButton).not.toBeInTheDocument()
