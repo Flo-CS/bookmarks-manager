@@ -1,6 +1,6 @@
-import {FolderData} from "../@types/folder";
 import Tree from "../helpers/tree";
 import {useMemo, useState} from "react";
+import {FolderData} from "../helpers/folders";
 
 export default function useFolders(initFolders: FolderData[], rootKey: string) {
     const [foldersTree, setFoldersTree] = useState<Tree<string>>(new Tree({

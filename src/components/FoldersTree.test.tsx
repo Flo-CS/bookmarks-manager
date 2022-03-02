@@ -3,9 +3,9 @@ import FoldersTree from "./FoldersTree"
 import FolderTreeItem from "./FolderTreeItem";
 import {render} from "../../tests/utilities";
 import {cleanup, fireEvent, screen, within} from "@testing-library/react";
-import {FolderData} from "../@types/folder";
 import {theme} from "../styles/Theme";
 import {folders} from "../../tests/mockData";
+import {FolderData} from "../helpers/folders";
 
 
 describe("FolderTreeView component", () => {

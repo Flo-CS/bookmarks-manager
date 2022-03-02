@@ -1,9 +1,8 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from "react"
-import {FolderData} from "../@types/folder";
 import styled from "styled-components";
 import FoldersTree from "./FoldersTree";
 import FolderTreeItem from "./FolderTreeItem";
-import {SpecialFolders} from "../helpers/folders";
+import {FolderData, SpecialFolders} from "../helpers/folders";
 
 import {MdAllInbox} from "react-icons/md";
 import {IoTrash, IoAlbums} from "react-icons/io5"

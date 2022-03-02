@@ -1,5 +1,5 @@
-import {FolderData} from "../src/@types/folder";
 import React from "react";
+import {FolderData} from "../src/helpers/folders";
 
 export const folders: FolderData[] = [
     {

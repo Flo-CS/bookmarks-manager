@@ -1,6 +1,6 @@
-import {FolderData} from "../@types/folder";
 import React from "react";
 import FolderTreeItem, {FolderTreeItemProps} from "./FolderTreeItem";
+import {FolderData} from "../helpers/folders";
 
 type Props = {
     folders?: FolderData[],
