@@ -42,7 +42,7 @@ export function App() {
         <GlobalStyle/>
         <Layout className="app">
             <Sidebar folders={{main: foldersRoot.children || []}}
-                     onFolderAdd={(name) => insertFolder("root", {
+                     onFolderAdd={(name) => insertFolder(selectedFolderId, {
                          key: name,
                          name: name
                      })}

@@ -1,5 +1,6 @@
 import React from "react";
 import {FolderData} from "../src/helpers/folders";
+import {BookmarkData} from "../src/helpers/bookmarks";
 
 export const folders: FolderData[] = [
     {
@@ -35,3 +36,16 @@ export const folders: FolderData[] = [
             },
         ]
     }]
+
+export const bookmark: BookmarkData = {
+    id: "",
+    siteName: "helloWorld",
+    linkTitle: "helloWorldArticle",
+    url: "https://helloWorld.com/article",
+    tags: ["hello", "bye"],
+    creationDate: new Date("21-12-2021"),
+    modificationDate: new Date("28-12-2021"),
+    collection: "root",
+    description: "Hello world article description",
+    variant: "icon",
+}
