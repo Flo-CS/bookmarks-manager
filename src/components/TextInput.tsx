@@ -29,14 +29,16 @@ type Props = {
     isMultiline?: boolean,
     id?: string,
     onChange?: (value: string) => void,
+    onKeyDown?: (value: string) => void
     value?: string
 }
 
-export function TextInput({isMultiline, id, onChange, value}: Props) {
+export function TextInput({isMultiline, id, onChange, onKeyDown, value}: Props) {
 
     const commonProps = {
         id,
         onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange && onChange(e.target.value),
+        onKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => onKeyDown && onKeyDown(e.key),
         value
     }
     return <>{isMultiline ? <TextArea rows={4} {...commonProps}/> :
