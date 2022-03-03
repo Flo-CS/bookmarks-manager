@@ -1,19 +1,7 @@
-import React, {useState} from "react";
-import uniqueId from "lodash/uniqueId";
+import React from "react";
 import styled, {css} from "styled-components";
+import withLabel from "./WithLabel";
 
-
-const Container = styled.div<Pick<Props, "direction">>`
-  display: flex;
-  flex-direction: ${props => props.direction === "vertical" ? "column" : "row"};
-  color: ${props => props.theme.colors.white};
-  align-items: ${props => props.direction === "horizontal" && "center"};
-`
-
-const Label = styled.label`
-  margin-bottom: ${props => props.theme.spacing.small};
-  margin-right: ${props => props.theme.spacing.small};
-`
 
 const Inputs = css`
   background-color: ${props => props.theme.colors.darkGrey};
@@ -39,18 +27,15 @@ const TextArea = styled.textarea`
 
 type Props =
     {
-        label?: string,
         isMultiline?: boolean,
-        direction?: "vertical" | "horizontal",
     }
     & React.HTMLAttributes<HTMLInputElement>
     & React.HTMLAttributes<HTMLTextAreaElement>
 
-export default function TextInput({label, isMultiline, direction, ...props}: Props) {
-    const [id] = useState(uniqueId('input-'))
-    return <Container direction={direction}>
-        {label && <Label htmlFor={id}>{label}</Label>}
-        {isMultiline ? <TextArea name={label} id={id} rows={4} {...props}/> :
-            <Input type="text" name={label} id={id} {...props}/>}
-    </Container>
+function TextInput({isMultiline, ...props}: Props) {
+
+    return <>{isMultiline ? <TextArea rows={4} {...props}/> :
+        <Input type="text" {...props}/>}</>
 }
+
+export default withLabel(TextInput);
