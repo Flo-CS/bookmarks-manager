@@ -28,14 +28,12 @@ describe("LabelTextInput component", () => {
         expect(container.querySelector("input[type='text']")).toBeNull()
         expect(container.querySelector("textarea")).toBeInTheDocument()
     })
-    it("pass others props to input or textarea element", () => {
+    it("calls onChange", () => {
         const mockHandleChange = jest.fn()
 
-        const {rerender} = render(<TextInput label="test" isMultiline={false} data-an-attribute-not-in-props="attribute"
-                                             onChange={mockHandleChange} />)
+        render(<TextInput label="test" isMultiline={false} onChange={mockHandleChange}/>)
 
         const input = screen.getByLabelText("test")
-        expect(input).toHaveAttribute("data-an-attribute-not-in-props", "attribute")
 
         fireEvent.change(input, {
             target: {
@@ -44,19 +42,7 @@ describe("LabelTextInput component", () => {
         })
 
         expect(mockHandleChange).toHaveBeenCalledTimes(1)
+        expect(mockHandleChange).toHaveBeenCalledWith("hello")
 
-        rerender(<TextInput label="test" isMultiline={true} data-an-attribute-not-in-props="attribute"
-                            onChange={mockHandleChange}/>)
-
-        const textarea = screen.getByLabelText("test")
-        expect(textarea).toHaveAttribute("data-an-attribute-not-in-props", "attribute")
-
-        fireEvent.change(textarea, {
-            target: {
-                value: "hello"
-            }
-        })
-
-        expect(mockHandleChange).toHaveBeenCalledTimes(2)
     })
 })

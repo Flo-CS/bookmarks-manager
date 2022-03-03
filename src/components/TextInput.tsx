@@ -1,6 +1,6 @@
 import React from "react";
 import styled, {css} from "styled-components";
-import withLabel from "./WithLabel";
+import WithLabel from "./WithLabel";
 
 
 const Inputs = css`
@@ -25,17 +25,22 @@ const TextArea = styled.textarea`
   resize: none;
 `
 
-type Props =
-    {
-        isMultiline?: boolean,
-    }
-    & React.HTMLAttributes<HTMLInputElement>
-    & React.HTMLAttributes<HTMLTextAreaElement>
-
-function TextInput({isMultiline, ...props}: Props) {
-
-    return <>{isMultiline ? <TextArea rows={4} {...props}/> :
-        <Input type="text" {...props}/>}</>
+type Props = {
+    isMultiline?: boolean,
+    id?: string,
+    onChange?: (value: string) => void,
+    value?: string
 }
 
-export default withLabel(TextInput);
+export function TextInput({isMultiline, id, onChange, value}: Props) {
+
+    const commonProps = {
+        id,
+        onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange && onChange(e.target.value),
+        value
+    }
+    return <>{isMultiline ? <TextArea rows={4} {...commonProps}/> :
+        <Input type="text" {...commonProps}/>}</>
+}
+
+export default WithLabel(TextInput);

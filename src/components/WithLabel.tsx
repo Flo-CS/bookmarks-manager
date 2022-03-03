@@ -19,7 +19,7 @@ type Props = {
     label?: string
 }
 
-export default function withLabel<P>(Component: React.ComponentType<P>) {
+export default function WithLabel<P>(Component: React.ComponentType<P>) {
     return ({direction, label, ...props}: P & Props) => {
         const [id] = useState(uniqueId('input-'))
 
