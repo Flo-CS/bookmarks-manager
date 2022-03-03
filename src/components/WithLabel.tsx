@@ -6,7 +6,7 @@ const Container = styled.div<Pick<Props, "direction">>`
   display: flex;
   flex-direction: ${props => props.direction === "vertical" ? "column" : "row"};
   color: ${props => props.theme.colors.white};
-  align-items: ${props => props.direction === "horizontal" && "center"};
+  align-items: ${props => props.direction !== "vertical" && "center"};
 `
 
 const Label = styled.label`
