@@ -31,10 +31,11 @@ const SuggestionItem = styled.li<{ isSelected: boolean }>`
 type Props = {
     suggestions: string[],
     onChange?: (value: string) => void,
-    value?: string
+    value?: string,
+    id?: string,
 }
 
-export function AutoSuggestTextInput({suggestions, onChange, value = ""}: Props) {
+export function AutoSuggestTextInput({suggestions, onChange, value = "", id}: Props) {
     const fuse = useMemo(() => {
         return new Fuse(suggestions)
     }, [suggestions]);
@@ -77,7 +78,7 @@ export function AutoSuggestTextInput({suggestions, onChange, value = ""}: Props)
     }
 
     return <Container>
-        <TextInput isMultiline={false} onChange={onChange} value={value} onKeyDown={handleKeyDown}/>
+        <TextInput isMultiline={false} onChange={onChange} value={value} onKeyDown={handleKeyDown} id={id}/>
         {filteredSuggestions.length !== 0 && <SuggestionsContainer data-testid="suggestions">
             <SuggestionsList>
                 {filteredSuggestions.map((suggestion) => {
