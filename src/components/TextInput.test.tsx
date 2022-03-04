@@ -3,20 +3,7 @@ import {fireEvent, screen} from "@testing-library/react";
 import TextInput from "./TextInput";
 
 describe("LabelTextInput component", () => {
-    it("renders label", () => {
-        const {rerender} = render(<TextInput label="test"/>)
 
-        const getLabel = () => {
-            return screen.queryByText((content, element) => {
-                return element?.tagName.toLowerCase() === 'label' && content === "test";
-            })
-        }
-
-        expect(getLabel()).toBeInTheDocument()
-
-        rerender(<TextInput/>)
-        expect(getLabel()).toBeNull()
-    })
     it("handles multiline", () => {
         const {rerender, container} = render(<TextInput label="test" isMultiline={false}/>)
 
