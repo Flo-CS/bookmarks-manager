@@ -101,8 +101,11 @@ describe('BookmarkCard component', () => {
     it("call onTagRemove function with the correct tag name as params on tag delete button click", () => {
         props.tags.forEach((tag) => {
             const tagComponent = screen.getByText(tag)
-            const closeButton = within(tagComponent).getByRole("button")
-            fireEvent.click(closeButton)
+            const parent = tagComponent.parentElement
+            if (parent) {
+                const closeButton = within(parent).getByRole("button")
+                fireEvent.click(closeButton)
+            }
             expect(props.onTagRemove).toHaveBeenCalledWith(tag);
         })
         expect(props.onTagRemove).toHaveBeenCalledTimes(props.tags.length);

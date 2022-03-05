@@ -18,11 +18,16 @@ const Container = styled.div`
   &.accent2 {
     background-color: ${props => props.theme.colors.accent2};
   }
-  
+
   &.little {
     height: 20px;
     font-size: ${props => props.theme.fontSizes.verySmall}rem;
   }
+`
+
+const Text = styled.span`
+  font-size: ${props => props.theme.fontSizes.medium}em;
+  white-space: nowrap;
 `
 
 const CloseButton = styled.button`
@@ -47,7 +52,7 @@ type Props = {
     color?: "accent1" | "accent2"
 }
 
-export default function Tag({onClose, onClick, children, color, size}: Props) {
+export default function Tag({onClose, onClick, children, color = "accent1", size = "normal"}: Props) {
     function handleClick() {
         if (onClick) onClick()
     }
@@ -58,12 +63,7 @@ export default function Tag({onClose, onClick, children, color, size}: Props) {
     }
 
     return <Container onClick={handleClick} className={`${color} ${size}`}>
-        {children}
+        <Text>{children}</Text>
         {onClose && <CloseButton onClick={handleClose} aria-label="close"><MdClose/></CloseButton>}
     </Container>
 }
-
-Tag.defaultProps = {
-    size: "normal",
-    color: "accent1"
-} as Partial<Props>
