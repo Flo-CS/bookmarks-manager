@@ -2,8 +2,8 @@ import styled from "styled-components";
 import {TextInput} from "./TextInput";
 import React, {useEffect, useMemo, useState} from "react";
 import Fuse from "fuse.js"
-import WithLabel from "./WithLabel";
 import {loopNext, loopPrevious} from "../helpers/arrays";
+import WithLabel from "./WithLabel";
 
 const Container = styled.div`
   position: relative;
@@ -40,18 +40,24 @@ export function AutoSuggestTextInput({suggestions, onChange, value = "", id}: Pr
         return new Fuse(suggestions)
     }, [suggestions]);
 
-
     const [filteredSuggestions, setFilteredSuggestions] = useState(suggestions)
     const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null);
 
     useEffect(() => {
-        const results = fuse.search(value)
+        const results = fuse.search(value, {limit: 5})
         setFilteredSuggestions(results.map(val => val.item));
     }, [value]);
 
+    function reset() {
+        setSelectedSuggestion(null)
+        setFilteredSuggestions([])
+    }
 
-    function handleChange(val: string) {
-        onChange && onChange(val)
+    function handleChange(val: string | null) {
+        if (onChange && val !== null) {
+            onChange(val)
+        }
+
     }
 
     function handleKeyDown(key: string) {
@@ -63,34 +69,38 @@ export function AutoSuggestTextInput({suggestions, onChange, value = "", id}: Pr
                 setSelectedSuggestion(loopPrevious(filteredSuggestions, selectedSuggestion))
                 break;
             case "Enter":
-                selectedSuggestion && handleChange(selectedSuggestion);
-                setFilteredSuggestions([]) // To close the suggestions list
+                handleChange(selectedSuggestion);
+                reset()
                 break;
             case "Escape":
-                setFilteredSuggestions([])
+                reset()
                 break;
         }
     }
 
+
     function handleSuggestionClick(suggestion: string) {
-        setSelectedSuggestion(suggestion);
         handleChange(suggestion);
+        reset()
     }
 
+    const hasSuggestions = useMemo(() => filteredSuggestions.length !== 0, [filteredSuggestions]);
+
     return <Container>
-        <TextInput isMultiline={false} onChange={onChange} value={value} onKeyDown={handleKeyDown} id={id}/>
-        {filteredSuggestions.length !== 0 && <SuggestionsContainer data-testid="suggestions">
-            <SuggestionsList>
-                {filteredSuggestions.map((suggestion) => {
-                    return <SuggestionItem key={suggestion}
-                                           onClick={() => handleSuggestionClick(suggestion)}
-                                           isSelected={selectedSuggestion === suggestion}
-                                           data-testid={selectedSuggestion === suggestion && "selected-suggestion"}>
-                        {suggestion}
-                    </SuggestionItem>
-                })}
-            </SuggestionsList>
-        </SuggestionsContainer>}
+        <TextInput isMultiline={false} onChange={onChange} value={value} id={id} onKeyDown={handleKeyDown}/>
+        {hasSuggestions &&
+            <SuggestionsContainer data-testid="suggestions">
+                <SuggestionsList>
+                    {filteredSuggestions.map((suggestion) => {
+                        return <SuggestionItem key={suggestion}
+                                               onClick={() => handleSuggestionClick(suggestion)}
+                                               isSelected={selectedSuggestion === suggestion}
+                                               data-testid={selectedSuggestion === suggestion && "selected-suggestion"}>
+                            {suggestion}
+                        </SuggestionItem>
+                    })}
+                </SuggestionsList>
+            </SuggestionsContainer>}
     </Container>
 }
 
