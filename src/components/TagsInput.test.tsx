@@ -11,7 +11,7 @@ describe("TagsInput component", () => {
 
         fireEvent.change(input, {
             target: {
-                value: "test3"
+                value: "   test3   " // Also expect that tag is trimmed
             }
         })
 

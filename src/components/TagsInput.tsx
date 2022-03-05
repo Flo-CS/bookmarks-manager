@@ -43,8 +43,9 @@ export function TagsInput({tagsSuggestions = [], tags = [], onChange, id}: Props
 
     function addTag(tagToAdd: string) {
         if (isValidTag(tagToAdd)) {
-            tagsSet.add(tagToAdd)
-            onChange && onChange([...tagsSet], tagToAdd);
+            const trimmed = tagToAdd.trim()
+            tagsSet.add(trimmed)
+            onChange && onChange([...tagsSet], trimmed);
             setInputValue("")
         }
     }
