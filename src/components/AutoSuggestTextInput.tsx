@@ -30,12 +30,13 @@ const SuggestionItem = styled.li<{ isSelected: boolean }>`
 
 type Props = {
     suggestions: string[],
-    onChange?: (value: string) => void,
-    value?: string,
+    onInputChange?: (value: string) => void,
+    onSuggestionValidation?: (value: string | null) => void,
+    inputValue?: string,
     id?: string,
 }
 
-export function AutoSuggestTextInput({suggestions, onChange, value = "", id}: Props) {
+export function AutoSuggestTextInput({suggestions, onInputChange, onSuggestionValidation, inputValue = "", id}: Props) {
     const fuse = useMemo(() => {
         return new Fuse(suggestions)
     }, [suggestions]);
@@ -44,24 +45,29 @@ export function AutoSuggestTextInput({suggestions, onChange, value = "", id}: Pr
     const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null);
 
     useEffect(() => {
-        const results = fuse.search(value, {limit: 5})
+        const results = fuse.search(inputValue, {limit: 5})
         setFilteredSuggestions(results.map(val => val.item));
-    }, [value]);
+    }, [inputValue]);
 
     function reset() {
         setSelectedSuggestion(null)
         setFilteredSuggestions([])
     }
 
-    function handleChange(val: string | null) {
-        if (onChange && val !== null) {
-            onChange(val)
-        }
-
+    function handleChange(value: string) {
+        onInputChange && onInputChange(value)
     }
 
-    function handleKeyDown(key: string) {
-        switch (key) {
+    function handleSuggestionValidation(value: string | null) {
+        onSuggestionValidation && onSuggestionValidation(value)
+    }
+
+    function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+        handleChange(e.target.value)
+    }
+
+    function handleInputKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+        switch (e.key) {
             case "ArrowDown":
                 setSelectedSuggestion(loopNext(filteredSuggestions, selectedSuggestion))
                 break;
@@ -69,7 +75,7 @@ export function AutoSuggestTextInput({suggestions, onChange, value = "", id}: Pr
                 setSelectedSuggestion(loopPrevious(filteredSuggestions, selectedSuggestion))
                 break;
             case "Enter":
-                handleChange(selectedSuggestion);
+                handleSuggestionValidation(selectedSuggestion);
                 reset()
                 break;
             case "Escape":
@@ -78,16 +84,18 @@ export function AutoSuggestTextInput({suggestions, onChange, value = "", id}: Pr
         }
     }
 
-
     function handleSuggestionClick(suggestion: string) {
-        handleChange(suggestion);
+        handleSuggestionValidation(suggestion);
         reset()
     }
 
     const hasSuggestions = useMemo(() => filteredSuggestions.length !== 0, [filteredSuggestions]);
 
     return <Container>
-        <TextInput isMultiline={false} onChange={onChange} value={value} id={id} onKeyDown={handleKeyDown}/>
+        <TextInput onChange={handleInputChange}
+                   value={inputValue}
+                   id={id}
+                   onKeyDown={handleInputKeyDown}/>
         {hasSuggestions &&
             <SuggestionsContainer data-testid="suggestions">
                 <SuggestionsList>

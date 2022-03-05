@@ -8,7 +8,7 @@ describe("AutoSuggestTextInput component", () => {
         suggestions = ["test_111", "test_222", "test_333"]
     })
     it("handles keyboard arrow navigation in suggestion list", () => {
-        render(<AutoSuggestTextInput suggestions={suggestions} value="test"/>)
+        render(<AutoSuggestTextInput suggestions={suggestions} inputValue="test"/>)
         const input = screen.getByRole("textbox");
 
         // Arrow down * 3
@@ -29,19 +29,20 @@ describe("AutoSuggestTextInput component", () => {
         }
         expect(screen.getByTestId("selected-suggestion")).toHaveTextContent("test_222")
     })
-    it("calls onChange and selects suggestion item on click", () => {
-        const mockOnChange = jest.fn();
-        render(<AutoSuggestTextInput suggestions={suggestions} value="test" onChange={mockOnChange}/>)
+    it("calls onSuggestionValidation on click", () => {
+        const mockOnSuggestionValidation = jest.fn();
+        render(<AutoSuggestTextInput suggestions={suggestions} inputValue="test"
+                                     onSuggestionValidation={mockOnSuggestionValidation}/>)
 
         fireEvent.click(screen.getByText("test_222"))
 
         expect(screen.queryByTestId("selected-suggestion")).not.toBeInTheDocument()
         expect(screen.queryByTestId("suggestions")).not.toBeInTheDocument()
-        expect(mockOnChange).toHaveBeenCalledWith("test_222");
-        expect(mockOnChange).toHaveBeenCalledTimes(1);
+        expect(mockOnSuggestionValidation).toHaveBeenCalledWith("test_222");
+        expect(mockOnSuggestionValidation).toHaveBeenCalledTimes(1);
     })
     it("closes suggestion list on pressing escape", () => {
-        render(<AutoSuggestTextInput suggestions={suggestions} value="test"/>)
+        render(<AutoSuggestTextInput suggestions={suggestions} inputValue="test"/>)
         const input = screen.getByRole("textbox");
 
         expect(screen.queryByTestId("suggestions")).toBeInTheDocument()
@@ -53,9 +54,9 @@ describe("AutoSuggestTextInput component", () => {
         expect(screen.queryByTestId("suggestions")).not.toBeInTheDocument()
         expect(screen.queryByTestId("selected-suggestion")).not.toBeInTheDocument()
     })
-    it("calls onChange on text input", () => {
+    it("calls onInputChange on text input", () => {
         const mockOnChange = jest.fn();
-        render(<AutoSuggestTextInput suggestions={suggestions} value="test" onChange={mockOnChange}/>)
+        render(<AutoSuggestTextInput suggestions={suggestions} inputValue="test" onInputChange={mockOnChange}/>)
 
         const input = screen.getByRole("textbox");
 
@@ -67,17 +68,20 @@ describe("AutoSuggestTextInput component", () => {
         expect(mockOnChange).toHaveBeenCalledWith("hello");
         expect(mockOnChange).toHaveBeenCalledTimes(1);
     })
-    it("calls onChange on 'enter' key press", () => {
-        const mockOnChange = jest.fn();
-        const {rerender} = render(<AutoSuggestTextInput suggestions={suggestions} value="test" onChange={mockOnChange}/>)
+    it("calls onSuggestionValidation on 'enter' key press", () => {
+        const mockOnSuggestionValidation = jest.fn();
+        const {rerender} = render(<AutoSuggestTextInput suggestions={suggestions} inputValue="test"
+                                                        onSuggestionValidation={mockOnSuggestionValidation}/>)
         const input = screen.getByRole("textbox");
 
         expect(screen.queryByTestId("selected-suggestion")).not.toBeInTheDocument()
         fireEvent.keyDown(input, {key: 'Enter', code: 'Enter'})
-        expect(mockOnChange).toHaveBeenCalledTimes(0);
+        expect(mockOnSuggestionValidation).toHaveBeenCalledTimes(1);
+        expect(mockOnSuggestionValidation).toHaveBeenCalledWith(null)
 
         // Need to change some text because pressing enter key without selection close the suggestion list
-        rerender(<AutoSuggestTextInput suggestions={suggestions} value="test_" onChange={mockOnChange}/>)
+        rerender(<AutoSuggestTextInput suggestions={suggestions} inputValue="test_"
+                                       onSuggestionValidation={mockOnSuggestionValidation}/>)
 
         for (let i = 0; i < 2; i++) {
             fireEvent.keyDown(input, {key: 'ArrowDown', code: 'ArrowDown'})
@@ -86,19 +90,19 @@ describe("AutoSuggestTextInput component", () => {
         expect(screen.queryByTestId("selected-suggestion")).toHaveTextContent("test_222")
         fireEvent.keyDown(input, {key: 'Enter', code: 'Enter'})
 
-        expect(mockOnChange).toHaveBeenCalledWith("test_222");
-        expect(mockOnChange).toHaveBeenCalledTimes(1);
+        expect(mockOnSuggestionValidation).toHaveBeenCalledTimes(2);
+        expect(mockOnSuggestionValidation).toHaveBeenCalledWith("test_222");
         expect(screen.queryByTestId("suggestions")).not.toBeInTheDocument()
         expect(screen.queryByTestId("selected-suggestion")).not.toBeInTheDocument()
     })
     it("suggests suggestions in props according to text entered", () => {
-        const {rerender} = render(<AutoSuggestTextInput suggestions={suggestions} value="test"/>)
+        const {rerender} = render(<AutoSuggestTextInput suggestions={suggestions} inputValue="test"/>)
         expect(screen.queryByTestId("suggestions")).toBeInTheDocument()
 
-        rerender(<AutoSuggestTextInput suggestions={suggestions} value="itwillneverbefindinthesuggestionlist"/>)
+        rerender(<AutoSuggestTextInput suggestions={suggestions} inputValue="itwillneverbefindinthesuggestionlist"/>)
         expect(screen.queryByTestId("suggestions")).not.toBeInTheDocument()
 
-        rerender(<AutoSuggestTextInput suggestions={[]} value="test"/>)
+        rerender(<AutoSuggestTextInput suggestions={[]} inputValue="test"/>)
         expect(screen.queryByTestId("suggestions")).not.toBeInTheDocument()
     })
 })

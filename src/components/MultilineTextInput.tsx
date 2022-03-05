@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import WithLabel from "./WithLabel";
 
-const Input = styled.input`
+const TextArea = styled.textarea`
   background-color: ${props => props.theme.colors.darkGrey};
   border: none;
   border-radius: ${props => props.theme.radius.small};
@@ -10,12 +10,12 @@ const Input = styled.input`
   outline: none;
   font-size: ${props => props.theme.fontSizes.small}em;
   width: 100%;
-  height: 40px;
-  padding: ${props => props.theme.spacing.small} ${props => props.theme.spacing.medium};
+  padding: ${props => props.theme.spacing.medium};
+  resize: none;
 `
 
-export function TextInput({...props}) {
-    return <Input type="text" {...props}/>
+export function MultilineTextInput({...props}) {
+    return <TextArea rows={4} {...props}/>
 }
 
-export default WithLabel(TextInput);
+export default WithLabel(MultilineTextInput);
