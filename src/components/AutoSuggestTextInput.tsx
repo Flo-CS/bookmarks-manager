@@ -32,11 +32,19 @@ type Props = {
     suggestions: string[],
     onInputChange?: (value: string) => void,
     onSuggestionValidation?: (value: string | null) => void,
+    onInputKeyDown?: (key: string) => void,
     inputValue?: string,
     id?: string,
 }
 
-export function AutoSuggestTextInput({suggestions, onInputChange, onSuggestionValidation, inputValue = "", id}: Props) {
+export function AutoSuggestTextInput({
+                                         suggestions,
+                                         onInputChange,
+                                         onSuggestionValidation,
+                                         onInputKeyDown,
+                                         inputValue = "",
+                                         id
+                                     }: Props) {
     const fuse = useMemo(() => {
         return new Fuse(suggestions)
     }, [suggestions]);
@@ -82,6 +90,7 @@ export function AutoSuggestTextInput({suggestions, onInputChange, onSuggestionVa
                 reset()
                 break;
         }
+        onInputKeyDown && onInputKeyDown(e.key)
     }
 
     function handleSuggestionClick(suggestion: string) {
