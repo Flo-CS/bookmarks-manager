@@ -7,3 +7,6 @@ research.md
 design
 .idea
 coverage
+sonar-project.properties
+test-report.xml
+.scannerwork
