@@ -29,6 +29,12 @@ export const theme = {
         medium: "10px",
         big: "20px",
         large: "30px"
+    },
+    deviceSizes: {
+        mobile: '375px',
+        tablet: '768px',
+        laptop: '1440px',
+        desktop: '2560px'
     }
 }
 

@@ -4,6 +4,7 @@ import uniqueId from "lodash/uniqueId";
 
 const Container = styled.div<Pick<Props, "direction">>`
   display: flex;
+  width: 100%;
   flex-direction: ${props => props.direction === "vertical" ? "column" : "row"};
   color: ${props => props.theme.colors.white};
   align-items: ${props => props.direction !== "vertical" && "center"};

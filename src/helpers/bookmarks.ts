@@ -1,16 +1,30 @@
-export interface BookmarkData {
-    id: string,
-    siteName?: string,
-    linkTitle?: string,
+export interface BookmarkUserComplement {
+    linkTitle: string,
     url: string,
-    tags?: string[],
-    creationDate: Date,
-    modificationDate?: Date,
+    tags: string[],
+    description: string,
+}
+
+export interface BookmarkMinimal {
+    id: string,
+    url: string,
     collection: string,
-    description?: string,
     variant: "icon" | "preview",
-    openHistory?: Date[],
-    copyHistory?: Date[],
-    faviconPath?: string,
-    previewPath?: string
+}
+
+export interface BookmarkDates {
+    creationDate: Date,
+    modificationDate: Date,
+}
+export interface BookmarkHistory {
+    openHistory: Date[],
+    copyHistory: Date[],
+}
+export interface BookmarkPictures {
+    faviconPath: string,
+    previewPath: string
+}
+
+export interface BookmarkMetadata {
+    siteName: string
 }
