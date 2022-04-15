@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
+import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 
 let mainWindow: BrowserWindow | null
 
@@ -10,7 +11,7 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
 //     ? process.resourcesPath
 //     : app.getAppPath()
 
-function createWindow () {
+function createWindow() {
   mainWindow = new BrowserWindow({
     // icon: path.join(assetsPath, 'assets', 'icon.png'),
     width: 1100,
@@ -29,7 +30,7 @@ function createWindow () {
   })
 }
 
-async function registerListeners () {
+async function registerListeners() {
   /**
    * This comes from bridge integration, check bridge.ts
    */
@@ -40,7 +41,10 @@ async function registerListeners () {
 
 app.on('ready', createWindow)
   .whenReady()
-  .then(registerListeners)
+  .then(() => {
+    registerListeners()
+    installExtension(REACT_DEVELOPER_TOOLS)
+  })
   .catch(e => console.error(e))
 
 app.on('window-all-closed', () => {
