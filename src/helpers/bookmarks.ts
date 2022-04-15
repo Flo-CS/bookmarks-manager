@@ -5,6 +5,8 @@ export interface BookmarkUserComplement {
     description: string,
 }
 
+// TODO : Replace linkTitle by bookmarkTitle
+
 export interface BookmarkMinimal {
     id: string,
     url: string,
@@ -28,3 +30,7 @@ export interface BookmarkPictures {
 export interface BookmarkMetadata {
     siteName: string
 }
+
+// TODO: Replace siteName by linkTitle
+
+export type BookmarkForModal = BookmarkUserComplement & Partial<BookmarkPictures>;
