@@ -1,17 +1,20 @@
-import React, { useState } from "react";
-import { GlobalStyle } from "./styles/GlobalStyle";
-import Theme from "./styles/Theme";
-import BookmarkCard from "./components/BookmarkCard";
-import TitleGridContainer from "./components/TitleGridContainer";
-import Sidebar from "./components/Sidebar";
-import { folders as foldersMock } from "../tests/mockData";
-import { SpecialFolders } from "./helpers/folders";
+import { format } from "date-fns";
+import { startOfMonth } from "date-fns/esm";
+import { flatten, uniq } from "lodash";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
-import useFolders from "./hooks/useFolders";
+import { folders as foldersMock } from "../tests/mockData";
+import BookmarkCard from "./components/BookmarkCard";
 import BookmarkModal from "./components/BookmarkModal";
+import Sidebar from "./components/Sidebar";
+import TitleGridContainer from "./components/TitleGridContainer";
+import { BookmarkUserComplement, getKeySeparatedBookmarks } from "./helpers/bookmarks";
+import { SpecialFolders } from "./helpers/folders";
 import useBookmarkModal from "./hooks/useBookmarkModal";
 import useBookmarks from "./hooks/useBookmarks";
-import { flatten, uniq } from "lodash";
+import useFolders from "./hooks/useFolders";
+import { GlobalStyle } from "./styles/GlobalStyle";
+import Theme from "./styles/Theme";
 
 const Layout = styled.div`
   display: grid;
@@ -34,7 +37,7 @@ const fakeBookmarks = [{
     picturePath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
     description: "Google, moteur de recherche",
     tags: ["tag1", "tag2"],
-    datetime: new Date("2022-02-14T08:00:00")
+    modificationDate: new Date("2022-02-14T08:00:00")
 }, {
     variant: "preview" as const,
     linkTitle: "This is a title",
@@ -43,7 +46,7 @@ const fakeBookmarks = [{
     picturePath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
     description: "Google, moteur de recherche",
     tags: ["tag1", "tag2"],
-    datetime: new Date("2022-02-14T08:00:00")
+    modificationDate: new Date("2022-12-14T08:00:00")
 }, {
     variant: "preview" as const,
     linkTitle: "This is a title",
@@ -52,7 +55,7 @@ const fakeBookmarks = [{
     picturePath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
     description: "Google, moteur de recherche",
     tags: ["tag1", "tag2"],
-    datetime: new Date("2022-02-14T08:00:00")
+    modificationDate: new Date("2021-01-14T08:00:00")
 }, {
     variant: "preview" as const,
     linkTitle: "This is a title",
@@ -61,7 +64,7 @@ const fakeBookmarks = [{
     picturePath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
     description: "Google, moteur de recherche",
     tags: ["tag1", "tag2"],
-    datetime: new Date("2022-02-14T08:00:00")
+    modificationDate: new Date("2022-01-14T08:00:00")
 }]
 
 
@@ -77,42 +80,60 @@ export function App() {
 
     const [selectedFolderId, setSelectedFolderId] = useState<string>(SpecialFolders.ALL);
 
+    function handleAddFolder(name: string) {
+        insertFolder(selectedFolderId, {
+            key: name,
+            name: name
+        })
+    }
+
+    function handleModalBookmarkSave(data: Partial<BookmarkUserComplement>) {
+        modifyBookmark(editModalBookmark?.id, data)
+        closeEditModal()
+    }
+
+
+    const allTags = useMemo(() => uniq(flatten(bookmarks.map(b => b.tags))), [bookmarks])
+
+    const monthSeparatedBookmarks = useMemo(() =>
+        getKeySeparatedBookmarks(bookmarks, (b => startOfMonth(b.modificationDate))),
+        [bookmarks])
+
     return (
         <Theme>
             <GlobalStyle />
-            <TagsContext.Provider value={uniq(flatten(bookmarks.map(b => b.tags)))}>
+            <TagsContext.Provider value={allTags}>
                 <Layout className="app">
                     <Sidebar folders={{ main: foldersRoot.children || [] }}
-                        onFolderAdd={(name) => insertFolder(selectedFolderId, {
-                            key: name,
-                            name: name
-                        })}
+                        onFolderAdd={handleAddFolder}
                         onSelectedFolderChange={(folderId) => setSelectedFolderId(folderId)}
                         selectedFolderId={selectedFolderId} />
                     <Main>
-                        <TitleGridContainer title="Some bookmarks" >
-                            {bookmarks.map(b => <BookmarkCard key={b.id}
-                                onEdit={() => openEditModal(b.id)}
-                                onDelete={() => removeBookmark(b.id)}
-                                onTagRemove={((tag) => modifyBookmark(b.id, { tags: b.tags.filter(t => t !== tag) }))}
-                                datetime={b.datetime}
-                                description={b.description}
-                                picturePath={b.picturePath}
-                                tags={b.tags}
-                                title={b.linkTitle}
-                                link={b.url}
-                                variant={b.variant}
-                                id={b.id} />
-                            )}
-                        </TitleGridContainer>
+                        {monthSeparatedBookmarks.map(([date, bookmarks]) => {
+                            const formattedDate = format(new Date(date), "MMMM yyyy")
+
+                            return <TitleGridContainer key={formattedDate} title={formattedDate} >
+                                {bookmarks.map(b => <BookmarkCard key={b.id}
+                                    onEdit={() => openEditModal(b.id)}
+                                    onDelete={() => removeBookmark(b.id)}
+                                    onTagRemove={(tag => modifyBookmark(b.id, { tags: b.tags.filter(t => t !== tag) }))}
+                                    datetime={b.modificationDate}
+                                    description={b.description}
+                                    picturePath={b.picturePath}
+                                    tags={b.tags}
+                                    title={b.linkTitle}
+                                    link={b.url}
+                                    variant={b.variant}
+                                    id={b.id} />
+                                )}
+                            </TitleGridContainer>
+                        })
+                        }
                     </Main>
                     <BookmarkModal
                         isOpen={isEditModalOpen}
                         onClose={closeEditModal}
-                        onBookmarkSave={data => {
-                            modifyBookmark(editModalBookmark?.id, data)
-                            closeEditModal()
-                        }}
+                        onBookmarkSave={handleModalBookmarkSave}
                         title="Edit bookmark"
                         originalBookmark={editModalBookmark} />
                     <BookmarkModal
