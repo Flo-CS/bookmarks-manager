@@ -1,6 +1,6 @@
 import Tree from "../helpers/tree";
-import {useMemo, useState} from "react";
-import {FolderData} from "../helpers/folders";
+import { useMemo, useState } from "react";
+import { FolderData } from "../helpers/folders";
 
 export default function useFolders(initFolders: FolderData[], rootKey: string) {
     const [foldersTree, setFoldersTree] = useState<Tree<string>>(new Tree({
@@ -29,9 +29,13 @@ export default function useFolders(initFolders: FolderData[], rootKey: string) {
         })
     }
 
+    function getPathTo(folderKey: string): FolderData[] {
+        return foldersTree.findPath(folderKey) as FolderData[]
+    }
+
     const foldersRoot = useMemo(() => foldersTree.root, [foldersTree]) as FolderData;
     return {
-        foldersRoot, insertFolder, removeFolder, moveFolder
+        foldersRoot, insertFolder, removeFolder, moveFolder, getPathTo
     }
 
 

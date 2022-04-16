@@ -1,11 +1,13 @@
 import { format } from "date-fns";
 import { startOfMonth } from "date-fns/esm";
-import { flatten, uniq } from "lodash";
+import { flatten, orderBy, uniq } from "lodash";
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { folders as foldersMock } from "../tests/mockData";
 import BookmarkCard from "./components/BookmarkCard";
 import BookmarkModal from "./components/BookmarkModal";
+import FolderName from "./components/FolderName";
+import FoldersBreadCrumb from "./components/FoldersBreadCrumb";
 import Sidebar from "./components/Sidebar";
 import TitleGridContainer from "./components/TitleGridContainer";
 import { BookmarkUserComplement, getKeySeparatedBookmarks } from "./helpers/bookmarks";
@@ -72,7 +74,7 @@ export const TagsContext = React.createContext<string[]>([]);
 
 // Temporary code, only for the MVP creation process*
 export function App() {
-    const { foldersRoot, insertFolder } = useFolders(foldersMock, "root")
+    const { foldersRoot, insertFolder, getPathTo } = useFolders(foldersMock, "root")
     const { bookmarks, removeBookmark, modifyBookmark } = useBookmarks(fakeBookmarks);
 
     const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useBookmarkModal(bookmarks);
@@ -95,9 +97,10 @@ export function App() {
 
     const allTags = useMemo(() => uniq(flatten(bookmarks.map(b => b.tags))), [bookmarks])
 
-    const monthSeparatedBookmarks = useMemo(() =>
-        getKeySeparatedBookmarks(bookmarks, (b => startOfMonth(b.modificationDate))),
-        [bookmarks])
+    const monthSeparatedBookmarks = useMemo(() => {
+        const separatedBookmarks = getKeySeparatedBookmarks(bookmarks, (b => startOfMonth(b.modificationDate)))
+        return orderBy(separatedBookmarks, ([date, _]) => new Date(date), "desc")
+    }, [bookmarks])
 
     return (
         <Theme>
@@ -109,6 +112,11 @@ export function App() {
                         onSelectedFolderChange={(folderId) => setSelectedFolderId(folderId)}
                         selectedFolderId={selectedFolderId} />
                     <Main>
+                        <FoldersBreadCrumb >
+                            {getPathTo(selectedFolderId).map(folder => {
+                                return <FolderName key={folder.key} name={folder.name} icon={folder.icon} />
+                            })}
+                        </FoldersBreadCrumb>
                         {monthSeparatedBookmarks.map(([date, bookmarks]) => {
                             const formattedDate = format(new Date(date), "MMMM yyyy")
 

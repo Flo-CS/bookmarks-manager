@@ -1,4 +1,4 @@
-import { groupBy, orderBy, toPairs } from "lodash";
+import { groupBy, toPairs } from "lodash";
 
 export interface BookmarkUserComplement {
     linkTitle: string,
@@ -38,9 +38,7 @@ export interface BookmarkMetadata {
 export type BookmarkForModal = BookmarkUserComplement & Partial<BookmarkPictures>;
 
 export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) => any) {
-    return orderBy(
-        toPairs(
-            groupBy(bookmarks, groupFunc)
-        ),
-        ([date, _]) => new Date(date), "desc")
+    return toPairs(
+        groupBy(bookmarks, groupFunc)
+    )
 }

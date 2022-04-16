@@ -69,5 +69,32 @@ export default class Tree<K>{
 
         return this
     }
+
+    // TODO: maybe improve this ? because it's not a pure function, not very efficient and readable
+    findPath(nodeKey: K) {
+        const path: TreeNode<K>[] = [];
+
+        const findPathRec = (node: TreeNode<K>) => {
+            if (node.key === nodeKey) {
+                path.push(node);
+                return true;
+            }
+            if (node.children) {
+                for (const child of node.children) {
+                    if (findPathRec(child)) {
+                        path.push(node);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        findPathRec(this.root);
+
+        return path.slice(0, -1).reverse();
+    }
+
 }
+
 
