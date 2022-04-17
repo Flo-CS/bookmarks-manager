@@ -1,5 +1,5 @@
 import { flatten, uniq } from "lodash";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { folders as foldersMock } from "../tests/mockData";
 import BookmarkModal from "./components/BookmarkModal";
@@ -8,6 +8,7 @@ import FolderName from "./components/FolderName";
 import FoldersBreadCrumb from "./components/FoldersBreadCrumb";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
+import { BookmarkAPI, ElectronBookmarkAPI } from "./helpers/api";
 import { BookmarkUserComplement, CompleteBookmark, createDefaultBookmark } from "./helpers/bookmarks";
 import { SpecialFolders } from "./helpers/folders";
 import useBookmarkModal from "./hooks/useBookmarkModal";
@@ -29,66 +30,26 @@ const Main = styled.main`
   padding: ${props => props.theme.spacing.medium};
 `
 
-const fakeBookmarks: CompleteBookmark[] = [{
-    variant: "preview" as const,
-    linkTitle: "This is a title",
-    id: "1",
-    url: "https://google.com",
-    previewPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
-    faviconPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
-    description: "Google, moteur de recherche",
-    tags: ["tag1", "tag2"],
-    collection: SpecialFolders.WITHOUT_FOLDER,
-    modificationDate: new Date("2022-02-14T08:00:00"),
-    creationDate: new Date("2022-02-14T08:00:00"),
-}, {
-    variant: "preview" as const,
-    linkTitle: "This is a title",
-    id: "2",
-    url: "https://google.com",
-    previewPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
-    faviconPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
-    description: "Google, moteur de recherche",
-    tags: ["tag1", "tag2"],
-    collection: SpecialFolders.WITHOUT_FOLDER,
-    modificationDate: new Date("2022-12-14T08:00:00"),
-    creationDate: new Date("2022-12-14T08:00:00"),
-}, {
-    variant: "preview" as const,
-    linkTitle: "This is a title",
-    id: "3",
-    url: "https://google.com",
-    previewPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
-    faviconPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
-    description: "Google, moteur de recherche",
-    tags: ["tag1", "tag2"],
-    collection: SpecialFolders.WITHOUT_FOLDER,
-    modificationDate: new Date("2021-01-14T08:00:00"),
-    creationDate: new Date("2021-01-14T08:00:00"),
-}, {
-    variant: "icon" as const,
-    linkTitle: "This is a title",
-    id: "4",
-    url: "https://google.com",
-
-    description: "Google, moteur de recherche",
-    tags: ["tag1", "tag2"],
-    collection: SpecialFolders.WITHOUT_FOLDER,
-    modificationDate: new Date("2022-01-14T08:00:00"),
-    creationDate: new Date("2022-01-14T08:00:00"),
-}]
-
-
 export const TagsContext = React.createContext<string[]>([]);
+
+const bookmarkApi: BookmarkAPI = new ElectronBookmarkAPI();
 
 // Temporary code, only for the MVP creation process*
 export function App() {
     const { foldersRoot, insertFolder, getPathTo } = useFolders(foldersMock, "root")
     const [selectedFolderId, setSelectedFolderId] = useState<string>(SpecialFolders.ALL);
-    const { bookmarks, selectedBookmarks, removeBookmark, updateBookmark, getBookmark, addBookmark } = useBookmarks(fakeBookmarks, selectedFolderId);
+    const { bookmarks, selectedBookmarks, removeBookmark, updateBookmark, getBookmark, addBookmark, setBookmarks } = useBookmarks<CompleteBookmark>([], selectedFolderId);
 
     const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useBookmarkModal<CompleteBookmark>(bookmarks);
     const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useBookmarkModal<CompleteBookmark>();
+
+    useEffect(() => {
+        async function fetchBookmarks() {
+            const bookmarks = await bookmarkApi.getBookmarks()
+            setBookmarks(bookmarks)
+        }
+        fetchBookmarks()
+    }, [])
 
 
     function handleAddFolder(name: string) {
@@ -104,6 +65,10 @@ export function App() {
 
     function handleBookmarkCreation() {
         const newBookmark = createDefaultBookmark();
+        newBookmark.collection = selectedFolderId;
+        if (selectedFolderId in SpecialFolders) {
+            newBookmark.collection = SpecialFolders.WITHOUT_FOLDER;
+        }
         openNewModal(newBookmark);
     }
 
@@ -113,27 +78,37 @@ export function App() {
 
     function handleEditModalSave(data: Partial<BookmarkUserComplement>) {
         if (editModalBookmark) {
-            updateBookmark(editModalBookmark.id, data)
+            bookmarkApi.updateBookmark(editModalBookmark.id, data).then((newBookmark) => {
+                updateBookmark(editModalBookmark.id, newBookmark)
+            })
             closeEditModal()
         }
     }
 
     function handleNewModalSave(data: Partial<BookmarkUserComplement>) {
         if (newModalBookmark) {
-            addBookmark({ ...newModalBookmark, ...data })
-            closeNewModal()
+            const newBookmark = { ...newModalBookmark, ...data }
+            bookmarkApi.addBookmark(newBookmark).then(() => {
+                addBookmark(newBookmark)
+                closeNewModal()
+            })
         }
     }
 
     function handleBookmarkTagRemove(id: string, tag: string) {
         const bookmark = getBookmark(id);
         if (bookmark) {
-            updateBookmark(bookmark.id, { tags: bookmark.tags.filter(t => t !== tag) })
+            const newTags = bookmark.tags.filter(t => t !== tag);
+            bookmarkApi.updateBookmark(bookmark.id, { tags: newTags }).then((newBookmark) => {
+                updateBookmark(bookmark.id, newBookmark)
+            })
         }
     }
 
     function handleBookmarkDelete(id: string) {
-        removeBookmark(id)
+        bookmarkApi.removeBookmark(id).then(() => {
+            removeBookmark(id)
+        })
     }
 
     const allTags = useMemo(() => uniq(flatten(bookmarks.map(b => b.tags))), [bookmarks])

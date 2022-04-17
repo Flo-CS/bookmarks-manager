@@ -24,11 +24,6 @@ export default function useBookmarks<B extends BookmarkMinimal>(initBookmarks: B
     }
 
     function addBookmark(newBookmark: B) {
-        newBookmark.collection = selectedFolderId;
-        if (selectedFolderId in SpecialFolders) {
-            newBookmark.collection = SpecialFolders.WITHOUT_FOLDER;
-        }
-
         const newBookmarks = [...bookmarks, newBookmark];
         setBookmarks(newBookmarks);
     }
@@ -42,5 +37,5 @@ export default function useBookmarks<B extends BookmarkMinimal>(initBookmarks: B
     }), [bookmarks, selectedFolderId])
 
 
-    return { bookmarks, selectedBookmarks, getBookmark, updateBookmark, removeBookmark, addBookmark };
+    return { bookmarks, selectedBookmarks, getBookmark, updateBookmark, removeBookmark, addBookmark, setBookmarks };
 }

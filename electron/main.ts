@@ -30,20 +30,86 @@ function createWindow() {
   })
 }
 
+const fakeBookmarks = [{
+  variant: "preview" as const,
+  linkTitle: "This is a title",
+  id: "1",
+  url: "https://google.com",
+  previewPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+  faviconPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+  description: "Google, moteur de recherche",
+  tags: ["tag1", "tag2"],
+  collection: "%WITHOUT_FOLDER%",
+  modificationDate: new Date("2022-02-14T08:00:00"),
+  creationDate: new Date("2022-02-14T08:00:00"),
+}, {
+  variant: "preview" as const,
+  linkTitle: "This is a title",
+  id: "2",
+  url: "https://google.com",
+  previewPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+  faviconPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+  description: "Google, moteur de recherche",
+  tags: ["tag1", "tag2"],
+  collection: "%WITHOUT_FOLDER%",
+  modificationDate: new Date("2022-12-14T08:00:00"),
+  creationDate: new Date("2022-12-14T08:00:00"),
+}, {
+  variant: "preview" as const,
+  linkTitle: "This is a title",
+  id: "3",
+  url: "https://google.com",
+  previewPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+  faviconPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+  description: "Google, moteur de recherche",
+  tags: ["tag1", "tag2"],
+  collection: "%WITHOUT_FOLDER%",
+  modificationDate: new Date("2021-01-14T08:00:00"),
+  creationDate: new Date("2021-01-14T08:00:00"),
+}, {
+  variant: "icon" as const,
+  linkTitle: "This is a title",
+  id: "4",
+  url: "https://google.com",
+
+  description: "Google, moteur de recherche",
+  tags: ["tag1", "tag2"],
+  collection: "%WITHOUT_FOLDER%",
+  modificationDate: new Date("2022-01-14T08:00:00"),
+  creationDate: new Date("2022-01-14T08:00:00"),
+}]
+
 async function registerListeners() {
-  /**
-   * This comes from bridge integration, check bridge.ts
-   */
-  ipcMain.on('message', (_, message) => {
-    console.log(message)
+  ipcMain.handle("getBookmarks", () => {
+    return fakeBookmarks;
   })
+
+  ipcMain.handle("addBookmark", (event, bookmarkData) => {
+    fakeBookmarks.push(bookmarkData);
+  })
+
+  ipcMain.handle("updateBookmark", (event, id, bookmarkData) => {
+    const index = fakeBookmarks.findIndex(b => b.id === id);
+    if (index !== -1) {
+      fakeBookmarks[index] = { ...fakeBookmarks[index], ...bookmarkData };
+    }
+    return fakeBookmarks[index]
+  })
+
+  ipcMain.handle("removeBookmark", (event, id) => {
+    const index = fakeBookmarks.findIndex(b => b.id === id);
+    if (index !== -1) {
+      fakeBookmarks.splice(index, 1);
+    }
+  })
+
 }
 
 app.on('ready', createWindow)
   .whenReady()
-  .then(() => {
-    registerListeners()
-    installExtension(REACT_DEVELOPER_TOOLS)
+  .then(async () => {
+    await registerListeners()
+    await installExtension(REACT_DEVELOPER_TOOLS)
   })
   .catch(e => console.error(e))
 

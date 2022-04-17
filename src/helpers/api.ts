@@ -1,11 +1,11 @@
-import { BookmarkForDatabase, CompleteBookmark } from "./bookmarks";
+import { BookmarkForDatabase, BookmarkUserComplement, CompleteBookmark } from "./bookmarks";
 
 export interface BookmarkAPI {
     removeBookmark(id: string): Promise<void>;
-    addBookmark(bookmark: BookmarkForDatabase): Promise<CompleteBookmark>;
+    addBookmark(bookmark: BookmarkForDatabase): Promise<void>;
     getBookmarks(): Promise<CompleteBookmark[]>;
     getBookmark(id: string): Promise<CompleteBookmark>;
-    updateBookmark(id: string, bookmark: BookmarkForDatabase): Promise<CompleteBookmark>;
+    updateBookmark(id: string, bookmark: Partial<BookmarkUserComplement>): Promise<CompleteBookmark>;
 }
 
 export class ElectronBookmarkAPI implements BookmarkAPI {
@@ -13,7 +13,7 @@ export class ElectronBookmarkAPI implements BookmarkAPI {
         return await window.Main.sendMessage("removeBookmark", id);
     }
 
-    async addBookmark(bookmark: BookmarkForDatabase): Promise<CompleteBookmark> {
+    async addBookmark(bookmark: BookmarkForDatabase): Promise<void> {
         return await window.Main.sendMessage("addBookmark", bookmark);
     }
 
@@ -25,7 +25,7 @@ export class ElectronBookmarkAPI implements BookmarkAPI {
         return await window.Main.sendMessage("getBookmark", id);
     }
 
-    async updateBookmark(id: string, bookmark: BookmarkForDatabase): Promise<CompleteBookmark> {
+    async updateBookmark(id: string, bookmark: Partial<BookmarkUserComplement>): Promise<CompleteBookmark> {
         return await window.Main.sendMessage("updateBookmark", id, bookmark);
     }
 }
