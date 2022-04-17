@@ -35,8 +35,12 @@ export interface BookmarkMetadata {
 
 // TODO: Replace siteName by linkTitle
 
+// TODO: Change this interfaces names and find a proper way to use them
 export type BookmarkForModal = BookmarkUserComplement & Partial<BookmarkPictures>;
+export type BookmarkForDatabase = BookmarkMinimal & BookmarkUserComplement
+export type BookmarkFromDatabase = BookmarkMinimal & BookmarkDates
 
+// TODO: Move that to a separate file
 export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) => any) {
     return toPairs(
         groupBy(bookmarks, groupFunc)
