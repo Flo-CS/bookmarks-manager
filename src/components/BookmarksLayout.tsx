@@ -5,6 +5,8 @@ import { CompleteBookmark, getKeySeparatedBookmarks } from "../helpers/bookmarks
 import BookmarkCard from "./BookmarkCard"
 import TitleGridContainer from "./TitleGridContainer"
 
+import noPicture from "./../../assets/no_picture.png"
+
 type Props = {
     bookmarks: CompleteBookmark[],
     onEdit: (id: string) => void,
@@ -25,7 +27,12 @@ export default function BookmarksLayout({ bookmarks, onEdit, onDelete, onTagRemo
 
             return <TitleGridContainer key={formattedDate} title={formattedDate} >
                 {bookmarks.map(b => {
-                    const picturePath = b.variant === "preview" ? b.previewPath : b.faviconPath
+                    let picturePath = noPicture;
+                    if (b.variant === "icon" && b.faviconPath) {
+                        picturePath = b.faviconPath;
+                    } else if (b.variant === "preview" && b.previewPath) {
+                        picturePath = b.previewPath;
+                    }
 
                     return <BookmarkCard key={b.id}
                         onEdit={() => onEdit(b.id)}

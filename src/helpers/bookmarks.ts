@@ -38,7 +38,7 @@ export interface BookmarkMetadata {
 // TODO: Change this interfaces names and find a proper way to use them
 export type BookmarkForModal = BookmarkUserComplement & Partial<BookmarkPictures>;
 export type BookmarkForDatabase = BookmarkMinimal & BookmarkUserComplement
-export type CompleteBookmark = BookmarkUserComplement & BookmarkMinimal & BookmarkPictures & BookmarkDates
+export type CompleteBookmark = BookmarkUserComplement & BookmarkMinimal & BookmarkDates & Partial<BookmarkPictures> & Partial<BookmarkHistory>
 
 // TODO: Move that to a separate file
 export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) => any) {
