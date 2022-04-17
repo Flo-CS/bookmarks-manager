@@ -1,12 +1,12 @@
-import { BookmarkForDatabase, BookmarkFromDatabase } from "./bookmarks";
+import { BookmarkForDatabase, CompleteBookmark } from "./bookmarks";
 import { ipcRenderer } from "electron";
 
 export interface BookmarkAPI {
     removeBookmark(id: string): Promise<void>;
-    addBookmark(bookmark: BookmarkForDatabase): Promise<BookmarkFromDatabase>;
-    getBookmarks(): Promise<BookmarkFromDatabase[]>;
-    getBookmark(id: string): Promise<BookmarkFromDatabase>;
-    updateBookmark(id: string, bookmark: BookmarkForDatabase): Promise<BookmarkFromDatabase>;
+    addBookmark(bookmark: BookmarkForDatabase): Promise<CompleteBookmark>;
+    getBookmarks(): Promise<CompleteBookmark[]>;
+    getBookmark(id: string): Promise<CompleteBookmark>;
+    updateBookmark(id: string, bookmark: BookmarkForDatabase): Promise<CompleteBookmark>;
 }
 
 export class ElectronBookmarkAPI implements BookmarkAPI {
@@ -14,19 +14,19 @@ export class ElectronBookmarkAPI implements BookmarkAPI {
         return await ipcRenderer.invoke("removeBookmark", id);
     }
 
-    async addBookmark(bookmark: BookmarkForDatabase): Promise<BookmarkFromDatabase> {
+    async addBookmark(bookmark: BookmarkForDatabase): Promise<CompleteBookmark> {
         return await ipcRenderer.invoke("addBookmark", bookmark);
     }
 
-    async getBookmarks(): Promise<BookmarkFromDatabase[]> {
+    async getBookmarks(): Promise<CompleteBookmark[]> {
         return await ipcRenderer.invoke("getBookmarks");
     }
 
-    async getBookmark(id: string): Promise<BookmarkFromDatabase> {
+    async getBookmark(id: string): Promise<CompleteBookmark> {
         return await ipcRenderer.invoke("getBookmark", id);
     }
 
-    async updateBookmark(id: string, bookmark: BookmarkForDatabase): Promise<BookmarkFromDatabase> {
+    async updateBookmark(id: string, bookmark: BookmarkForDatabase): Promise<CompleteBookmark> {
         return await ipcRenderer.invoke("updateBookmark", id, bookmark);
     }
 }

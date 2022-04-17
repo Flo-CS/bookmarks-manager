@@ -1,15 +1,13 @@
-import { format, startOfMonth } from "date-fns";
-import { flatten, orderBy, uniq } from "lodash";
+import { flatten, uniq } from "lodash";
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { folders as foldersMock } from "../tests/mockData";
-import BookmarkCard from "./components/BookmarkCard";
 import BookmarkModal from "./components/BookmarkModal";
+import BookmarksLayout from "./components/BookmarksLayout";
 import FolderName from "./components/FolderName";
 import FoldersBreadCrumb from "./components/FoldersBreadCrumb";
 import Sidebar from "./components/Sidebar";
-import TitleGridContainer from "./components/TitleGridContainer";
-import { BookmarkUserComplement, getKeySeparatedBookmarks } from "./helpers/bookmarks";
+import { BookmarkUserComplement, CompleteBookmark } from "./helpers/bookmarks";
 import { SpecialFolders } from "./helpers/folders";
 import useBookmarkModal from "./hooks/useBookmarkModal";
 import useBookmarks from "./hooks/useBookmarks";
@@ -30,42 +28,54 @@ const Main = styled.main`
   padding: ${props => props.theme.spacing.medium};
 `
 
-const fakeBookmarks = [{
+const fakeBookmarks: CompleteBookmark[] = [{
     variant: "preview" as const,
     linkTitle: "This is a title",
     id: "1",
     url: "https://google.com",
-    picturePath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+    previewPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+    faviconPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
     description: "Google, moteur de recherche",
     tags: ["tag1", "tag2"],
-    modificationDate: new Date("2022-02-14T08:00:00")
+    collection: SpecialFolders.WITHOUT_FOLDER,
+    modificationDate: new Date("2022-02-14T08:00:00"),
+    creationDate: new Date("2022-02-14T08:00:00"),
 }, {
     variant: "preview" as const,
     linkTitle: "This is a title",
     id: "2",
     url: "https://google.com",
-    picturePath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+    previewPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+    faviconPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
     description: "Google, moteur de recherche",
     tags: ["tag1", "tag2"],
-    modificationDate: new Date("2022-12-14T08:00:00")
+    collection: SpecialFolders.WITHOUT_FOLDER,
+    modificationDate: new Date("2022-12-14T08:00:00"),
+    creationDate: new Date("2022-12-14T08:00:00"),
 }, {
     variant: "preview" as const,
     linkTitle: "This is a title",
     id: "3",
     url: "https://google.com",
-    picturePath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+    previewPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+    faviconPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
     description: "Google, moteur de recherche",
     tags: ["tag1", "tag2"],
-    modificationDate: new Date("2021-01-14T08:00:00")
+    collection: SpecialFolders.WITHOUT_FOLDER,
+    modificationDate: new Date("2021-01-14T08:00:00"),
+    creationDate: new Date("2021-01-14T08:00:00"),
 }, {
-    variant: "preview" as const,
+    variant: "icon" as const,
     linkTitle: "This is a title",
     id: "4",
     url: "https://google.com",
-    picturePath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+    previewPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+    faviconPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
     description: "Google, moteur de recherche",
     tags: ["tag1", "tag2"],
-    modificationDate: new Date("2022-01-14T08:00:00")
+    collection: SpecialFolders.WITHOUT_FOLDER,
+    modificationDate: new Date("2022-01-14T08:00:00"),
+    creationDate: new Date("2022-01-14T08:00:00"),
 }]
 
 
@@ -74,7 +84,7 @@ export const TagsContext = React.createContext<string[]>([]);
 // Temporary code, only for the MVP creation process*
 export function App() {
     const { foldersRoot, insertFolder, getPathTo } = useFolders(foldersMock, "root")
-    const { bookmarks, removeBookmark, modifyBookmark } = useBookmarks(fakeBookmarks);
+    const { bookmarks, removeBookmark, updateBookmark, getBookmark } = useBookmarks(fakeBookmarks);
 
     const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useBookmarkModal(bookmarks);
     const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useBookmarkModal(bookmarks);
@@ -88,18 +98,31 @@ export function App() {
         })
     }
 
+    function handleFolderSelection(folderId: string) {
+        setSelectedFolderId(folderId)
+    }
+
     function handleModalBookmarkSave(data: Partial<BookmarkUserComplement>) {
-        modifyBookmark(editModalBookmark?.id, data)
+        updateBookmark(editModalBookmark?.id, data)
         closeEditModal()
     }
 
+    function handleBookmarkTagRemove(id: string, tag: string) {
+        const bookmark = getBookmark(id);
+        if (bookmark) {
+            updateBookmark(bookmark.id, { tags: bookmark.tags.filter(t => t !== tag) })
+        }
+    }
+
+    function handleBookmarkDelete(id: string) {
+        removeBookmark(id)
+    }
+
+    function handleBookmarkEdit(id: string) {
+        openEditModal(id)
+    }
 
     const allTags = useMemo(() => uniq(flatten(bookmarks.map(b => b.tags))), [bookmarks])
-
-    const monthSeparatedBookmarks = useMemo(() => {
-        const separatedBookmarks = getKeySeparatedBookmarks(bookmarks, (b => startOfMonth(b.modificationDate)))
-        return orderBy(separatedBookmarks, ([date, _]) => new Date(date), "desc")
-    }, [bookmarks])
 
     return (
         <Theme>
@@ -108,7 +131,7 @@ export function App() {
                 <Layout className="app">
                     <Sidebar folders={{ main: foldersRoot.children || [] }}
                         onFolderAdd={handleAddFolder}
-                        onSelectedFolderChange={(folderId) => setSelectedFolderId(folderId)}
+                        onSelectedFolderChange={handleFolderSelection}
                         selectedFolderId={selectedFolderId} />
                     <Main>
                         <FoldersBreadCrumb >
@@ -116,26 +139,7 @@ export function App() {
                                 return <FolderName key={folder.key} name={folder.name} icon={folder.icon} />
                             })}
                         </FoldersBreadCrumb>
-                        {monthSeparatedBookmarks.map(([date, bookmarks]) => {
-                            const formattedDate = format(new Date(date), "MMMM yyyy")
-
-                            return <TitleGridContainer key={formattedDate} title={formattedDate} >
-                                {bookmarks.map(b => <BookmarkCard key={b.id}
-                                    onEdit={() => openEditModal(b.id)}
-                                    onDelete={() => removeBookmark(b.id)}
-                                    onTagRemove={(tag => modifyBookmark(b.id, { tags: b.tags.filter(t => t !== tag) }))}
-                                    datetime={b.modificationDate}
-                                    description={b.description}
-                                    picturePath={b.picturePath}
-                                    tags={b.tags}
-                                    title={b.linkTitle}
-                                    link={b.url}
-                                    variant={b.variant}
-                                    id={b.id} />
-                                )}
-                            </TitleGridContainer>
-                        })
-                        }
+                        <BookmarksLayout bookmarks={bookmarks} onTagRemove={handleBookmarkTagRemove} onDelete={handleBookmarkDelete} onEdit={handleBookmarkEdit} />
                     </Main>
                     <BookmarkModal
                         isOpen={isEditModalOpen}

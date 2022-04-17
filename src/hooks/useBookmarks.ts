@@ -8,7 +8,7 @@ export default function useBookmarks<B extends { id: string }>(initBookmarks: B[
         return bookmarks.find(b => b.id === id);
     }
 
-    function modifyBookmark(id?: string, newData?: Partial<B>) {
+    function updateBookmark(id?: string, newData?: Partial<B>) {
         const bookmark = getBookmark(id);
         if (bookmark) {
             const newBookmarks = bookmarks.map(b => b.id === id ? { ...b, ...newData } : b);
@@ -26,5 +26,5 @@ export default function useBookmarks<B extends { id: string }>(initBookmarks: B[
         setBookmarks(newBookmarks);
     }
 
-    return { bookmarks, getBookmark, modifyBookmark, removeBookmark, addBookmark };
+    return { bookmarks, getBookmark, updateBookmark, removeBookmark, addBookmark };
 }
