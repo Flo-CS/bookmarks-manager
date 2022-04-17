@@ -1,5 +1,4 @@
 import { BookmarkForDatabase, CompleteBookmark } from "./bookmarks";
-import { ipcRenderer } from "electron";
 
 export interface BookmarkAPI {
     removeBookmark(id: string): Promise<void>;
@@ -11,22 +10,22 @@ export interface BookmarkAPI {
 
 export class ElectronBookmarkAPI implements BookmarkAPI {
     async removeBookmark(id: string): Promise<void> {
-        return await ipcRenderer.invoke("removeBookmark", id);
+        return await window.Main.sendMessage("removeBookmark", id);
     }
 
     async addBookmark(bookmark: BookmarkForDatabase): Promise<CompleteBookmark> {
-        return await ipcRenderer.invoke("addBookmark", bookmark);
+        return await window.Main.sendMessage("addBookmark", bookmark);
     }
 
     async getBookmarks(): Promise<CompleteBookmark[]> {
-        return await ipcRenderer.invoke("getBookmarks");
+        return await window.Main.sendMessage("getBookmarks");
     }
 
     async getBookmark(id: string): Promise<CompleteBookmark> {
-        return await ipcRenderer.invoke("getBookmark", id);
+        return await window.Main.sendMessage("getBookmark", id);
     }
 
     async updateBookmark(id: string, bookmark: BookmarkForDatabase): Promise<CompleteBookmark> {
-        return await ipcRenderer.invoke("updateBookmark", id, bookmark);
+        return await window.Main.sendMessage("updateBookmark", id, bookmark);
     }
 }
