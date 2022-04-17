@@ -1,5 +1,4 @@
-import { format } from "date-fns";
-import { startOfMonth } from "date-fns/esm";
+import { format, startOfMonth } from "date-fns";
 import { flatten, orderBy, uniq } from "lodash";
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";

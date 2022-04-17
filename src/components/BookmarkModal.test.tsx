@@ -21,7 +21,7 @@ describe("BookmarkModal component", () => {
     it("calls onFetchBookmarkData only when url input focus is loosed and value has changed", () => {
         const handleFetchBookmarkData = jest.fn();
 
-        const { rerender } = render(<BookmarkModal isOpen={true} onFetchBookmarkLink={handleFetchBookmarkData} originalBookmarkData={{ url: "test", linkTitle: "test", description: "test", tags: [] }} />)
+        const { rerender } = render(<BookmarkModal isOpen={true} onFetchBookmarkLink={handleFetchBookmarkData} originalBookmark={{ url: "test", linkTitle: "test", description: "test", tags: [] }} />)
 
         const urlInput = screen.getByLabelText("URL");
 
@@ -38,7 +38,7 @@ describe("BookmarkModal component", () => {
         expect(handleFetchBookmarkData).toHaveBeenCalledWith("https://google.com")
 
         // Focus in, change but keep same value as the precedent and focus out
-        rerender(<BookmarkModal isOpen={true} onFetchBookmarkLink={handleFetchBookmarkData} originalBookmarkData={{ url: "https://google.com", linkTitle: "test", description: "test", tags: [] }} />)
+        rerender(<BookmarkModal isOpen={true} onFetchBookmarkLink={handleFetchBookmarkData} originalBookmark={{ url: "https://google.com", linkTitle: "test", description: "test", tags: [] }} />)
         fireEvent.focusIn(urlInput)
         fireEvent.change(urlInput, {
             target: {
@@ -57,7 +57,7 @@ describe("BookmarkModal component", () => {
         expect(handleFetchBookmarkData).toHaveBeenCalledTimes(1);
 
         // Focus in, change and focus out
-        rerender(<BookmarkModal isOpen={true} onFetchBookmarkLink={handleFetchBookmarkData} originalBookmarkData={{ url: "https://youtube.com", linkTitle: "test", description: "test", tags: [] }} />)
+        rerender(<BookmarkModal isOpen={true} onFetchBookmarkLink={handleFetchBookmarkData} originalBookmark={{ url: "https://youtube.com", linkTitle: "test", description: "test", tags: [] }} />)
 
         fireEvent.focusIn(urlInput)
         fireEvent.change(urlInput, {
@@ -71,7 +71,7 @@ describe("BookmarkModal component", () => {
         expect(handleFetchBookmarkData).toHaveBeenCalledWith("https://google.fr")
 
         // Don't call onFetchBookmarkLink if any other input field is modified
-        rerender(<BookmarkModal isOpen={true} onFetchBookmarkLink={handleFetchBookmarkData} originalBookmarkData={{ url: "https://google.fr", linkTitle: "test", description: "test", tags: [] }} />)
+        rerender(<BookmarkModal isOpen={true} onFetchBookmarkLink={handleFetchBookmarkData} originalBookmark={{ url: "https://google.fr", linkTitle: "test", description: "test", tags: [] }} />)
 
         fireEvent.change(screen.getByLabelText(/description/i), {
             target: {
@@ -90,7 +90,7 @@ describe("BookmarkModal component", () => {
     it("calls onBookmarkSave with only edited fields after clicking save button", () => {
         const handleBookmarkSave = jest.fn();
 
-        render(<BookmarkModal isOpen={true} onBookmarkSave={handleBookmarkSave} originalBookmarkData={bookmark} />)
+        render(<BookmarkModal isOpen={true} onBookmarkSave={handleBookmarkSave} originalBookmark={bookmark} />)
 
         const saveButton = screen.getByRole("button", { name: "save button" });
         const urlInput = screen.getByLabelText(/URL/i)
@@ -133,7 +133,7 @@ describe("BookmarkModal component", () => {
         expect(handleBookmarkSave).toHaveBeenLastCalledWith({ description: "test_description", linkTitle: "test_title", url: "test_url" })
     })
     it("renders bookmark data passed in props", () => {
-        render(<BookmarkModal isOpen={true} title="I'm a title" originalBookmarkData={bookmark} />)
+        render(<BookmarkModal isOpen={true} title="I'm a title" originalBookmark={bookmark} />)
 
         expect(screen.queryByText("I'm a title")).toBeInTheDocument()
 
