@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { BookmarkMinimal } from "../helpers/bookmarks";
+import { SpecialFolders } from "../helpers/folders";
 
 // Todo: make this more generic
-export default function useBookmarks<B extends { id: string }>(initBookmarks: B[]) {
+export default function useBookmarks<B extends BookmarkMinimal>(initBookmarks: B[], selectedFolderId: string) {
     const [bookmarks, setBookmarks] = useState(initBookmarks);
 
     function getBookmark(id?: string) {
@@ -22,9 +24,23 @@ export default function useBookmarks<B extends { id: string }>(initBookmarks: B[
     }
 
     function addBookmark(newBookmark: B) {
+        newBookmark.collection = selectedFolderId;
+        if (selectedFolderId in SpecialFolders) {
+            newBookmark.collection = SpecialFolders.WITHOUT_FOLDER;
+        }
+
         const newBookmarks = [...bookmarks, newBookmark];
         setBookmarks(newBookmarks);
     }
 
-    return { bookmarks, getBookmark, updateBookmark, removeBookmark, addBookmark };
+    const selectedBookmarks = useMemo(() => bookmarks.filter(b => {
+        if (selectedFolderId === SpecialFolders.ALL) {
+            return true;
+        }
+
+        return b.collection === selectedFolderId
+    }), [bookmarks, selectedFolderId])
+
+
+    return { bookmarks, selectedBookmarks, getBookmark, updateBookmark, removeBookmark, addBookmark };
 }

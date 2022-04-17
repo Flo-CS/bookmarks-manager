@@ -1,4 +1,5 @@
 import { groupBy, toPairs } from "lodash";
+import { v4 as uuidv4 } from 'uuid';
 
 export interface BookmarkUserComplement {
     linkTitle: string,
@@ -45,4 +46,18 @@ export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) =>
     return toPairs(
         groupBy(bookmarks, groupFunc)
     )
+}
+
+export function createDefaultBookmark(): CompleteBookmark {
+    return {
+        linkTitle: "",
+        url: "",
+        tags: [],
+        description: "",
+        creationDate: new Date(),
+        modificationDate: new Date(),
+        collection: "",
+        variant: "preview",
+        id: uuidv4()
+    }
 }

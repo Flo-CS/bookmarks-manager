@@ -7,7 +7,8 @@ import BookmarksLayout from "./components/BookmarksLayout";
 import FolderName from "./components/FolderName";
 import FoldersBreadCrumb from "./components/FoldersBreadCrumb";
 import Sidebar from "./components/Sidebar";
-import { BookmarkUserComplement, CompleteBookmark } from "./helpers/bookmarks";
+import TopBar from "./components/TopBar";
+import { BookmarkUserComplement, CompleteBookmark, createDefaultBookmark } from "./helpers/bookmarks";
 import { SpecialFolders } from "./helpers/folders";
 import useBookmarkModal from "./hooks/useBookmarkModal";
 import useBookmarks from "./hooks/useBookmarks";
@@ -69,8 +70,7 @@ const fakeBookmarks: CompleteBookmark[] = [{
     linkTitle: "This is a title",
     id: "4",
     url: "https://google.com",
-    previewPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
-    faviconPath: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+
     description: "Google, moteur de recherche",
     tags: ["tag1", "tag2"],
     collection: SpecialFolders.WITHOUT_FOLDER,
@@ -84,12 +84,12 @@ export const TagsContext = React.createContext<string[]>([]);
 // Temporary code, only for the MVP creation process*
 export function App() {
     const { foldersRoot, insertFolder, getPathTo } = useFolders(foldersMock, "root")
-    const { bookmarks, removeBookmark, updateBookmark, getBookmark } = useBookmarks(fakeBookmarks);
-
-    const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useBookmarkModal(bookmarks);
-    const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useBookmarkModal(bookmarks);
-
     const [selectedFolderId, setSelectedFolderId] = useState<string>(SpecialFolders.ALL);
+    const { bookmarks, selectedBookmarks, removeBookmark, updateBookmark, getBookmark, addBookmark } = useBookmarks(fakeBookmarks, selectedFolderId);
+
+    const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useBookmarkModal<CompleteBookmark>(bookmarks);
+    const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useBookmarkModal<CompleteBookmark>();
+
 
     function handleAddFolder(name: string) {
         insertFolder(selectedFolderId, {
@@ -102,9 +102,27 @@ export function App() {
         setSelectedFolderId(folderId)
     }
 
-    function handleModalBookmarkSave(data: Partial<BookmarkUserComplement>) {
-        updateBookmark(editModalBookmark?.id, data)
-        closeEditModal()
+    function handleBookmarkCreation() {
+        const newBookmark = createDefaultBookmark();
+        openNewModal(newBookmark);
+    }
+
+    function handleBookmarkEdit(id: string) {
+        openEditModal(id)
+    }
+
+    function handleEditModalSave(data: Partial<BookmarkUserComplement>) {
+        if (editModalBookmark) {
+            updateBookmark(editModalBookmark.id, data)
+            closeEditModal()
+        }
+    }
+
+    function handleNewModalSave(data: Partial<BookmarkUserComplement>) {
+        if (newModalBookmark) {
+            addBookmark({ ...newModalBookmark, ...data })
+            closeNewModal()
+        }
     }
 
     function handleBookmarkTagRemove(id: string, tag: string) {
@@ -118,11 +136,8 @@ export function App() {
         removeBookmark(id)
     }
 
-    function handleBookmarkEdit(id: string) {
-        openEditModal(id)
-    }
-
     const allTags = useMemo(() => uniq(flatten(bookmarks.map(b => b.tags))), [bookmarks])
+    const selectedFolderPath = useMemo(() => getPathTo(selectedFolderId), [selectedFolderId])
 
     return (
         <Theme>
@@ -134,22 +149,24 @@ export function App() {
                         onSelectedFolderChange={handleFolderSelection}
                         selectedFolderId={selectedFolderId} />
                     <Main>
+                        <TopBar onAdd={handleBookmarkCreation} />
                         <FoldersBreadCrumb >
-                            {getPathTo(selectedFolderId).map(folder => {
+                            {selectedFolderPath.map(folder => {
                                 return <FolderName key={folder.key} name={folder.name} icon={folder.icon} />
                             })}
                         </FoldersBreadCrumb>
-                        <BookmarksLayout bookmarks={bookmarks} onTagRemove={handleBookmarkTagRemove} onDelete={handleBookmarkDelete} onEdit={handleBookmarkEdit} />
+                        <BookmarksLayout bookmarks={selectedBookmarks} onTagRemove={handleBookmarkTagRemove} onDelete={handleBookmarkDelete} onEdit={handleBookmarkEdit} />
                     </Main>
                     <BookmarkModal
                         isOpen={isEditModalOpen}
                         onClose={closeEditModal}
-                        onBookmarkSave={handleModalBookmarkSave}
+                        onBookmarkSave={handleEditModalSave}
                         title="Edit bookmark"
                         originalBookmark={editModalBookmark} />
                     <BookmarkModal
                         isOpen={isNewModalOpen}
                         onClose={closeNewModal}
+                        onBookmarkSave={handleNewModalSave}
                         title="Add new bookmark"
                         originalBookmark={newModalBookmark} />
                 </Layout>

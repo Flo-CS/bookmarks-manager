@@ -1,21 +1,24 @@
 import { useMemo, useState } from "react";
 
-export default function useBookmarkModal<B extends { id: string }>(bookmarks: B[]) {
+export default function useBookmarkModal<B extends { id: string }>(bookmarks?: B[]) {
     const [isOpen, setIsOpen] = useState(false);
-    const [bookmarkId, setBookmarkId] = useState<string | null>(null);
+    const [bookmarkId, setBookmarkId] = useState<string | B | undefined>(undefined);
 
     function closeModal() {
         setIsOpen(false);
-        setBookmarkId(null);
+        setBookmarkId(undefined);
     }
 
-    function openModal(bookmarkId: string) {
+    function openModal(bookmarkId: string | B) {
         setIsOpen(true);
         setBookmarkId(bookmarkId);
     }
 
     const bookmark = useMemo(() => {
-        return bookmarks.find(b => b.id === bookmarkId);
+        if (typeof bookmarkId === "string") {
+            return bookmarks?.find(b => b.id === bookmarkId);
+        }
+        return bookmarkId;
     }, [bookmarkId])
 
     return [isOpen, bookmark, openModal, closeModal] as const
