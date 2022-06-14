@@ -6,6 +6,7 @@ export enum SpecialFolders {
     WITHOUT_FOLDER = "%WITHOUT_FOLDER%",
 }
 
+// TODO: Rename this to BookmarkCollection
 export interface FolderData {
     key: string,
     name: string,
