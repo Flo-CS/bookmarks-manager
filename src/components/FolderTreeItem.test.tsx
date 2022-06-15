@@ -78,6 +78,6 @@ describe("FolderTreeItem component", () => {
         const c2 = screen.getByText("2").closest("div[data-testid^='folder-wrapper']")
 
         expect(c1).toHaveStyle(`background-color: ${theme.colors.black}`)
-        expect(c2).toHaveStyle(`background-color: ${theme.colors.accent1}`, )
+        expect(c2).toHaveStyle(`background-color: ${theme.colors.accent1}`,)
     })
 })

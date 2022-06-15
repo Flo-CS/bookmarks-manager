@@ -1,21 +1,20 @@
-import React, {FC, ReactElement} from 'react'
+import React, {ComponentType, ReactElement} from 'react'
 import {render, RenderOptions} from '@testing-library/react'
 import {ThemeProvider} from 'styled-components'
 import {theme} from "../src/styles/Theme";
 
-const ThemeProviderWrapper : FC = ({children}) => {
+
+function ThemeProviderWrapper(props: any) {
     return (
         <ThemeProvider theme={theme}>
-            {children}
+            {props.children}
         </ThemeProvider>
     )
 }
 
-const customRender = (ui:ReactElement, options?: Omit<RenderOptions, 'wrapper'>) =>
-    render(ui, {wrapper: ThemeProviderWrapper, ...options})
+const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) => {
+    return render(ui, {wrapper: ThemeProviderWrapper as ComponentType, ...options});
+}
 
-// re-export everything
-export * from '@testing-library/react'
 
-// override render method
 export {customRender as render}

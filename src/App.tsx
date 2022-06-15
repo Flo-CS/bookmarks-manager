@@ -1,6 +1,6 @@
 import {flatten, uniq} from "lodash";
 import React, {useEffect, useMemo, useState} from "react";
-import styled from "styled-components";
+import styled, {ThemeProvider} from "styled-components";
 import {folders as foldersMock} from "../tests/mockData";
 import BookmarkModal from "./components/BookmarkModal";
 import BookmarksLayout from "./components/BookmarksLayout";
@@ -20,7 +20,7 @@ import useBookmarkModal from "./hooks/useBookmarkModal";
 import useBookmarks from "./hooks/useBookmarks";
 import useFolders from "./hooks/useFolders";
 import {GlobalStyle} from "./styles/GlobalStyle";
-import Theme from "./styles/Theme";
+import {theme} from "./styles/Theme";
 
 const Layout = styled.div`
   display: grid;
@@ -125,7 +125,7 @@ export function App() {
     const selectedFolderPath = useMemo(() => getPathTo(selectedFolderId), [selectedFolderId])
 
     return (
-        <Theme>
+        <ThemeProvider theme={theme}>
             <GlobalStyle/>
             <TagsContext.Provider value={allTags}>
                 <Layout className="app">
@@ -157,6 +157,6 @@ export function App() {
                         originalBookmark={newModalBookmark}/>
                 </Layout>
             </TagsContext.Provider>
-        </Theme>
+        </ThemeProvider>
     )
 }

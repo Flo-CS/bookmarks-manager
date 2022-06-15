@@ -1,6 +1,3 @@
-import React from "react"
-import {ThemeProvider} from "styled-components";
-
 export type ThemeType = typeof theme;
 
 export const theme = {
@@ -36,8 +33,4 @@ export const theme = {
         laptop: '1440px',
         desktop: '2560px'
     }
-}
-
-export default function ({children}: { children: React.ReactNode }) {
-    return <ThemeProvider theme={theme}>{children}</ThemeProvider>
 }
