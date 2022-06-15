@@ -9,9 +9,10 @@ export async function registerListeners() {
     })
 
     ipcMain.handle("addBookmark", async (event, bookmarkData) => {
-        return await Bookmark.create({
+        const bookmark = await Bookmark.create({
             ...bookmarkData
         }, {})
+        return bookmark.get();
     })
 
     ipcMain.handle("updateBookmark", async (event, id: string, bookmarkData) => {

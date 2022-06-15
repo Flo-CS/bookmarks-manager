@@ -1,20 +1,25 @@
-import { flatten, uniq } from "lodash";
-import React, { useEffect, useMemo, useState } from "react";
+import {flatten, uniq} from "lodash";
+import React, {useEffect, useMemo, useState} from "react";
 import styled from "styled-components";
-import { folders as foldersMock } from "../tests/mockData";
+import {folders as foldersMock} from "../tests/mockData";
 import BookmarkModal from "./components/BookmarkModal";
 import BookmarksLayout from "./components/BookmarksLayout";
 import FolderName from "./components/FolderName";
 import FoldersBreadCrumb from "./components/FoldersBreadCrumb";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
-import { BookmarkAPI, ElectronBookmarkAPI } from "./helpers/api";
-import { BookmarkUserComplement, CompleteBookmark, createDefaultBookmark } from "./helpers/bookmarks";
-import { SpecialFolders } from "./helpers/folders";
+import {BookmarkAPI, ElectronBookmarkAPI} from "./helpers/api";
+import {
+    BookmarkForDatabase,
+    BookmarkUserComplement,
+    CompleteBookmark,
+    createDefaultBookmark
+} from "./helpers/bookmarks";
+import {SpecialFolders} from "./helpers/folders";
 import useBookmarkModal from "./hooks/useBookmarkModal";
 import useBookmarks from "./hooks/useBookmarks";
 import useFolders from "./hooks/useFolders";
-import { GlobalStyle } from "./styles/GlobalStyle";
+import {GlobalStyle} from "./styles/GlobalStyle";
 import Theme from "./styles/Theme";
 
 const Layout = styled.div`
@@ -36,18 +41,27 @@ const bookmarkApi: BookmarkAPI = new ElectronBookmarkAPI();
 
 // Temporary code, only for the MVP creation process*
 export function App() {
-    const { foldersRoot, insertFolder, getPathTo } = useFolders(foldersMock, "root")
+    const {foldersRoot, insertFolder, getPathTo} = useFolders(foldersMock, "root")
     const [selectedFolderId, setSelectedFolderId] = useState<string>(SpecialFolders.ALL);
-    const { bookmarks, selectedBookmarks, removeBookmark, updateBookmark, getBookmark, addBookmark, setBookmarks } = useBookmarks<CompleteBookmark>([], selectedFolderId);
+    const {
+        bookmarks,
+        selectedBookmarks,
+        removeBookmark,
+        updateBookmark,
+        getBookmark,
+        addBookmark,
+        setBookmarks
+    } = useBookmarks<CompleteBookmark>([], selectedFolderId);
 
-    const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useBookmarkModal<CompleteBookmark>(bookmarks);
-    const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useBookmarkModal<CompleteBookmark>();
+    const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useBookmarkModal<BookmarkForDatabase>(bookmarks);
+    const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useBookmarkModal<BookmarkForDatabase>();
 
     useEffect(() => {
         async function fetchBookmarks() {
             const bookmarks = await bookmarkApi.getBookmarks()
             setBookmarks(bookmarks)
         }
+
         fetchBookmarks()
     }, [])
 
@@ -64,11 +78,7 @@ export function App() {
     }
 
     function handleBookmarkCreation() {
-        const newBookmark = createDefaultBookmark();
-        newBookmark.collection = selectedFolderId;
-        if (selectedFolderId in SpecialFolders) {
-            newBookmark.collection = SpecialFolders.WITHOUT_FOLDER;
-        }
+        const newBookmark = createDefaultBookmark(selectedFolderId);
         openNewModal(newBookmark);
     }
 
@@ -87,9 +97,9 @@ export function App() {
 
     function handleNewModalSave(data: Partial<BookmarkUserComplement>) {
         if (newModalBookmark) {
-            const newBookmark = { ...newModalBookmark, ...data }
-            bookmarkApi.addBookmark(newBookmark).then(() => {
-                addBookmark(newBookmark)
+            const newBookmark = {...newModalBookmark, ...data}
+            bookmarkApi.addBookmark(newBookmark).then((bookmark) => {
+                addBookmark(bookmark)
                 closeNewModal()
             })
         }
@@ -99,7 +109,7 @@ export function App() {
         const bookmark = getBookmark(id);
         if (bookmark) {
             const newTags = bookmark.tags.filter(t => t !== tag);
-            bookmarkApi.updateBookmark(bookmark.id, { tags: newTags }).then((newBookmark) => {
+            bookmarkApi.updateBookmark(bookmark.id, {tags: newTags}).then((newBookmark) => {
                 updateBookmark(bookmark.id, newBookmark)
             })
         }
@@ -116,34 +126,35 @@ export function App() {
 
     return (
         <Theme>
-            <GlobalStyle />
+            <GlobalStyle/>
             <TagsContext.Provider value={allTags}>
                 <Layout className="app">
-                    <Sidebar folders={{ main: foldersRoot.children || [] }}
-                        onFolderAdd={handleAddFolder}
-                        onSelectedFolderChange={handleFolderSelection}
-                        selectedFolderId={selectedFolderId} />
+                    <Sidebar folders={{main: foldersRoot.children || []}}
+                             onFolderAdd={handleAddFolder}
+                             onSelectedFolderChange={handleFolderSelection}
+                             selectedFolderId={selectedFolderId}/>
                     <Main>
-                        <TopBar onAdd={handleBookmarkCreation} />
-                        <FoldersBreadCrumb >
+                        <TopBar onAdd={handleBookmarkCreation}/>
+                        <FoldersBreadCrumb>
                             {selectedFolderPath.map(folder => {
-                                return <FolderName key={folder.key} name={folder.name} icon={folder.icon} />
+                                return <FolderName key={folder.key} name={folder.name} icon={folder.icon}/>
                             })}
                         </FoldersBreadCrumb>
-                        <BookmarksLayout bookmarks={selectedBookmarks} onTagRemove={handleBookmarkTagRemove} onDelete={handleBookmarkDelete} onEdit={handleBookmarkEdit} />
+                        <BookmarksLayout bookmarks={selectedBookmarks} onTagRemove={handleBookmarkTagRemove}
+                                         onDelete={handleBookmarkDelete} onEdit={handleBookmarkEdit}/>
                     </Main>
                     <BookmarkModal
                         isOpen={isEditModalOpen}
                         onClose={closeEditModal}
                         onBookmarkSave={handleEditModalSave}
                         title="Edit bookmark"
-                        originalBookmark={editModalBookmark} />
+                        originalBookmark={editModalBookmark}/>
                     <BookmarkModal
                         isOpen={isNewModalOpen}
                         onClose={closeNewModal}
                         onBookmarkSave={handleNewModalSave}
                         title="Add new bookmark"
-                        originalBookmark={newModalBookmark} />
+                        originalBookmark={newModalBookmark}/>
                 </Layout>
             </TagsContext.Provider>
         </Theme>

@@ -1,5 +1,6 @@
-import { groupBy, toPairs } from "lodash";
-import { v4 as uuidv4 } from 'uuid';
+import {groupBy, toPairs} from "lodash";
+import {v4 as uuidv4} from 'uuid';
+import {SpecialFolders} from "./folders";
 
 export interface BookmarkUserComplement {
     linkTitle: string,
@@ -21,10 +22,12 @@ export interface BookmarkDates {
     creationDate: Date,
     modificationDate: Date,
 }
+
 export interface BookmarkHistory {
     openHistory: Date[],
     copyHistory: Date[],
 }
+
 export interface BookmarkPictures {
     faviconPath: string,
     previewPath: string
@@ -39,7 +42,12 @@ export interface BookmarkMetadata {
 // TODO: Change this interfaces names and find a proper way to use them
 export type BookmarkForModal = BookmarkUserComplement & Partial<BookmarkPictures>;
 export type BookmarkForDatabase = BookmarkMinimal & BookmarkUserComplement
-export type CompleteBookmark = BookmarkUserComplement & BookmarkMinimal & BookmarkDates & Partial<BookmarkPictures> & Partial<BookmarkHistory>
+export type CompleteBookmark =
+    BookmarkUserComplement
+    & BookmarkMinimal
+    & BookmarkDates
+    & Partial<BookmarkPictures>
+    & Partial<BookmarkHistory>
 
 // TODO: Move that to a separate file
 export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) => any) {
@@ -48,16 +56,15 @@ export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) =>
     )
 }
 
-export function createDefaultBookmark(): CompleteBookmark {
+export function createDefaultBookmark(selectedFolderId: string): BookmarkForDatabase {
+    // @ts-ignore
     return {
         linkTitle: "",
         url: "",
         tags: [],
         description: "",
-        creationDate: new Date(),
-        modificationDate: new Date(),
-        collection: "",
-        variant: "preview",
+        collection: Object.values(SpecialFolders).includes(selectedFolderId as unknown as SpecialFolders) ? SpecialFolders.WITHOUT_FOLDER : selectedFolderId,
+        variant: "preview", // TODO: Make this enum
         id: uuidv4()
     }
 }
