@@ -1,11 +1,10 @@
 import {DataTypes, Sequelize} from 'sequelize';
-import {SpecialFolders} from '../src/helpers/folders';
-import * as path from "path";
-import {app} from "electron";
+import {SpecialsCollections} from '../src/helpers/collections';
+import {databasePath} from "./main";
 
 const ARRAY_SEPARATOR = ";";
-console.log(app.getPath("userData"))
-export const database = new Sequelize({dialect: "sqlite", storage: path.join(app.getPath("userData"), "test.db")});
+
+export const database = new Sequelize({dialect: "sqlite", storage: databasePath});
 
 export const Bookmark = database.define('Bookmark', {
     linkTitle: DataTypes.STRING,
@@ -26,7 +25,7 @@ export const Bookmark = database.define('Bookmark', {
     description: DataTypes.STRING,
     collection: {
         type: DataTypes.STRING,
-        defaultValue: SpecialFolders.WITHOUT_FOLDER,
+        defaultValue: SpecialsCollections.WITHOUT_COLLECTION,
         allowNull: false
     },
     variant: {
@@ -70,7 +69,7 @@ export const Bookmark = database.define('Bookmark', {
     updatedAt: 'modificationDate'
 });
 
-export const Folder = database.define('Folder', {
+export const Collection = database.define('Collection', {
         key: DataTypes.STRING,
         name: DataTypes.STRING,
         iconPath: {

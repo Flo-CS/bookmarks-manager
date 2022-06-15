@@ -13,6 +13,8 @@ export const assetsPath =
         ? process.resourcesPath
         : app.getAppPath()
 
+export const databasePath = path.join(app.getPath("userData"), "main.db");
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         icon: path.join(assetsPath, 'assets', 'icon.png'),

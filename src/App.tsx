@@ -1,11 +1,11 @@
 import {flatten, uniq} from "lodash";
 import React, {useEffect, useMemo, useState} from "react";
 import styled, {ThemeProvider} from "styled-components";
-import {folders as foldersMock} from "../tests/mockData";
+import {collections as collectionsMock} from "../tests/mockData";
 import BookmarkModal from "./components/BookmarkModal";
 import BookmarksLayout from "./components/BookmarksLayout";
-import FolderName from "./components/FolderName";
-import FoldersBreadCrumb from "./components/FoldersBreadCrumb";
+import CollectionName from "./components/CollectionName";
+import CollectionsBreadCrumb from "./components/CollectionsBreadCrumb";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import {BookmarkAPI, ElectronBookmarkAPI} from "./helpers/api";
@@ -15,10 +15,10 @@ import {
     CompleteBookmark,
     createDefaultBookmark
 } from "./helpers/bookmarks";
-import {SpecialFolders} from "./helpers/folders";
+import {SpecialsCollections} from "./helpers/collections";
 import useBookmarkModal from "./hooks/useBookmarkModal";
 import useBookmarks from "./hooks/useBookmarks";
-import useFolders from "./hooks/useFolders";
+import useCollections from "./hooks/useCollections";
 import {GlobalStyle} from "./styles/GlobalStyle";
 import {theme} from "./styles/Theme";
 
@@ -41,8 +41,8 @@ const bookmarkApi: BookmarkAPI = new ElectronBookmarkAPI();
 
 // Temporary code, only for the MVP creation process*
 export function App() {
-    const {foldersRoot, insertFolder, getPathTo} = useFolders(foldersMock, "root")
-    const [selectedFolderId, setSelectedFolderId] = useState<string>(SpecialFolders.ALL);
+    const {collectionsRoot, insertCollection, getPathTo} = useCollections(collectionsMock, "root")
+    const [selectedCollectionId, setSelectedCollectionId] = useState<string>(SpecialsCollections.ALL);
     const {
         bookmarks,
         selectedBookmarks,
@@ -51,7 +51,7 @@ export function App() {
         getBookmark,
         addBookmark,
         setBookmarks
-    } = useBookmarks<CompleteBookmark>([], selectedFolderId);
+    } = useBookmarks<CompleteBookmark>([], selectedCollectionId);
 
     const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useBookmarkModal<BookmarkForDatabase>(bookmarks);
     const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useBookmarkModal<BookmarkForDatabase>();
@@ -66,19 +66,19 @@ export function App() {
     }, [])
 
 
-    function handleAddFolder(name: string) {
-        insertFolder(selectedFolderId, {
+    function handleAddCollection(name: string) {
+        insertCollection(selectedCollectionId, {
             key: name,
             name: name
         })
     }
 
-    function handleFolderSelection(folderId: string) {
-        setSelectedFolderId(folderId)
+    function handleCollectionSelection(collectionId: string) {
+        setSelectedCollectionId(collectionId)
     }
 
     function handleBookmarkCreation() {
-        const newBookmark = createDefaultBookmark(selectedFolderId);
+        const newBookmark = createDefaultBookmark(selectedCollectionId);
         openNewModal(newBookmark);
     }
 
@@ -122,24 +122,25 @@ export function App() {
     }
 
     const allTags = useMemo(() => uniq(flatten(bookmarks.map(b => b.tags))), [bookmarks])
-    const selectedFolderPath = useMemo(() => getPathTo(selectedFolderId), [selectedFolderId])
+    const selectedCollectionPath = useMemo(() => getPathTo(selectedCollectionId), [selectedCollectionId])
 
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyle/>
             <TagsContext.Provider value={allTags}>
                 <Layout className="app">
-                    <Sidebar folders={{main: foldersRoot.children || []}}
-                             onFolderAdd={handleAddFolder}
-                             onSelectedFolderChange={handleFolderSelection}
-                             selectedFolderId={selectedFolderId}/>
+                    <Sidebar collections={{main: collectionsRoot.children || []}}
+                             onCollectionAdd={handleAddCollection}
+                             onSelectedCollectionChange={handleCollectionSelection}
+                             selectedCollectionId={selectedCollectionId}/>
                     <Main>
                         <TopBar onAdd={handleBookmarkCreation}/>
-                        <FoldersBreadCrumb>
-                            {selectedFolderPath.map(folder => {
-                                return <FolderName key={folder.key} name={folder.name} icon={folder.icon}/>
+                        <CollectionsBreadCrumb>
+                            {selectedCollectionPath.map(collection => {
+                                return <CollectionName key={collection.key} name={collection.name}
+                                                       icon={collection.icon}/>
                             })}
-                        </FoldersBreadCrumb>
+                        </CollectionsBreadCrumb>
                         <BookmarksLayout bookmarks={selectedBookmarks} onTagRemove={handleBookmarkTagRemove}
                                          onDelete={handleBookmarkDelete} onEdit={handleBookmarkEdit}/>
                     </Main>

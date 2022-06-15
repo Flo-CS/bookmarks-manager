@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
-import { BookmarkMinimal } from "../helpers/bookmarks";
-import { SpecialFolders } from "../helpers/folders";
+import {useMemo, useState} from "react";
+import {BookmarkMinimal} from "../helpers/bookmarks";
+import {SpecialsCollections} from "../helpers/collections";
 
 // Todo: make this more generic
-export default function useBookmarks<B extends BookmarkMinimal>(initBookmarks: B[], selectedFolderId: string) {
+export default function useBookmarks<B extends BookmarkMinimal>(initBookmarks: B[], selectedCollectionId: string) {
     const [bookmarks, setBookmarks] = useState(initBookmarks);
 
     function getBookmark(id?: string) {
@@ -13,7 +13,7 @@ export default function useBookmarks<B extends BookmarkMinimal>(initBookmarks: B
     function updateBookmark(id?: string, newData?: Partial<B>) {
         const bookmark = getBookmark(id);
         if (bookmark) {
-            const newBookmarks = bookmarks.map(b => b.id === id ? { ...b, ...newData } : b);
+            const newBookmarks = bookmarks.map(b => b.id === id ? {...b, ...newData} : b);
             setBookmarks(newBookmarks);
         }
     }
@@ -29,13 +29,13 @@ export default function useBookmarks<B extends BookmarkMinimal>(initBookmarks: B
     }
 
     const selectedBookmarks = useMemo(() => bookmarks.filter(b => {
-        if (selectedFolderId === SpecialFolders.ALL) {
+        if (selectedCollectionId === SpecialsCollections.ALL) {
             return true;
         }
 
-        return b.collection === selectedFolderId
-    }), [bookmarks, selectedFolderId])
+        return b.collection === selectedCollectionId
+    }), [bookmarks, selectedCollectionId])
 
 
-    return { bookmarks, selectedBookmarks, getBookmark, updateBookmark, removeBookmark, addBookmark, setBookmarks };
+    return {bookmarks, selectedBookmarks, getBookmark, updateBookmark, removeBookmark, addBookmark, setBookmarks};
 }

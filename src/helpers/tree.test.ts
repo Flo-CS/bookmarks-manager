@@ -1,17 +1,17 @@
 import Tree from "./tree";
 
-describe("Folders helpers", () => {
+describe("Collections helpers", () => {
     let tree: Tree<string>;
-    const rootOriginal = {key: "root" }
+    const rootOriginal = {key: "root"}
 
     beforeEach(() => {
         tree = new Tree(rootOriginal)
 
-        tree.insert("root", {key: "1" }, 0)
-        tree.insert("root", {key: "2" }, 1)
-        tree.insert("1", {key: "11" }, 0)
-        tree.insert("11", {key: "111" }, 0)
-        tree.insert("11", {key: "112" }, 1)
+        tree.insert("root", {key: "1"}, 0)
+        tree.insert("root", {key: "2"}, 1)
+        tree.insert("1", {key: "11"}, 0)
+        tree.insert("11", {key: "111"}, 0)
+        tree.insert("11", {key: "112"}, 1)
     })
 
     it("root is a copy of object passed in constructor", () => {
@@ -35,15 +35,15 @@ describe("Folders helpers", () => {
     })
     it("node is correctly added and return null if parent node doesn't exist or if node is already in the tree", () => {
         let result = tree.insert("root", {key: "test"}, 599)
-        expect(result?.root?.children?.[2]).toEqual({key:"test"})
+        expect(result?.root?.children?.[2]).toEqual({key: "test"})
         expect(result?.root?.children).toHaveLength(3);
 
         result = tree.insert("11", {key: "test1"}, 1)
-        expect(result?.root?.children?.[0]?.children?.[0]?.children?.[1]).toEqual({key:"test1"})
+        expect(result?.root?.children?.[0]?.children?.[0]?.children?.[1]).toEqual({key: "test1"})
         expect(result?.root?.children?.[0]?.children?.[0]?.children).toHaveLength(3);
 
         result = tree.insert("11", {key: "test2"}, 0)
-        expect(result?.root?.children?.[0]?.children?.[0]?.children?.[0]).toEqual({key:"test2"})
+        expect(result?.root?.children?.[0]?.children?.[0]?.children?.[0]).toEqual({key: "test2"})
         expect(result?.root?.children?.[0]?.children?.[0]?.children).toHaveLength(4);
 
         // Already exists
@@ -62,13 +62,13 @@ describe("Folders helpers", () => {
         expect(result?.root.children?.[0].children).toEqual([])
     })
     it("can find node inside tree", () => {
-        let result = tree.find( "doesn't exist")
+        let result = tree.find("doesn't exist")
         expect(result).toBe(null)
-        result = tree.find( "11")
+        result = tree.find("11")
         expect(result?.key).toBe("11")
-        result = tree.find( "root")
+        result = tree.find("root")
         expect(result?.key).toBe("root")
-        result = tree.find( "112")
+        result = tree.find("112")
         expect(result?.key).toBe("112")
     })
     it("preOrderTraversal is valid", () => {
@@ -93,13 +93,13 @@ describe("Folders helpers", () => {
 
         tree.move("112", "2")
         // Old parent node test
-        const oldParentFolder = tree.find( "11")
-        expect(oldParentFolder?.children).toHaveLength(1)
-        expect(oldParentFolder?.children?.[0].key).toBe("111")
+        const oldParentCollection = tree.find("11")
+        expect(oldParentCollection?.children).toHaveLength(1)
+        expect(oldParentCollection?.children?.[0].key).toBe("111")
 
         // New parent node test
-        const newParentFolder = tree.find( "2")
-        expect(newParentFolder?.children).toHaveLength(1)
-        expect(newParentFolder?.children?.[0].key).toBe("112")
+        const newParentCollection = tree.find("2")
+        expect(newParentCollection?.children).toHaveLength(1)
+        expect(newParentCollection?.children?.[0].key).toBe("112")
     })
 })

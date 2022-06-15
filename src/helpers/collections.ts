@@ -1,19 +1,18 @@
 import React from "react";
 
-export enum SpecialFolders {
+export enum SpecialsCollections {
     ALL = "%ALL%",
     TRASH = "%TRASH%",
-    WITHOUT_FOLDER = "%WITHOUT_FOLDER%",
+    WITHOUT_COLLECTION = "%WITHOUT_COLLECTION%",
 }
 
-// TODO: Rename this to BookmarkCollection
-export interface FolderData {
+export interface BookmarksCollection {
     key: string,
     name: string,
     iconPath?: string,
     icon?: React.ComponentType,
-    children?: FolderData[],
-    parent?: FolderData,
+    children?: BookmarksCollection[],
+    parent?: BookmarksCollection,
     isFolded?: boolean,
     count?: number
 }

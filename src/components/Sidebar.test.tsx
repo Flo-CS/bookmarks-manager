@@ -1,57 +1,57 @@
 import {render} from "../../tests/utilities";
 import {fireEvent, screen} from "@testing-library/react";
 import React from "react";
-import {folders} from "../../tests/mockData";
+import {collections} from "../../tests/mockData";
 import Sidebar from "./Sidebar";
-import {SpecialFolders} from "../helpers/folders";
+import {SpecialsCollections} from "../helpers/collections";
 
 describe("Sidebar component", () => {
-    it("calls onFolderAdded with folder name", () => {
-        const onFolderAddedMock = jest.fn()
+    it("calls onCollectionAdded with collection name", () => {
+        const onCollectionAddedMock = jest.fn()
 
-        render(<Sidebar folders={{main: folders}} onFolderAdd={onFolderAddedMock}/>)
+        render(<Sidebar collections={{main: collections}} onCollectionAdd={onCollectionAddedMock}/>)
 
-        const input = screen.getByLabelText("New folder...")
+        const input = screen.getByLabelText("New collection...")
 
         fireEvent.change(input, {
             target: {
-                value: "aNewFolderName"
+                value: "aNewCollectionName"
             }
         })
         fireEvent.keyPress(input, {key: 'Enter', code: 'Enter', charCode: 13})
 
-        expect(onFolderAddedMock).toHaveBeenCalledTimes(1);
-        expect(onFolderAddedMock).toHaveBeenCalledWith("aNewFolderName");
+        expect(onCollectionAddedMock).toHaveBeenCalledTimes(1);
+        expect(onCollectionAddedMock).toHaveBeenCalledWith("aNewCollectionName");
     })
-    it("clears input when folder added", () => {
-        render(<Sidebar folders={{main: folders}}/>)
+    it("clears input when collection added", () => {
+        render(<Sidebar collections={{main: collections}}/>)
 
-        const input = screen.getByLabelText("New folder...")
+        const input = screen.getByLabelText("New collection...")
 
         fireEvent.change(input, {
             target: {
-                value: "aNewFolderName"
+                value: "aNewCollectionName"
             }
         })
-        expect(input).toHaveValue("aNewFolderName")
+        expect(input).toHaveValue("aNewCollectionName")
 
         fireEvent.keyPress(input, {key: 'Enter', code: 'Enter', charCode: 13})
 
         expect(input).toHaveValue("")
     })
-    it("handles folder selection", () => {
-        const onFolderSelectMock = jest.fn();
+    it("handles collection selection", () => {
+        const onCollectionSelectMock = jest.fn();
 
-        render(<Sidebar folders={{main: folders}} onSelectedFolderChange={onFolderSelectMock}/>)
+        render(<Sidebar collections={{main: collections}} onSelectedCollectionChange={onCollectionSelectMock}/>)
 
         fireEvent.click(screen.getByText("All",))
-        expect(onFolderSelectMock).toHaveBeenCalledWith(SpecialFolders.ALL)
-        expect(onFolderSelectMock).toHaveBeenCalledTimes(1)
+        expect(onCollectionSelectMock).toHaveBeenCalledWith(SpecialsCollections.ALL)
+        expect(onCollectionSelectMock).toHaveBeenCalledTimes(1)
         fireEvent.click(screen.getByText("Trash"))
-        expect(onFolderSelectMock).toHaveBeenCalledWith(SpecialFolders.TRASH)
-        expect(onFolderSelectMock).toHaveBeenCalledTimes(2)
+        expect(onCollectionSelectMock).toHaveBeenCalledWith(SpecialsCollections.TRASH)
+        expect(onCollectionSelectMock).toHaveBeenCalledTimes(2)
         fireEvent.click(screen.getByText("121", {exact: true}))
-        expect(onFolderSelectMock).toHaveBeenCalledWith("121")
-        expect(onFolderSelectMock).toHaveBeenCalledTimes(3)
+        expect(onCollectionSelectMock).toHaveBeenCalledWith("121")
+        expect(onCollectionSelectMock).toHaveBeenCalledTimes(3)
     })
 })

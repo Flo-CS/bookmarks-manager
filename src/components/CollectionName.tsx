@@ -11,7 +11,7 @@ const Container = styled.div`
     height: 20px;
     width: 20px;
   }
-  
+
   &[role="button"] {
     cursor: pointer;
   }
@@ -24,13 +24,13 @@ const Name = styled.p`
 type Props = {
     name: string,
     icon?: React.ComponentType,
-    folderId?: string,
-    onClick?: (folderId: string | null) => void
+    collectionId?: string,
+    onClick?: (collectionId: string | null) => void
 }
 
-export default function FolderName({name, icon: Icon, onClick, folderId}: Props) {
+export default function CollectionName({name, icon: Icon, onClick, collectionId}: Props) {
     function handleClick() {
-        onClick && onClick(folderId || null)
+        onClick && onClick(collectionId || null)
     }
 
     return <Container onClick={handleClick} role={onClick && "button"}>

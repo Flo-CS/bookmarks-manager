@@ -1,8 +1,8 @@
 import React from "react";
-import { FolderData } from "../src/helpers/folders";
-import { BookmarkDates, BookmarkMetadata, BookmarkMinimal, BookmarkUserComplement } from "../src/helpers/bookmarks";
+import {BookmarksCollection} from "../src/helpers/collections";
+import {BookmarkDates, BookmarkMetadata, BookmarkMinimal, BookmarkUserComplement} from "../src/helpers/bookmarks";
 
-export const folders: FolderData[] = [
+export const collections: BookmarksCollection[] = [
     {
         key: "1",
         name: "1",

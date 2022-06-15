@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import FolderName from "./FolderName";
+import CollectionName from "./CollectionName";
 import {MdArrowDropDown, MdArrowRight} from "react-icons/md";
 import styled, {css} from "styled-components";
 
@@ -65,27 +65,27 @@ const Count = styled.p`
   margin-left: auto;
 `
 
-export type FolderTreeItemProps = {
-    folderId: string,
+export type CollectionTreeItemProps = {
+    collectionId: string,
     name: string
     icon?: React.ComponentType,
-    onClick?: (folderId: string) => void,
+    onClick?: (collectionId: string) => void,
     isDefaultFolded?: boolean,
     children?: React.ReactNode,
     count?: number,
     isSelected?: boolean
 }
 
-export default function FolderTreeItem({
-                                           folderId,
-                                           name,
-                                           icon,
-                                           onClick,
-                                           isDefaultFolded,
-                                           children,
-                                           count,
-                                           isSelected
-                                       }: FolderTreeItemProps) {
+export default function CollectionTreeItem({
+                                               collectionId,
+                                               name,
+                                               icon,
+                                               onClick,
+                                               isDefaultFolded,
+                                               children,
+                                               count,
+                                               isSelected
+                                           }: CollectionTreeItemProps) {
     const [isFolded, setIsFolded] = useState<boolean>(!!isDefaultFolded);
 
     function handleFoldButtonClick(e: React.SyntheticEvent) {
@@ -94,15 +94,16 @@ export default function FolderTreeItem({
     }
 
     function handleItemClick() {
-        onClick && onClick(folderId);
+        onClick && onClick(collectionId);
     }
 
-    return <Wrapper isSelected={!!isSelected} data-testid={`folder-wrapper-${folderId}`}>
-        <Container onClick={handleItemClick} role="button" aria-label="click folder tree item">
-            {React.Children.count(children) !== 0 && <FoldButton onClick={handleFoldButtonClick} aria-label="toggle children folding">
-                {isFolded ? <MdArrowRight/> : <MdArrowDropDown/>}
-            </FoldButton>}
-            <FolderName name={name} icon={icon}/>
+    return <Wrapper isSelected={!!isSelected} data-testid={`collection-wrapper-${collectionId}`}>
+        <Container onClick={handleItemClick} role="button" aria-label="click collection tree item">
+            {React.Children.count(children) !== 0 &&
+                <FoldButton onClick={handleFoldButtonClick} aria-label="toggle children folding">
+                    {isFolded ? <MdArrowRight/> : <MdArrowDropDown/>}
+                </FoldButton>}
+            <CollectionName name={name} icon={icon}/>
             {count && <Count>
                 {count}
             </Count>}

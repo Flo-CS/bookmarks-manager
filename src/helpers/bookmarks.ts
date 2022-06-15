@@ -1,6 +1,6 @@
 import {groupBy, toPairs} from "lodash";
 import {v4 as uuidv4} from 'uuid';
-import {SpecialFolders} from "./folders";
+import {SpecialsCollections} from "./collections";
 
 export interface BookmarkUserComplement {
     linkTitle: string,
@@ -56,14 +56,14 @@ export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) =>
     )
 }
 
-export function createDefaultBookmark(selectedFolderId: string): BookmarkForDatabase {
+export function createDefaultBookmark(selectedCollectionId: string): BookmarkForDatabase {
     // @ts-ignore
     return {
         linkTitle: "",
         url: "",
         tags: [],
         description: "",
-        collection: Object.values(SpecialFolders).includes(selectedFolderId as unknown as SpecialFolders) ? SpecialFolders.WITHOUT_FOLDER : selectedFolderId,
+        collection: Object.values(SpecialsCollections).includes(selectedCollectionId as unknown as SpecialsCollections) ? SpecialsCollections.WITHOUT_COLLECTION : selectedCollectionId,
         variant: "preview", // TODO: Make this enum
         id: uuidv4()
     }

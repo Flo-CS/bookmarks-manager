@@ -6,13 +6,13 @@ const Container = styled.div`
   display: inline-flex;
   align-items: center;
   color: ${props => props.theme.colors.white};
-  
+
   & > svg {
     color: ${props => props.theme.colors.whiteAlternative};
   }
 `
 
-export default function FoldersBreadCrumb({children}: { children: React.ReactNode }) {
+export default function CollectionsBreadCrumb({children}: { children: React.ReactNode }) {
     return <Container>
         {React.Children.map(children, (child, index) => {
             return <>

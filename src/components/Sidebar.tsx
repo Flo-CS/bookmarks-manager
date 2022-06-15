@@ -1,11 +1,11 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from "react"
 import styled from "styled-components";
-import FoldersTree from "./FoldersTree";
-import FolderTreeItem from "./FolderTreeItem";
-import {FolderData, SpecialFolders} from "../helpers/folders";
+import CollectionsTree from "./CollectionsTree";
+import CollectionTreeItem from "./CollectionTreeItem";
+import {BookmarksCollection, SpecialsCollections} from "../helpers/collections";
 
 import {MdAllInbox} from "react-icons/md";
-import {IoTrash, IoAlbums} from "react-icons/io5"
+import {IoAlbums, IoTrash} from "react-icons/io5"
 
 const Container = styled.section`
   display: flex;
@@ -15,7 +15,7 @@ const Container = styled.section`
   padding: ${props => props.theme.spacing.big} 0;
 `
 
-const AddFolderInput = styled.input`
+const AddCollectionInput = styled.input`
   background: none;
   height: 40px;
   color: ${props => props.theme.colors.whiteAlternative};
@@ -27,7 +27,7 @@ const AddFolderInput = styled.input`
   margin-top: ${props => props.theme.spacing.medium};
 `
 
-const AddFolderInputLabel = styled.label`
+const AddCollectionInputLabel = styled.label`
   left: -100vw;
   position: absolute;
 `
@@ -39,45 +39,54 @@ const Separator = styled.hr`
 `
 
 type Props = {
-    folders: {
-        main: FolderData[],
-        trash?: FolderData[]
+    collections: {
+        main: BookmarksCollection[],
+        trash?: BookmarksCollection[]
     },
-    onFolderAdd?: (folderName: string) => void,
-    selectedFolderId?: string,
-    onSelectedFolderChange?: (folderId: string) => void
+    onCollectionAdd?: (collectionName: string) => void,
+    selectedCollectionId?: string,
+    onSelectedCollectionChange?: (collectionId: string) => void
 }
-export default function Sidebar({folders, onFolderAdd, selectedFolderId, onSelectedFolderChange}: Props) {
-    const [newFolderName, setNewFolderName] = useState<string>("");
+export default function Sidebar({
+                                    collections,
+                                    onCollectionAdd,
+                                    selectedCollectionId,
+                                    onSelectedCollectionChange
+                                }: Props) {
+    const [newCollectionName, setNewCollectionName] = useState<string>("");
 
-    function handleNewFolderInputChange(e: ChangeEvent<HTMLInputElement>) {
-        setNewFolderName(e.target.value)
+    function handleNewCollectionInputChange(e: ChangeEvent<HTMLInputElement>) {
+        setNewCollectionName(e.target.value)
     }
 
-    function handleNewFolderInputKeyPress(e: KeyboardEvent) {
+    function handleNewCollectionInputKeyPress(e: KeyboardEvent) {
         if (e.key === 'Enter') {
-            onFolderAdd && onFolderAdd(newFolderName)
-            setNewFolderName("")
+            onCollectionAdd && onCollectionAdd(newCollectionName)
+            setNewCollectionName("")
         }
     }
 
-    function handleFolderClick(folderId: string) {
-        onSelectedFolderChange && onSelectedFolderChange(folderId)
+    function handleCollectionClick(collectionId: string) {
+        onSelectedCollectionChange && onSelectedCollectionChange(collectionId)
     }
 
     return <Container>
-        <FoldersTree onFolderClick={handleFolderClick} selectedFolderId={selectedFolderId}>
-            <FolderTreeItem folderId={SpecialFolders.ALL} name="All" icon={MdAllInbox}/>
-            <FolderTreeItem folderId={SpecialFolders.WITHOUT_FOLDER} name="Without folder" icon={IoAlbums}/>
-            <FolderTreeItem folderId={SpecialFolders.TRASH} name="Trash" icon={IoTrash}>
-                <FoldersTree folders={folders.trash} selectedFolderId={selectedFolderId}
-                             onFolderClick={handleFolderClick}/>
-            </FolderTreeItem>
-        </FoldersTree>
+        <CollectionsTree onCollectionClick={handleCollectionClick} selectedCollectionId={selectedCollectionId}>
+            <CollectionTreeItem collectionId={SpecialsCollections.ALL} name="All" icon={MdAllInbox}/>
+            <CollectionTreeItem collectionId={SpecialsCollections.WITHOUT_COLLECTION} name="Without collection"
+                                icon={IoAlbums}/>
+            <CollectionTreeItem collectionId={SpecialsCollections.TRASH} name="Trash" icon={IoTrash}>
+                <CollectionsTree collections={collections.trash} selectedCollectionId={selectedCollectionId}
+                                 onCollectionClick={handleCollectionClick}/>
+            </CollectionTreeItem>
+        </CollectionsTree>
         <Separator/>
-        <FoldersTree folders={folders.main} selectedFolderId={selectedFolderId} onFolderClick={handleFolderClick}/>
-        <AddFolderInputLabel htmlFor="add-folder-input">New folder...</AddFolderInputLabel>
-        <AddFolderInput id="add-folder-input" onChange={handleNewFolderInputChange} value={newFolderName} type="text"
-                        placeholder="New folder..." onKeyPress={handleNewFolderInputKeyPress}/>
+        <CollectionsTree collections={collections.main} selectedCollectionId={selectedCollectionId}
+                         onCollectionClick={handleCollectionClick}/>
+        <AddCollectionInputLabel htmlFor="add-collection-input">New collection...</AddCollectionInputLabel>
+        <AddCollectionInput id="add-collection-input" onChange={handleNewCollectionInputChange}
+                            value={newCollectionName}
+                            type="text"
+                            placeholder="New collection..." onKeyPress={handleNewCollectionInputKeyPress}/>
     </Container>
 }
