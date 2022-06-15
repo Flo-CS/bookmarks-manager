@@ -1,9 +1,9 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import {contextBridge, ipcRenderer} from 'electron'
 
-export const api = {
+export const bridgeApi = {
     sendMessage: (channel: string, ...params: any[]) => {
         return ipcRenderer.invoke(channel, ...params)
     },
 }
 
-contextBridge.exposeInMainWorld('Main', api)
+contextBridge.exposeInMainWorld('bridge', bridgeApi)

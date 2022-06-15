@@ -8,14 +8,14 @@ export async function registerListeners() {
         return bookmarks.map(bookmark => bookmark.get())
     })
 
-    ipcMain.handle("addBookmark", async (event, bookmarkData) => {
+    ipcMain.handle("addBookmark", async (_event, bookmarkData) => {
         const bookmark = await Bookmark.create({
             ...bookmarkData
         }, {})
         return bookmark.get();
     })
 
-    ipcMain.handle("updateBookmark", async (event, id: string, bookmarkData) => {
+    ipcMain.handle("updateBookmark", async (_event, id: string, bookmarkData) => {
         await Bookmark.update({
             ...bookmarkData
         }, {
@@ -26,7 +26,7 @@ export async function registerListeners() {
         return updatedBookmark?.get();
     })
 
-    ipcMain.handle("removeBookmark", async (event, id: string) => {
+    ipcMain.handle("removeBookmark", async (_event, id: string) => {
         await Bookmark.destroy({
             where: {id: id}
         })

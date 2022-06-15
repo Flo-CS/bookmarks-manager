@@ -14,22 +14,22 @@ export interface BookmarkAPI {
 
 export class ElectronBookmarkAPI implements BookmarkAPI {
     async removeBookmark(id: string): Promise<void> {
-        return await window.Main.sendMessage("removeBookmark", id);
+        return await window.bridge.sendMessage("removeBookmark", id);
     }
 
     async addBookmark(bookmark: BookmarkForDatabase): Promise<CompleteBookmark> {
-        return await window.Main.sendMessage("addBookmark", bookmark);
+        return await window.bridge.sendMessage("addBookmark", bookmark);
     }
 
     async getBookmarks(): Promise<CompleteBookmark[]> {
-        return await window.Main.sendMessage("getBookmarks");
+        return await window.bridge.sendMessage("getBookmarks");
     }
 
     async getBookmark(id: string): Promise<CompleteBookmark> {
-        return await window.Main.sendMessage("getBookmark", id);
+        return await window.bridge.sendMessage("getBookmark", id);
     }
 
     async updateBookmark(id: string, bookmark: Partial<BookmarkUserComplement>): Promise<CompleteBookmark> {
-        return await window.Main.sendMessage("updateBookmark", id, bookmark);
+        return await window.bridge.sendMessage("updateBookmark", id, bookmark);
     }
 }
