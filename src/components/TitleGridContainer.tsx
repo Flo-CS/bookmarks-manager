@@ -6,7 +6,7 @@ const Container = styled.section`
 `
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr)); // TODO: This works with min() function but it's not well supported by all browsers
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
   grid-gap: ${props => props.theme.spacing.medium};
 `
 

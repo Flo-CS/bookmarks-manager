@@ -7,52 +7,27 @@ export enum BookmarkVariant {
     ICON = "icon"
 }
 
-export interface BookmarkUserComplement {
-    linkTitle: string,
-    url: string,
+export interface BookmarkData {
     tags: string[],
-    description: string,
-}
-
-// TODO : Replace linkTitle by bookmarkTitle
-
-export interface BookmarkMinimal {
+    description?: string,
     id: string,
     url: string,
     collection: string,
     variant: BookmarkVariant,
-}
-
-export interface BookmarkDates {
     creationDate: Date,
     modificationDate: Date,
+    openHistory?: Date[],
+    copyHistory?: Date[],
+    siteName?: string,
+    linkTitle?: string,
+    faviconPath?: string,
+    previewPath?: string
 }
 
-export interface BookmarkHistory {
-    openHistory: Date[],
-    copyHistory: Date[],
+export interface Bookmark extends BookmarkData {
+
 }
 
-export interface BookmarkPictures {
-    faviconPath: string,
-    previewPath: string
-}
-
-export interface BookmarkMetadata {
-    siteName: string
-}
-
-// TODO: Replace siteName by linkTitle
-
-// TODO: Change this interfaces names and find a proper way to use them
-export type BookmarkForModal = BookmarkUserComplement & Partial<BookmarkPictures>;
-export type BookmarkForDatabase = BookmarkMinimal & BookmarkUserComplement
-export type CompleteBookmark =
-    BookmarkUserComplement
-    & BookmarkMinimal
-    & BookmarkDates
-    & Partial<BookmarkPictures>
-    & Partial<BookmarkHistory>
 
 // TODO: Move that to a separate file
 export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) => any) {
@@ -61,7 +36,7 @@ export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) =>
     )
 }
 
-export function createDefaultBookmark(selectedCollectionId: string): BookmarkForDatabase {
+export function createDefaultBookmark(selectedCollectionId: string): BookmarkData {
     // @ts-ignore
     return {
         linkTitle: "",

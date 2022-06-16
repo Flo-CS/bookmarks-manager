@@ -1,4 +1,4 @@
-import {BookmarkForDatabase, BookmarkUserComplement, CompleteBookmark} from "./bookmarks";
+import {BookmarkData} from "./bookmarks";
 import {CollectionData} from "./collections";
 
 
@@ -7,19 +7,19 @@ export class ElectronBookmarkAPI {
         return await window.bridge.sendMessage("removeBookmark", id);
     }
 
-    async addBookmark(bookmark: BookmarkForDatabase): Promise<CompleteBookmark> { // TODO: Change interface used here
+    async addBookmark(bookmark: BookmarkData): Promise<BookmarkData> {
         return await window.bridge.sendMessage("addBookmark", bookmark);
     }
 
-    async getBookmarks(): Promise<CompleteBookmark[]> {
+    async getBookmarks(): Promise<BookmarkData[]> {
         return await window.bridge.sendMessage("getBookmarks");
     }
 
-    async getBookmark(id: string): Promise<CompleteBookmark> {
+    async getBookmark(id: string): Promise<BookmarkData> {
         return await window.bridge.sendMessage("getBookmark", id);
     }
 
-    async updateBookmark(id: string, bookmark: Partial<BookmarkUserComplement>): Promise<CompleteBookmark> {
+    async updateBookmark(id: string, bookmark: Partial<BookmarkData>): Promise<BookmarkData> {
         return await window.bridge.sendMessage("updateBookmark", id, bookmark);
     }
 }

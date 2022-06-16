@@ -1,14 +1,26 @@
 import {format, startOfMonth} from "date-fns"
 import {orderBy} from "lodash"
 import {useMemo} from "react"
-import {BookmarkVariant, CompleteBookmark, getKeySeparatedBookmarks} from "../helpers/bookmarks"
+import {BookmarkVariant, getKeySeparatedBookmarks} from "../helpers/bookmarks"
 import BookmarkCard from "./BookmarkCard"
 import TitleGridContainer from "./TitleGridContainer"
 
 import noPicture from "./../../assets/no_picture.png"
 
+interface LayoutBookmarkData {
+    id: string,
+    url: string
+    variant: BookmarkVariant,
+    modificationDate: Date,
+    linkTitle?: string,
+    faviconPath?: string,
+    previewPath?: string,
+    description?: string,
+    tags?: string[],
+}
+
 type Props = {
-    bookmarks: CompleteBookmark[],
+    bookmarks: LayoutBookmarkData[],
     onEdit: (id: string) => void,
     onDelete: (id: string) => void,
     onTagRemove: (id: string, tag: string) => void,

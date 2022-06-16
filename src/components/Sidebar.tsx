@@ -1,8 +1,8 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from "react"
 import styled from "styled-components";
-import CollectionsTree from "./CollectionsTree";
+import CollectionsTree, {TreeCollectionData} from "./CollectionsTree";
 import CollectionTreeItem from "./CollectionTreeItem";
-import {BookmarksCollection, SpecialsCollections} from "../helpers/collections";
+import {SpecialsCollections} from "../helpers/collections";
 
 import {MdAllInbox} from "react-icons/md";
 import {IoAlbums, IoTrash} from "react-icons/io5"
@@ -40,8 +40,8 @@ const Separator = styled.hr`
 
 type Props = {
     collections: {
-        main: BookmarksCollection[],
-        trash?: BookmarksCollection[]
+        main: TreeCollectionData[],
+        trash?: TreeCollectionData[]
     },
     onCollectionAdd?: (collectionName: string) => void,
     selectedCollectionId?: string,

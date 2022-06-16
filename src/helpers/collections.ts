@@ -8,18 +8,18 @@ export enum SpecialsCollections {
     ROOT = "%ROOT%"
 }
 
-export interface BookmarksCollection extends Omit<CollectionData, "parent"> {
+export interface Collection extends Omit<CollectionData, "parent"> {
+    parent?: Collection,
+    children?: Collection[],
     icon?: React.ComponentType,
-    children?: BookmarksCollection[],
-    parent?: BookmarksCollection
 }
 
 export interface CollectionData {
     id: string,
     name: string,
-    iconPath?: string,
     parent: string,
     isFolded?: boolean,
+    iconPath?: string,
 }
 
 export function createDefaultCollection(name: string, selectedCollectionId: string): CollectionData {

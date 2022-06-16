@@ -1,14 +1,13 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, {useContext, useEffect, useMemo, useState} from 'react'
 import Modal from 'react-modal'
-import { BookmarkForModal, BookmarkUserComplement } from '../helpers/bookmarks'
 import TextInput from './TextInput'
 import MultilineTextInput from './MultilineTextInput'
 import TagsInput from './TagsInput'
-import styled, { css, useTheme } from 'styled-components'
-import { IoMdClose, IoMdRefresh } from 'react-icons/io'
-import { hexToRgba } from '../helpers/colors'
-import { isEqual, pickBy } from 'lodash'
-import { TagsContext } from '../App'
+import styled, {css, useTheme} from 'styled-components'
+import {IoMdClose, IoMdRefresh} from 'react-icons/io'
+import {hexToRgba} from '../helpers/colors'
+import {isEqual, pickBy} from 'lodash'
+import {TagsContext} from '../App'
 
 const buttonReset = css`
   border: none;
@@ -95,182 +94,188 @@ const BottomButtonsContainer = styled.div`
 `
 
 const BottomButton = styled.button<{ isImportant: boolean }>`
-  ${buttonReset}
+  ${buttonReset};
   background-color: ${props =>
-    props.isImportant
-      ? props.theme.colors.accent1
-      : props.theme.colors.darkGrey};
+          props.isImportant
+                  ? props.theme.colors.accent1
+                  : props.theme.colors.darkGrey};
   height: 40px;
   width: 120px;
   border-radius: ${props => props.theme.radius.small};
 `
 
+interface ModalBookmarkData {
+    tags?: string[],
+    url: string,
+    previewPath?: string,
+    linkTitle?: string,
+    description?: string
+    faviconPath?: string
+}
+
 
 type Props = {
-  isOpen: boolean
-  title?: string
-  originalBookmark: BookmarkForModal
-  isFetchingData?: boolean
-  onClose: () => void
-  onFetchBookmarkLink: (url: string) => void
-  onBookmarkSave: (data: Partial<BookmarkUserComplement>) => void
+    isOpen: boolean
+    title?: string
+    originalBookmark: ModalBookmarkData
+    isFetchingData?: boolean
+    onClose?: () => void
+    onFetchBookmarkLink?: (url: string) => void
+    onBookmarkSave?: (data: Partial<ModalBookmarkData>) => void
 }
 
 export default function BookmarkModal({
-  isOpen,
-  onClose,
-  title,
-  originalBookmark,
-  onFetchBookmarkLink,
-  onBookmarkSave,
-  isFetchingData,
-}: Props) {
-  const allTags = useContext(TagsContext)
-  const [bookmark, setBookmark] = useState(originalBookmark)
+                                          isOpen,
+                                          onClose,
+                                          title,
+                                          originalBookmark,
+                                          onFetchBookmarkLink,
+                                          onBookmarkSave,
+                                          isFetchingData,
+                                      }: Props) {
+    const allTags = useContext(TagsContext)
+    const [bookmark, setBookmark] = useState(originalBookmark)
 
-  useEffect(() => {
-    if (isEqual(bookmark, originalBookmark)) return
-    setBookmark(originalBookmark)
-  }, [originalBookmark])
+    useEffect(() => {
+        if (isEqual(bookmark, originalBookmark)) return
+        setBookmark(originalBookmark)
+    }, [originalBookmark])
 
-  function handleClose() {
-    onClose()
-  }
+    function handleClose() {
+        onClose && onClose()
+    }
 
-  function getBookmarkModifications(): Partial<BookmarkUserComplement> {
-    return pickBy(
-      bookmark,
-      (value, key) => !isEqual(value, (originalBookmark as any)?.[key])
+    function getBookmarkModifications(): Partial<ModalBookmarkData> {
+        return pickBy(
+            bookmark,
+            (value, key) => !isEqual(value, (originalBookmark as any)?.[key])
+        )
+    }
+
+    function handleSave() {
+        const modifications = getBookmarkModifications()
+
+        onBookmarkSave && onBookmarkSave(modifications)
+    }
+
+    function handleFetchBookmarkData() {
+        const modifications = getBookmarkModifications()
+
+        if (modifications.url && Object.keys(modifications).length === 1) {
+            onFetchBookmarkLink && onFetchBookmarkLink(bookmark.url)
+        }
+    }
+
+    function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const {name, value} = e.target
+        setBookmark(b => ({...b, [name]: value}))
+    }
+
+    function handleTagsChange(tags: string[]) {
+        setBookmark(b => ({...b, tags: tags}))
+    }
+
+    const theme = useTheme()
+    const modalStyle = useMemo(() => {
+        return {
+            overlay: {
+                zIndex: 9999,
+                backgroundColor: hexToRgba(theme.colors.darkGrey, 0.5),
+            },
+            content: {
+                width: '100%',
+                maxWidth: '700px',
+                border: 'none',
+                backgroundColor: theme.colors.black,
+                inset: '50% auto auto 50%',
+                transform: 'translate(-50%, -50%)',
+            },
+        }
+    }, [theme])
+
+    return (
+        <Modal
+            isOpen={isOpen}
+            appElement={document.body}
+            shouldCloseOnOverlayClick={true}
+            onRequestClose={handleClose}
+            shouldCloseOnEsc={true}
+            style={modalStyle}
+            ariaHideApp={false}
+        >
+            <TitleContainer>
+                <Title>{title}</Title>
+                <CloseButton onClick={handleClose} aria-label="close">
+                    <IoMdClose/>
+                </CloseButton>
+            </TitleContainer>
+            <LinkContainer>
+                <IconPicture src={bookmark?.faviconPath}/>
+                <TextInput
+                    label="URL"
+                    onBlur={handleFetchBookmarkData}
+                    name="url"
+                    value={bookmark.url}
+                    onChange={handleInputChange}
+                />
+                <RefreshButton
+                    disabled={isFetchingData}
+                    aria-label="fetch data again"
+                    onClick={handleFetchBookmarkData}
+                >
+                    <IoMdRefresh/>
+                </RefreshButton>
+            </LinkContainer>
+            <Separator/>
+            <BodyContainer>
+                <PreviewPicture src={bookmark?.previewPath}/>
+                <BasicFieldsContainer>
+                    <TextInput
+                        label="Name"
+                        name="linkTitle"
+                        onChange={handleInputChange}
+                        value={bookmark.linkTitle}
+                    />
+                    <MultilineTextInput
+                        label="Description"
+                        name="description"
+                        onChange={handleInputChange}
+                        value={bookmark.description}
+                    />
+                    <TagsInput
+                        label="Tags"
+                        onChange={handleTagsChange}
+                        tags={bookmark.tags}
+                        tagsSuggestions={allTags}
+                    />
+                </BasicFieldsContainer>
+            </BodyContainer>
+            <BottomButtonsContainer>
+                <BottomButton
+                    onClick={handleClose}
+                    aria-label="cancel"
+                    isImportant={false}
+                >
+                    Cancel
+                </BottomButton>
+                <BottomButton
+                    onClick={handleSave}
+                    aria-label="save button"
+                    isImportant={true}
+                >
+                    Save
+                </BottomButton>
+            </BottomButtonsContainer>
+        </Modal>
     )
-  }
-
-  function handleSave() {
-    const modifications = getBookmarkModifications()
-
-    onBookmarkSave(modifications)
-  }
-
-  function handleFetchBookmarkData() {
-    const modifications = getBookmarkModifications()
-
-    if (modifications.url && Object.keys(modifications).length === 1) {
-      onFetchBookmarkLink(bookmark.url)
-    }
-  }
-
-  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const { name, value } = e.target
-    setBookmark(b => ({ ...b, [name]: value }))
-  }
-
-  function handleTagsChange(tags: string[]) {
-    setBookmark(b => ({ ...b, tags: tags }))
-  }
-
-  const theme = useTheme()
-  const modalStyle = useMemo(() => {
-    return {
-      overlay: {
-        zIndex: 9999,
-        backgroundColor: hexToRgba(theme.colors.darkGrey, 0.5),
-      },
-      content: {
-        width: '100%',
-        maxWidth: '700px',
-        border: 'none',
-        backgroundColor: theme.colors.black,
-        inset: '50% auto auto 50%',
-        transform: 'translate(-50%, -50%)',
-      },
-    }
-  }, [theme])
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      appElement={document.body}
-      shouldCloseOnOverlayClick={true}
-      onRequestClose={handleClose}
-      shouldCloseOnEsc={true}
-      style={modalStyle}
-      ariaHideApp={false}
-    >
-      <TitleContainer>
-        <Title>{title}</Title>
-        <CloseButton onClick={handleClose} aria-label="close">
-          <IoMdClose />
-        </CloseButton>
-      </TitleContainer>
-      <LinkContainer>
-        <IconPicture src={bookmark?.faviconPath} />
-        <TextInput
-          label="URL"
-          onBlur={handleFetchBookmarkData}
-          name="url"
-          value={bookmark.url}
-          onChange={handleInputChange}
-        />
-        <RefreshButton
-          disabled={isFetchingData}
-          aria-label="fetch data again"
-          onClick={handleFetchBookmarkData}
-        >
-          <IoMdRefresh />
-        </RefreshButton>
-      </LinkContainer>
-      <Separator />
-      <BodyContainer>
-        <PreviewPicture src={bookmark?.previewPath} />
-        <BasicFieldsContainer>
-          <TextInput
-            label="Name"
-            name="linkTitle"
-            onChange={handleInputChange}
-            value={bookmark.linkTitle}
-          />
-          <MultilineTextInput
-            label="Description"
-            name="description"
-            onChange={handleInputChange}
-            value={bookmark.description}
-          />
-          <TagsInput
-            label="Tags"
-            onChange={handleTagsChange}
-            tags={bookmark.tags}
-            tagsSuggestions={allTags}
-          />
-        </BasicFieldsContainer>
-      </BodyContainer>
-      <BottomButtonsContainer>
-        <BottomButton
-          onClick={handleClose}
-          aria-label="cancel"
-          isImportant={false}
-        >
-          Cancel
-        </BottomButton>
-        <BottomButton
-          onClick={handleSave}
-          aria-label="save button"
-          isImportant={true}
-        >
-          Save
-        </BottomButton>
-      </BottomButtonsContainer>
-    </Modal>
-  )
 }
 
 
 BookmarkModal.defaultProps = {
-  originalBookmark: {
-    url: '',
-    linkTitle: '',
-    description: '',
-    tags: [] as string[],
-  },
-  onClose: () => { },
-  onFetchBookmarkLink: () => { },
-  onBookmarkSave: () => { },
+    originalBookmark: {
+        url: '',
+        linkTitle: '',
+        description: '',
+        tags: [] as string[],
+    },
 }

@@ -130,13 +130,13 @@ const MenuButton = styled.button`
 
 type Props = {
     variant: BookmarkVariant,
-    title: string,
     id: string,
     link: string,
+    title?: string,
     picturePath?: string;
-    description: string,
-    tags: string[],
-    datetime: Date,
+    description?: string,
+    tags?: string[],
+    datetime?: Date,
     onEdit?: (id: string) => void,
     onDelete?: (id: string) => void
     onTagRemove?: (id: string) => void
@@ -186,12 +186,12 @@ export default function BookmarkCard({
                         <Title>{title}</Title>
                         <Link href={link}>{link}</Link>
                     </TitleContainer>
-                    {!isHovered && <DateTime data-testid="datetime"
-                                             dateTime={datetime.toISOString()}>{formatDistanceToNow(datetime, {addSuffix: true})}</DateTime>}
+                    {(!isHovered && datetime) && <DateTime data-testid="datetime"
+                                                           dateTime={datetime.toISOString()}>{formatDistanceToNow(datetime, {addSuffix: true})}</DateTime>}
                 </CardHead>
                 <Description>{description}</Description>
                 <TagsContainer>
-                    {tags.map(tag => {
+                    {tags?.map(tag => {
                         return <Tag size="little" key={tag} onClose={() => handleTagCloseButtonClick(tag)}>{tag}</Tag>;
                     })}
                 </TagsContainer>

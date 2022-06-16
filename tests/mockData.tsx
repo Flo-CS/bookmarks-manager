@@ -1,14 +1,9 @@
 import React from "react";
-import {BookmarksCollection} from "../src/helpers/collections";
-import {
-    BookmarkDates,
-    BookmarkMetadata,
-    BookmarkMinimal,
-    BookmarkUserComplement,
-    BookmarkVariant
-} from "../src/helpers/bookmarks";
+import {Collection} from "../src/helpers/collections";
+import {BookmarkVariant} from "../src/helpers/bookmarks";
 
-export const collections: BookmarksCollection[] = [
+
+export const collections: Collection[] = [
     {
         id: "1",
         name: "1",
@@ -43,9 +38,8 @@ export const collections: BookmarksCollection[] = [
         ]
     }]
 
-type BookmarkData = BookmarkMinimal & BookmarkUserComplement & BookmarkDates & BookmarkMetadata
 
-export const bookmark: BookmarkData = {
+export const bookmark = {
     id: "",
     siteName: "helloWorld",
     linkTitle: "helloWorldArticle",

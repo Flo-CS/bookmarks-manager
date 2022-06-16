@@ -8,15 +8,10 @@ import CollectionsBreadCrumb from "./components/CollectionsBreadCrumb";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import {ElectronBookmarkAPI, ElectronCollectionAPI} from "./helpers/api";
-import {
-    BookmarkForDatabase,
-    BookmarkUserComplement,
-    CompleteBookmark,
-    createDefaultBookmark
-} from "./helpers/bookmarks";
-import {BookmarksCollection, createDefaultCollection, SpecialsCollections} from "./helpers/collections";
-import useBookmarkModal from "./hooks/useBookmarkModal";
-import useBookmarks from "./hooks/useBookmarks";
+import {Bookmark, BookmarkData, createDefaultBookmark} from "./helpers/bookmarks";
+import {Collection, createDefaultCollection, SpecialsCollections} from "./helpers/collections";
+import useIdModal from "./hooks/useIdModal";
+import useCollectionsItems from "./hooks/useCollectionsItems";
 import useTree from "./hooks/useTree";
 import {GlobalStyle} from "./styles/GlobalStyle";
 import {theme} from "./styles/Theme";
@@ -46,21 +41,21 @@ export function App() {
         insertItem: insertCollection,
         getPathTo,
         setItems: setCollections
-    } = useTree<string, BookmarksCollection>(SpecialsCollections.ROOT)
+    } = useTree<string, Collection>(SpecialsCollections.ROOT)
 
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(SpecialsCollections.ALL);
     const {
-        bookmarks,
-        selectedBookmarks,
-        removeBookmark,
-        updateBookmark,
-        getBookmark,
-        addBookmark,
-        setBookmarks
-    } = useBookmarks<CompleteBookmark>([], selectedCollectionId);
+        items: bookmarks,
+        selectedItems: selectedBookmarks,
+        removeItem: removeBookmark,
+        updateItem: updateBookmark,
+        getItem: getBookmark,
+        addItem: addBookmark,
+        setItems: setBookmarks
+    } = useCollectionsItems<Bookmark>([], selectedCollectionId);
 
-    const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useBookmarkModal<BookmarkForDatabase>(bookmarks);
-    const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useBookmarkModal<BookmarkForDatabase>();
+    const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useIdModal<BookmarkData>(bookmarks);
+    const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useIdModal<BookmarkData>();
 
     useEffect(() => {
         async function fetchBookmarks() {
@@ -98,7 +93,7 @@ export function App() {
         openEditModal(id)
     }
 
-    function handleEditModalSave(data: Partial<BookmarkUserComplement>) {
+    function handleEditModalSave(data: Partial<Bookmark>) {
         if (editModalBookmark) {
             bookmarkApi.updateBookmark(editModalBookmark.id, data).then((newBookmark) => {
                 updateBookmark(editModalBookmark.id, newBookmark)
@@ -107,7 +102,7 @@ export function App() {
         }
     }
 
-    function handleNewModalSave(data: Partial<BookmarkUserComplement>) {
+    function handleNewModalSave(data: Partial<Bookmark>) {
         if (newModalBookmark) {
             const newBookmark = {...newModalBookmark, ...data}
             bookmarkApi.addBookmark(newBookmark).then((bookmark) => {

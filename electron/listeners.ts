@@ -1,23 +1,23 @@
 import {ipcMain} from "electron";
 import {Bookmark, Collection} from "./models";
 import {CollectionData} from "../src/helpers/collections";
-import {BookmarkForDatabase} from "../src/helpers/bookmarks";
+import {BookmarkData} from "../src/helpers/bookmarks";
 
 export async function registerBridgeListeners() {
 
-    ipcMain.handle("getBookmarks", async (): Promise<BookmarkForDatabase[]> => {
+    ipcMain.handle("getBookmarks", async (): Promise<BookmarkData[]> => {
         const bookmarks = await Bookmark.findAll();
         return bookmarks.map(bookmark => bookmark.get())
     })
 
-    ipcMain.handle("addBookmark", async (_event, bookmarkData: BookmarkForDatabase): Promise<BookmarkForDatabase> => {
+    ipcMain.handle("addBookmark", async (_event, bookmarkData: BookmarkData): Promise<BookmarkData> => {
         const bookmark = await Bookmark.create({
             ...bookmarkData
         }, {})
         return bookmark.get();
     })
 
-    ipcMain.handle("updateBookmark", async (_event, id: string, bookmarkData: BookmarkForDatabase): Promise<BookmarkForDatabase> => {
+    ipcMain.handle("updateBookmark", async (_event, id: string, bookmarkData: BookmarkData): Promise<BookmarkData> => {
         await Bookmark.update({
             ...bookmarkData
         }, {

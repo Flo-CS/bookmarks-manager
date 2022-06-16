@@ -1,13 +1,20 @@
 import React from "react";
 import CollectionTreeItem, {CollectionTreeItemProps} from "./CollectionTreeItem";
-import {BookmarksCollection} from "../helpers/collections";
 
 type Props = {
-    collections?: BookmarksCollection[],
+    collections?: TreeCollectionData[],
     children?: React.ReactNode,
     selectedCollectionId?: string,
     onCollectionClick?: (collectionId: string) => void,
     afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void
+}
+
+export interface TreeCollectionData {
+    id: string,
+    icon?: React.ComponentType,
+    name: string,
+    isFolded?: boolean,
+    children?: TreeCollectionData[]
 }
 
 export default function CollectionsTree({
@@ -22,7 +29,7 @@ export default function CollectionsTree({
         onCollectionClick && onCollectionClick(collectionId)
     }
 
-    function collectionsToComponent(collections: BookmarksCollection[]) {
+    function collectionsToComponent(collections: TreeCollectionData[]) {
         return collections.map((collection) => {
             const commonProps = {
                 key: collection.id,
@@ -32,7 +39,7 @@ export default function CollectionsTree({
                 isDefaultFolded: collection.isFolded,
                 onClick: handleCollectionClick,
                 isSelected: collection.id === selectedCollectionId,
-                afterFoldingChange: afterCollectionFoldingChange
+                afterFoldingChange: afterCollectionFoldingChange,
             }
 
             if (collection.children) {

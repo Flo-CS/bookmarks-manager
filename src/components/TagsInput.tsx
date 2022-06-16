@@ -33,7 +33,7 @@ const Container = styled.div`
 type Props = {
     tagsSuggestions?: string[],
     tags?: string[],
-    onChange?: (allTags: string[], changement: string) => void,
+    onChange?: (allTags: string[], update: string) => void,
     id?: string
 }
 
