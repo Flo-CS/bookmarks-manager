@@ -2,6 +2,11 @@ import {groupBy, toPairs} from "lodash";
 import {v4 as uuidv4} from 'uuid';
 import {SpecialsCollections} from "./collections";
 
+export enum BookmarkVariant {
+    PREVIEW = "preview",
+    ICON = "icon"
+}
+
 export interface BookmarkUserComplement {
     linkTitle: string,
     url: string,
@@ -15,7 +20,7 @@ export interface BookmarkMinimal {
     id: string,
     url: string,
     collection: string,
-    variant: "icon" | "preview",
+    variant: BookmarkVariant,
 }
 
 export interface BookmarkDates {
@@ -64,7 +69,7 @@ export function createDefaultBookmark(selectedCollectionId: string): BookmarkFor
         tags: [],
         description: "",
         collection: Object.values(SpecialsCollections).includes(selectedCollectionId as unknown as SpecialsCollections) ? SpecialsCollections.WITHOUT_COLLECTION : selectedCollectionId,
-        variant: "preview", // TODO: Make this enum
+        variant: BookmarkVariant.PREVIEW,
         id: uuidv4()
     }
 }

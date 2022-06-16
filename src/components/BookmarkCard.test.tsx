@@ -2,6 +2,7 @@ import {render} from "../../tests/utilities"
 import BookmarkCard from "./BookmarkCard";
 import {fireEvent, screen, within} from "@testing-library/react";
 import {formatDistanceToNow} from "date-fns";
+import {BookmarkVariant} from "../helpers/bookmarks";
 
 describe('BookmarkCard component', () => {
 
@@ -17,7 +18,7 @@ describe('BookmarkCard component', () => {
     jest.spyOn(navigator.clipboard, "writeText");
 
     const props = {
-        variant: "preview" as const,
+        variant: BookmarkVariant.PREVIEW,
         title: "This is a title",
         id: "e6c1b24d-f999-4fa9-b204-54713e735c84",
         link: "https://google.com",

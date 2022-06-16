@@ -1,6 +1,12 @@
 import React from "react";
 import {BookmarksCollection} from "../src/helpers/collections";
-import {BookmarkDates, BookmarkMetadata, BookmarkMinimal, BookmarkUserComplement} from "../src/helpers/bookmarks";
+import {
+    BookmarkDates,
+    BookmarkMetadata,
+    BookmarkMinimal,
+    BookmarkUserComplement,
+    BookmarkVariant
+} from "../src/helpers/bookmarks";
 
 export const collections: BookmarksCollection[] = [
     {
@@ -49,5 +55,5 @@ export const bookmark: BookmarkData = {
     modificationDate: new Date("28-12-2021"),
     collection: "root",
     description: "Hello world article description",
-    variant: "icon",
+    variant: BookmarkVariant.ICON,
 }

@@ -1,7 +1,7 @@
-import { format, startOfMonth } from "date-fns"
-import { orderBy } from "lodash"
-import { useMemo } from "react"
-import { CompleteBookmark, getKeySeparatedBookmarks } from "../helpers/bookmarks"
+import {format, startOfMonth} from "date-fns"
+import {orderBy} from "lodash"
+import {useMemo} from "react"
+import {BookmarkVariant, CompleteBookmark, getKeySeparatedBookmarks} from "../helpers/bookmarks"
 import BookmarkCard from "./BookmarkCard"
 import TitleGridContainer from "./TitleGridContainer"
 
@@ -13,7 +13,7 @@ type Props = {
     onDelete: (id: string) => void,
     onTagRemove: (id: string, tag: string) => void,
 }
-export default function BookmarksLayout({ bookmarks, onEdit, onDelete, onTagRemove }: Props) {
+export default function BookmarksLayout({bookmarks, onEdit, onDelete, onTagRemove}: Props) {
 
     const monthSeparatedBookmarks = useMemo(() => {
         const separatedBookmarks = getKeySeparatedBookmarks(bookmarks, (b => startOfMonth(b.modificationDate)))
@@ -25,27 +25,27 @@ export default function BookmarksLayout({ bookmarks, onEdit, onDelete, onTagRemo
         monthSeparatedBookmarks.map(([date, bookmarks]) => {
             const formattedDate = format(new Date(date), "MMMM yyyy")
 
-            return <TitleGridContainer key={formattedDate} title={formattedDate} >
+            return <TitleGridContainer key={formattedDate} title={formattedDate}>
                 {bookmarks.map(b => {
                     let picturePath = noPicture;
-                    if (b.variant === "icon" && b.faviconPath) {
+                    if (b.variant === BookmarkVariant.ICON && b.faviconPath) {
                         picturePath = b.faviconPath;
-                    } else if (b.variant === "preview" && b.previewPath) {
+                    } else if (b.variant === BookmarkVariant.PREVIEW && b.previewPath) {
                         picturePath = b.previewPath;
                     }
 
                     return <BookmarkCard key={b.id}
-                        onEdit={() => onEdit(b.id)}
-                        onDelete={() => onDelete(b.id)}
-                        onTagRemove={tag => onTagRemove(b.id, tag)}
-                        datetime={b.modificationDate}
-                        description={b.description}
-                        picturePath={picturePath}
-                        tags={b.tags}
-                        title={b.linkTitle}
-                        link={b.url}
-                        variant={b.variant}
-                        id={b.id} />
+                                         onEdit={() => onEdit(b.id)}
+                                         onDelete={() => onDelete(b.id)}
+                                         onTagRemove={tag => onTagRemove(b.id, tag)}
+                                         datetime={b.modificationDate}
+                                         description={b.description}
+                                         picturePath={picturePath}
+                                         tags={b.tags}
+                                         title={b.linkTitle}
+                                         link={b.url}
+                                         variant={b.variant}
+                                         id={b.id}/>
                 })}
             </TitleGridContainer>
         })

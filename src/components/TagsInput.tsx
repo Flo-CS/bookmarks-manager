@@ -84,7 +84,6 @@ export function TagsInput({tagsSuggestions = [], tags = [], onChange, id}: Props
 
     return <Container>
         {tags.map(tag => {
-            // TODO: pass removed tag name in onClose in the Tag component
             return <Tag key={tag} onClose={() => handleTagClose(tag)}>{tag}</Tag>
         })}
         <AutoSuggestTextInput suggestions={tagsSuggestions}

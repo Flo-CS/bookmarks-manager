@@ -2,11 +2,13 @@ import {DataTypes, Sequelize} from 'sequelize';
 import {SpecialsCollections} from '../src/helpers/collections';
 import * as path from "path"
 import {app} from 'electron';
+import {BookmarkVariant} from "../src/helpers/bookmarks";
 
 const ARRAY_SEPARATOR = ";";
 
 export const databasePath = path.join(app.getPath("userData"), "main.db");
 export const sequelize = new Sequelize({dialect: "sqlite", storage: databasePath});
+
 
 export const Bookmark = sequelize.define('Bookmark', {
     linkTitle: DataTypes.STRING,
@@ -31,8 +33,8 @@ export const Bookmark = sequelize.define('Bookmark', {
         allowNull: false
     },
     variant: {
-        type: DataTypes.ENUM("icon", "preview"),
-        defaultValue: "preview",
+        type: DataTypes.ENUM(...Object.values(BookmarkVariant)),
+        defaultValue: BookmarkVariant.PREVIEW,
         allowNull: false
     },
     id: {
