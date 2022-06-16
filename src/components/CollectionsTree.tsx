@@ -6,10 +6,17 @@ type Props = {
     collections?: BookmarksCollection[],
     children?: React.ReactNode,
     selectedCollectionId?: string,
-    onCollectionClick?: (collectionId: string) => void
+    onCollectionClick?: (collectionId: string) => void,
+    afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void
 }
 
-export default function CollectionsTree({collections, children, selectedCollectionId, onCollectionClick}: Props) {
+export default function CollectionsTree({
+                                            collections,
+                                            children,
+                                            selectedCollectionId,
+                                            onCollectionClick,
+                                            afterCollectionFoldingChange
+                                        }: Props) {
 
     function handleCollectionClick(collectionId: string) {
         onCollectionClick && onCollectionClick(collectionId)
@@ -18,15 +25,16 @@ export default function CollectionsTree({collections, children, selectedCollecti
     function collectionsToComponent(collections: BookmarksCollection[]) {
         return collections.map((collection) => {
             const commonProps = {
-                key: collection.key,
-                collectionId: collection.key,
-                name: collection.name,
+                key: collection.id,
+                collectionId: collection.id,
                 icon: collection.icon,
-                count: collection.count,
+                name: collection.name,
                 isDefaultFolded: collection.isFolded,
                 onClick: handleCollectionClick,
-                isSelected: collection.key === selectedCollectionId,
+                isSelected: collection.id === selectedCollectionId,
+                afterFoldingChange: afterCollectionFoldingChange
             }
+
             if (collection.children) {
                 return <CollectionTreeItem {...commonProps}>
                     {collectionsToComponent(collection.children)}

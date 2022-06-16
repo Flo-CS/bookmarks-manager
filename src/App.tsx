@@ -1,24 +1,23 @@
 import {flatten, uniq} from "lodash";
 import React, {useEffect, useMemo, useState} from "react";
 import styled, {ThemeProvider} from "styled-components";
-import {collections as collectionsMock} from "../tests/mockData";
 import BookmarkModal from "./components/BookmarkModal";
 import BookmarksLayout from "./components/BookmarksLayout";
 import CollectionName from "./components/CollectionName";
 import CollectionsBreadCrumb from "./components/CollectionsBreadCrumb";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
-import {BookmarkAPI, ElectronBookmarkAPI} from "./helpers/api";
+import {ElectronBookmarkAPI, ElectronCollectionAPI} from "./helpers/api";
 import {
     BookmarkForDatabase,
     BookmarkUserComplement,
     CompleteBookmark,
     createDefaultBookmark
 } from "./helpers/bookmarks";
-import {SpecialsCollections} from "./helpers/collections";
+import {BookmarksCollection, createDefaultCollection, SpecialsCollections} from "./helpers/collections";
 import useBookmarkModal from "./hooks/useBookmarkModal";
 import useBookmarks from "./hooks/useBookmarks";
-import useCollections from "./hooks/useCollections";
+import useTree from "./hooks/useTree";
 import {GlobalStyle} from "./styles/GlobalStyle";
 import {theme} from "./styles/Theme";
 
@@ -37,11 +36,18 @@ const Main = styled.main`
 
 export const TagsContext = React.createContext<string[]>([]);
 
-const bookmarkApi: BookmarkAPI = new ElectronBookmarkAPI();
+const bookmarkApi = new ElectronBookmarkAPI();
+const collectionApi = new ElectronCollectionAPI()
 
 // Temporary code, only for the MVP creation process*
 export function App() {
-    const {collectionsRoot, insertCollection, getPathTo} = useCollections(collectionsMock, "root")
+    const {
+        itemsRoot: collectionsRoot,
+        insertItem: insertCollection,
+        getPathTo,
+        setItems: setCollections
+    } = useTree<string, BookmarksCollection>(SpecialsCollections.ROOT)
+
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(SpecialsCollections.ALL);
     const {
         bookmarks,
@@ -62,14 +68,20 @@ export function App() {
             setBookmarks(bookmarks)
         }
 
+        async function fetchCollections() {
+            const collections = await collectionApi.getCollections()
+            setCollections(collections)
+        }
+
         fetchBookmarks()
+        fetchCollections()
     }, [])
 
 
     function handleAddCollection(name: string) {
-        insertCollection(selectedCollectionId, {
-            key: name,
-            name: name
+        const newCollection = createDefaultCollection(name, selectedCollectionId)
+        collectionApi.addCollection(newCollection).then(collection => {
+            insertCollection(collection)
         })
     }
 
@@ -121,7 +133,11 @@ export function App() {
         })
     }
 
-    const allTags = useMemo(() => uniq(flatten(bookmarks.map(b => b.tags))), [bookmarks])
+    function handleCollectionFolding(id: string, isFolded: boolean) {
+        collectionApi.updateCollection(id, {isFolded: isFolded})
+    }
+
+    const allTags = useMemo(() => uniq(flatten(bookmarks.map(bookmark => bookmark.tags))), [bookmarks])
     const selectedCollectionPath = useMemo(() => getPathTo(selectedCollectionId), [selectedCollectionId])
 
     return (
@@ -131,13 +147,14 @@ export function App() {
                 <Layout className="app">
                     <Sidebar collections={{main: collectionsRoot.children || []}}
                              onCollectionAdd={handleAddCollection}
+                             afterCollectionFoldingChange={handleCollectionFolding}
                              onSelectedCollectionChange={handleCollectionSelection}
                              selectedCollectionId={selectedCollectionId}/>
                     <Main>
                         <TopBar onAdd={handleBookmarkCreation}/>
                         <CollectionsBreadCrumb>
                             {selectedCollectionPath.map(collection => {
-                                return <CollectionName key={collection.key} name={collection.name}
+                                return <CollectionName key={collection.id} name={collection.name}
                                                        icon={collection.icon}/>
                             })}
                         </CollectionsBreadCrumb>

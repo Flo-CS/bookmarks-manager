@@ -1,12 +1,14 @@
 import {DataTypes, Sequelize} from 'sequelize';
 import {SpecialsCollections} from '../src/helpers/collections';
-import {databasePath} from "./main";
+import * as path from "path"
+import {app} from 'electron';
 
 const ARRAY_SEPARATOR = ";";
 
-export const database = new Sequelize({dialect: "sqlite", storage: databasePath});
+export const databasePath = path.join(app.getPath("userData"), "main.db");
+export const sequelize = new Sequelize({dialect: "sqlite", storage: databasePath});
 
-export const Bookmark = database.define('Bookmark', {
+export const Bookmark = sequelize.define('Bookmark', {
     linkTitle: DataTypes.STRING,
     url: {
         type: DataTypes.STRING,
@@ -55,7 +57,7 @@ export const Bookmark = database.define('Bookmark', {
     copyHistory: {
         type: DataTypes.TEXT,
         set(dates: Date[]) {
-            console.log(dates.map(date => date.toUTCString()).join(";"))
+            console.log(dates.map(date => date.toUTCString()).join(ARRAY_SEPARATOR))
             this.setDataValue("copyHistory", dates.map(date => date.toUTCString()).join(ARRAY_SEPARATOR))
         },
         get() {
@@ -69,25 +71,15 @@ export const Bookmark = database.define('Bookmark', {
     updatedAt: 'modificationDate'
 });
 
-export const Collection = database.define('Collection', {
-        key: DataTypes.STRING,
+export const Collection = sequelize.define('Collection', {
+        id: {type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4},
         name: DataTypes.STRING,
         iconPath: {
             type: DataTypes.STRING,
             allowNull: true
         },
-        children: {
-            type: DataTypes.TEXT,
-            set(children: string[]) {
-                this.setDataValue("children", children.join(ARRAY_SEPARATOR))
-            },
-            get() {
-                const children = this.getDataValue('children');
-                return children ? children.split(ARRAY_SEPARATOR) : [];
-            }
-        },
-        parent: DataTypes.UUID,
-        isFolded: DataTypes.BOOLEAN,
+        parent: {type: DataTypes.UUID, defaultValue: SpecialsCollections.ROOT},
+        isFolded: {type: DataTypes.BOOLEAN, defaultValue: true},
     },
     {
         timestamps: true,
@@ -96,5 +88,5 @@ export const Collection = database.define('Collection', {
     });
 
 (async () => {
-    await database.sync({});
+    await sequelize.sync();
 })();

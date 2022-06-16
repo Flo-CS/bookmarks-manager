@@ -18,7 +18,7 @@ describe("Sidebar component", () => {
                 value: "aNewCollectionName"
             }
         })
-        fireEvent.keyPress(input, {key: 'Enter', code: 'Enter', charCode: 13})
+        fireEvent.keyPress(input, {id: 'Enter', code: 'Enter', charCode: 13})
 
         expect(onCollectionAddedMock).toHaveBeenCalledTimes(1);
         expect(onCollectionAddedMock).toHaveBeenCalledWith("aNewCollectionName");
@@ -35,7 +35,7 @@ describe("Sidebar component", () => {
         })
         expect(input).toHaveValue("aNewCollectionName")
 
-        fireEvent.keyPress(input, {key: 'Enter', code: 'Enter', charCode: 13})
+        fireEvent.keyPress(input, {id: 'Enter', code: 'Enter', charCode: 13})
 
         expect(input).toHaveValue("")
     })

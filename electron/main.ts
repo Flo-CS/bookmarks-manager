@@ -1,8 +1,7 @@
 import {app, BrowserWindow} from 'electron'
 import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
-import {registerListeners} from './listeners';
+import {registerBridgeListeners} from './listeners';
 import * as path from "path";
-
 
 let mainWindow: BrowserWindow | null
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string
@@ -13,7 +12,6 @@ export const assetsPath =
         ? process.resourcesPath
         : app.getAppPath()
 
-export const databasePath = path.join(app.getPath("userData"), "main.db");
 
 function createWindow() {
     mainWindow = new BrowserWindow({
@@ -37,7 +35,7 @@ function createWindow() {
 app.on('ready', createWindow)
     .whenReady()
     .then(async () => {
-        await registerListeners()
+        await registerBridgeListeners()
         await installExtension(REACT_DEVELOPER_TOOLS)
     })
     .catch(e => console.error(e))

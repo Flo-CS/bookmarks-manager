@@ -45,13 +45,16 @@ type Props = {
     },
     onCollectionAdd?: (collectionName: string) => void,
     selectedCollectionId?: string,
-    onSelectedCollectionChange?: (collectionId: string) => void
+    onSelectedCollectionChange?: (collectionId: string) => void,
+    afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void
 }
+
 export default function Sidebar({
                                     collections,
                                     onCollectionAdd,
                                     selectedCollectionId,
-                                    onSelectedCollectionChange
+                                    onSelectedCollectionChange,
+                                    afterCollectionFoldingChange
                                 }: Props) {
     const [newCollectionName, setNewCollectionName] = useState<string>("");
 
@@ -81,8 +84,10 @@ export default function Sidebar({
             </CollectionTreeItem>
         </CollectionsTree>
         <Separator/>
-        <CollectionsTree collections={collections.main} selectedCollectionId={selectedCollectionId}
-                         onCollectionClick={handleCollectionClick}/>
+        <CollectionsTree collections={collections.main}
+                         selectedCollectionId={selectedCollectionId}
+                         onCollectionClick={handleCollectionClick}
+                         afterCollectionFoldingChange={afterCollectionFoldingChange}/>
         <AddCollectionInputLabel htmlFor="add-collection-input">New collection...</AddCollectionInputLabel>
         <AddCollectionInput id="add-collection-input" onChange={handleNewCollectionInputChange}
                             value={newCollectionName}

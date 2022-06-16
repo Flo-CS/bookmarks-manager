@@ -67,30 +67,35 @@ const Count = styled.p`
 
 export type CollectionTreeItemProps = {
     collectionId: string,
-    name: string
-    icon?: React.ComponentType,
-    onClick?: (collectionId: string) => void,
     isDefaultFolded?: boolean,
-    children?: React.ReactNode,
     count?: number,
-    isSelected?: boolean
+    name: string
+    icon?: React.ComponentType
+    onClick?: (collectionId: string) => void,
+    isSelected?: boolean,
+    afterFoldingChange?: (collectionId: string, isFolded: boolean) => void,
+    children?: React.ReactNode
 }
 
 export default function CollectionTreeItem({
                                                collectionId,
+                                               isDefaultFolded,
+                                               count,
                                                name,
                                                icon,
                                                onClick,
-                                               isDefaultFolded,
-                                               children,
-                                               count,
-                                               isSelected
+                                               isSelected,
+                                               afterFoldingChange,
+                                               children
                                            }: CollectionTreeItemProps) {
     const [isFolded, setIsFolded] = useState<boolean>(!!isDefaultFolded);
 
     function handleFoldButtonClick(e: React.SyntheticEvent) {
         e.stopPropagation();
-        setIsFolded((isFolded) => !isFolded)
+        setIsFolded((isFolded) => {
+            afterFoldingChange && afterFoldingChange(collectionId, !isFolded)
+            return !isFolded
+        })
     }
 
     function handleItemClick() {

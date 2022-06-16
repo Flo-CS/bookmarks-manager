@@ -1,16 +1,23 @@
-export interface TreeNode<K> {
-    children?: TreeNode<K>[];
-    key: K;
+// TODO: use parent ?
+export interface TreeNode<K, V> {
+    children?: TreeNode<K, V>[];
+    id: K;
 }
 
-export default class Tree<K>{
-    readonly root: TreeNode<K>;
+export type KeyType = number | string | symbol;
 
-    constructor(root: TreeNode<K>) {
+export default class Tree<K extends KeyType, V extends TreeNode<K, V>> {
+    readonly root: TreeNode<K, V>;
+
+    constructor(root: TreeNode<K, V>) {
         this.root = Object.assign({}, root);
     }
 
-    * preOrderTraversal(root: TreeNode<K> = this.root): IterableIterator<TreeNode<K>> {
+    getRoot(): V {
+        return this.root as V;
+    }
+
+    * preOrderTraversal(root: TreeNode<K, V> = this.root): IterableIterator<TreeNode<K, V>> {
         yield root;
         if (root.children?.length) {
             for (const child of root.children) {
@@ -19,19 +26,19 @@ export default class Tree<K>{
         }
     }
 
-    find(nodeKey: K, root: TreeNode<K> = this.root): TreeNode<K> | null {
+    find(nodeId: K, root: TreeNode<K, V> = this.root): TreeNode<K, V> | null {
         for (const node of this.preOrderTraversal(root)) {
-            if (node.key === nodeKey) return node;
+            if (node.id === nodeId) return node;
         }
         return null;
     }
 
-    insert(parentNodeKey: K, newNode: TreeNode<K>, index: number = 0): Tree<K> | null {
-        if (this.find(newNode.key, this.root)) return null;
+    insert(parentNodeId: K, newNode: TreeNode<K, V>, index: number = 0): Tree<K, V> | null {
+        if (this.find(newNode.id, this.root)) return null;
         index = index < 0 ? 0 : index;
 
         for (const parentNode of this.preOrderTraversal()) {
-            if (parentNode.key === parentNodeKey) {
+            if (parentNode.id === parentNodeId) {
                 const parentChildren = parentNode.children || []
 
                 parentNode.children = [...parentChildren.slice(0, index), newNode, ...parentChildren.slice(index)];
@@ -43,39 +50,39 @@ export default class Tree<K>{
         return null;
     }
 
-    remove(nodeKey: K): Tree<K> | null {
+    remove(nodeId: K): Tree<K, V> | null {
         for (const node of this.preOrderTraversal(this.root)) {
             if (!node.children) continue
 
             // No need to filter for other potential nodes because in tree, node have only one predecessor
-            if (node.children.find((val) => val.key === nodeKey)) {
-                node.children = node.children.filter(child => child.key !== nodeKey);
+            if (node.children.find((val) => val.id === nodeId)) {
+                node.children = node.children.filter(child => child.id !== nodeId);
                 return this;
             }
         }
         return null
     }
 
-    move(nodeKey: K, destinationNodeKey: K, index: number = 0): Tree<K> | null {
-        const node = this.find(nodeKey, this.root);
-        const destinationNode = this.find(destinationNodeKey, this.root);
+    move(nodeId: K, destinationNodeId: K, index: number = 0): Tree<K, V> | null {
+        const node = this.find(nodeId, this.root);
+        const destinationNode = this.find(destinationNodeId, this.root);
 
         if (!node || !destinationNode) return null;
         if (node === this.root) return null;
 
         // Return on null ?
-        this.remove(nodeKey)
-        this.insert(destinationNodeKey, node, index)
+        this.remove(nodeId)
+        this.insert(destinationNodeId, node, index)
 
         return this
     }
 
     // TODO: maybe improve this ? because it's not a pure function, not very efficient and readable
-    findPath(nodeKey: K) {
-        const path: TreeNode<K>[] = [];
+    findPath(nodeId: K) {
+        const path: TreeNode<K, V>[] = [];
 
-        const findPathRec = (node: TreeNode<K>) => {
-            if (node.key === nodeKey) {
+        const findPathRec = (node: TreeNode<K, V>) => {
+            if (node.id === nodeId) {
                 path.push(node);
                 return true;
             }

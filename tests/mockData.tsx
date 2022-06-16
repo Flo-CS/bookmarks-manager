@@ -4,21 +4,21 @@ import {BookmarkDates, BookmarkMetadata, BookmarkMinimal, BookmarkUserComplement
 
 export const collections: BookmarksCollection[] = [
     {
-        key: "1",
+        id: "1",
         name: "1",
         icon: () => <svg>1-svg</svg>,
         children: [
             {
-                key: "11",
+                id: "11",
                 name: "11",
-                icon: () => <svg>12-svg</svg>,
+                icon: () => <svg>12-svg</svg>
             },
             {
-                key: "12",
+                id: "12",
                 name: "12",
                 children: [
                     {
-                        key: "121",
+                        id: "121",
                         name: "121"
                     },
                 ]
@@ -26,12 +26,12 @@ export const collections: BookmarksCollection[] = [
         ]
     },
     {
-        key: "2",
+        id: "2",
         name: "2",
         icon: () => <svg>2-svg</svg>,
         children: [
             {
-                key: "21",
+                id: "21",
                 name: "21"
             },
         ]

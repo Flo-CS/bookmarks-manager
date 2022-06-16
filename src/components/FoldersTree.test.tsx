@@ -18,9 +18,9 @@ describe("CollectionsTreeView component", () => {
 
                 let collectionElem;
                 if (parentElement) {
-                    collectionElem = within(parentElement).queryByTestId(`collection-wrapper-${collection.key}`)
+                    collectionElem = within(parentElement).queryByTestId(`collection-wrapper-${collection.id}`)
                 } else {
-                    collectionElem = screen.queryByTestId(`collection-wrapper-${collection.key}`)
+                    collectionElem = screen.queryByTestId(`collection-wrapper-${collection.id}`)
                 }
 
                 expect(collectionElem).toBeInTheDocument()
