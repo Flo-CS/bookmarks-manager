@@ -63,18 +63,12 @@ export function App() {
     const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useIdModal<BookmarkData>();
 
     useEffect(() => {
-        async function fetchBookmarks() {
-            const fetchedBookmarks = await bookmarkApi.getBookmarks()
+        bookmarkApi.getBookmarks().then(fetchedBookmarks => {
             setBookmarks(fetchedBookmarks)
-        }
-
-        async function fetchCollections() {
-            const fetchedCollections = await collectionApi.getCollections()
+        })
+        collectionApi.getCollections().then(fetchedCollections => {
             setCollections(fetchedCollections)
-        }
-
-        fetchBookmarks()
-        fetchCollections()
+        })
     }, [])
 
 
