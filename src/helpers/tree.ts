@@ -4,9 +4,9 @@ export interface TreeNode<K> {
     id: K;
 }
 
-export type KeyType = number | string | symbol;
+export type TreeKeyType = number | string | symbol;
 
-export default class Tree<K extends KeyType> {
+export default class Tree<K extends TreeKeyType> {
     readonly root: TreeNode<K>;
 
     constructor(root: TreeNode<K>) {

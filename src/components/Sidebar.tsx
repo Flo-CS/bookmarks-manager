@@ -44,6 +44,8 @@ type Props = {
         trash?: TreeCollectionData[]
     },
     onCollectionAdd?: (collectionName: string) => void,
+    onCollectionRemove?: (collectionId: string) => void,
+    onTrashCollectionRemove?: (collectionId: string) => void
     selectedCollectionId?: string,
     onSelectedCollectionChange?: (collectionId: string) => void,
     afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void
@@ -52,6 +54,8 @@ type Props = {
 export default function Sidebar({
                                     collections,
                                     onCollectionAdd,
+                                    onCollectionRemove,
+                                    onTrashCollectionRemove,
                                     selectedCollectionId,
                                     onSelectedCollectionChange,
                                     afterCollectionFoldingChange

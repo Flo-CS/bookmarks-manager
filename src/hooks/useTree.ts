@@ -1,5 +1,5 @@
-import Tree, {KeyType, TreeNode} from "../helpers/tree";
-import {useCallback, useState} from "react";
+import Tree, {TreeKeyType, TreeNode} from "../helpers/tree";
+import {useState} from "react";
 
 interface SimpleItem<K> {
     parent: K,
@@ -10,7 +10,7 @@ interface CompleteItem<K> extends TreeNode<K> {
     parent?: TreeNode<K>
 }
 
-export default function useTree<K extends KeyType, V extends CompleteItem<K>>(rootId: K) {
+export default function useTree<K extends TreeKeyType, V extends CompleteItem<K>>(rootId: K) {
     const [itemsTree, setItemsTree] = useState<Tree<K>>(new Tree<K>({
         id: rootId,
     }));
@@ -47,13 +47,13 @@ export default function useTree<K extends KeyType, V extends CompleteItem<K>>(ro
 
     function setItems(items: SimpleItem<K>[]) {
         type ItemType = SimpleItem<K> & { done: boolean }
-        type ReduceAccType = Record<K, ItemType>
+        type ItemsByIdType = Record<K, ItemType>
 
-        const itemsById = items.reduce<ReduceAccType>((acc, item) => {
+        const itemsById = items.reduce<ItemsByIdType>((acc, item) => {
                 acc[item.id] = {...item, done: false}
                 return acc
             },
-            {} as ReduceAccType
+            {} as ItemsByIdType
         );
 
         for (const item of Object.values<ItemType>(itemsById)) {
@@ -72,12 +72,10 @@ export default function useTree<K extends KeyType, V extends CompleteItem<K>>(ro
         }
     }
 
-    const getItems = useCallback<() => V[]>(
-        () => {
-            return (itemsTree.getItems() || []) as V[]
-        },
-        [itemsTree],
-    );
+    function getItems() {
+        return (itemsTree.getItems() || []) as V[]
+    }
+
 
     return {
         getItems, insertItem, removeItem, moveItem, getPathTo, setItems

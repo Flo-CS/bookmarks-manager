@@ -36,4 +36,8 @@ export class ElectronCollectionAPI {
     async updateCollection(id: string, collection: Partial<CollectionData>): Promise<CollectionData> {
         return await window.bridge.sendMessage("updateCollection", id, collection)
     }
+
+    async removeCollection(id: string) {
+        return await window.bridge.sendMessage("removeCollection", id)
+    }
 }

@@ -40,11 +40,14 @@ export function App() {
         getItems: getCollections,
         insertItem: insertCollection,
         getPathTo: getPathToCollection,
-        setItems: setCollections
+        removeItem: removeCollection,
+        setItems: setCollections,
     } = useTree<string, Collection>(SpecialsCollections.ROOT)
 
     const {
-        getItems: getTrash
+        getItems: getTrashCollections,
+        insertItem: insertTrashCollection,
+        removeItem: removeTrashCollection
     } = useTree<string, Collection>(SpecialsCollections.TRASH)
 
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(SpecialsCollections.ALL);
@@ -76,6 +79,20 @@ export function App() {
         const newCollection = createDefaultCollection(name, selectedCollectionId)
         collectionApi.addCollection(newCollection).then(createdCollection => {
             insertCollection(createdCollection)
+        })
+    }
+
+    function handleRemoveCollection(id: string) {
+        const collectionUpdate = {parent: SpecialsCollections.TRASH}
+        collectionApi.updateCollection(id, collectionUpdate).then((updatedCollection) => {
+            removeCollection(id)
+            insertTrashCollection(updatedCollection)
+        })
+    }
+
+    function handleRemoveTrashCollection(id: string) {
+        collectionApi.removeCollection(id).then(() => {
+            removeTrashCollection(id)
         })
     }
 
@@ -131,8 +148,8 @@ export function App() {
                 removeBookmark(id)
             })
         } else {
-            const newCollection = {collection: SpecialsCollections.TRASH}
-            bookmarkApi.updateBookmark(id, newCollection).then((updatedBookmark) => {
+            const collectionUpdate = {collection: SpecialsCollections.TRASH}
+            bookmarkApi.updateBookmark(id, collectionUpdate).then((updatedBookmark) => {
                 updateBookmark(id, updatedBookmark)
             })
         }
@@ -150,8 +167,13 @@ export function App() {
             <GlobalStyle/>
             <TagsContext.Provider value={allTags}>
                 <Layout className="app">
-                    <Sidebar collections={{main: getCollections(), trash: getTrash()}}
+                    <Sidebar collections={{
+                        main: getCollections(),
+                        trash: getTrashCollections()
+                    }}
                              onCollectionAdd={handleAddCollection}
+                             onCollectionRemove={handleRemoveCollection}
+                             onTrashCollectionRemove={handleRemoveTrashCollection}
                              afterCollectionFoldingChange={handleCollectionFolding}
                              onSelectedCollectionChange={handleCollectionSelection}
                              selectedCollectionId={selectedCollectionId}/>

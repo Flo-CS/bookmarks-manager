@@ -45,7 +45,6 @@ export async function registerBridgeListeners() {
     })
 
     ipcMain.handle("updateCollection", async (_event, id: string, collectionData: CollectionData): Promise<CollectionData> => {
-        console.log(collectionData)
         await Collection.update({
             ...collectionData
         }, {
@@ -54,6 +53,12 @@ export async function registerBridgeListeners() {
 
         const updatedCollection = await Collection.findByPk(id);
         return updatedCollection?.get();
+    })
+
+    ipcMain.handle("removeCollection", async (_event, id: string): Promise<void> => {
+        await Collection.destroy({
+            where: {id: id}
+        })
     })
 
 }
