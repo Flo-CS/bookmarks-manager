@@ -8,13 +8,9 @@ import {IoMdClose, IoMdRefresh} from 'react-icons/io'
 import {hexToRgba} from '../helpers/colors'
 import {isEqual, pickBy} from 'lodash'
 import {TagsContext} from '../App'
+import {buttonReset} from "../styles/utils";
 
-const buttonReset = css`
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-  color: ${props => props.theme.colors.white};
-`
+
 const iconButton = css`
   width: 25px;
   height: 25px;
