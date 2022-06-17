@@ -1,7 +1,7 @@
 import Tree from "./tree";
 
 describe("Collections helpers", () => {
-    let tree: Tree<string, { id: string }>;
+    let tree: Tree<string>;
     const rootOriginal = {id: "root"}
 
     beforeEach(() => {

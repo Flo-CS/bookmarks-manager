@@ -1,22 +1,22 @@
 import Tree, {KeyType, TreeNode} from "../helpers/tree";
-import {useMemo, useState} from "react";
+import {useCallback, useState} from "react";
 
 interface SimpleItem<K> {
     parent: K,
     id: K
 }
 
-interface CompleteItem<K, V> extends TreeNode<K, V> {
-    parent?: TreeNode<K, V>
+interface CompleteItem<K> extends TreeNode<K> {
+    parent?: TreeNode<K>
 }
 
-export default function useTree<K extends KeyType, V extends CompleteItem<K, V>>(rootId: K) {
-    const [itemsTree, setItemsTree] = useState<Tree<K, V>>(new Tree<K, V>({
+export default function useTree<K extends KeyType, V extends CompleteItem<K>>(rootId: K) {
+    const [itemsTree, setItemsTree] = useState<Tree<K>>(new Tree<K>({
         id: rootId,
     }));
 
     function insertItem(item: SimpleItem<K>, index?: number) {
-        const newItem: CompleteItem<K, V> = {
+        const newItem: CompleteItem<K> = {
             ...item,
             parent: itemsTree.find(item.parent) || itemsTree.root,
         }
@@ -72,9 +72,15 @@ export default function useTree<K extends KeyType, V extends CompleteItem<K, V>>
         }
     }
 
-    const itemsRoot = useMemo(() => itemsTree.getRoot(), [itemsTree]);
+    const getItems = useCallback<() => V[]>(
+        () => {
+            return (itemsTree.getItems() || []) as V[]
+        },
+        [itemsTree],
+    );
+
     return {
-        itemsRoot, insertItem, removeItem, moveItem, getPathTo, setItems
+        getItems, insertItem, removeItem, moveItem, getPathTo, setItems
     }
 
 

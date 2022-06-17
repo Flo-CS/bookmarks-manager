@@ -1,7 +1,12 @@
 import {useMemo, useState} from "react";
 import {SpecialsCollections} from "../helpers/collections";
 
-export default function useCollectionsItems<T extends { id: string, collection: string }>(initItems: T[], selectedCollectionId: string) {
+interface Classifiable {
+    id: string,
+    collection: string
+}
+
+export default function useCollectionsItems<T extends Classifiable>(initItems: T[], selectedCollectionId: string) {
     const [items, setItems] = useState<T[]>(initItems);
 
     function getItem(id?: string) {
@@ -26,12 +31,12 @@ export default function useCollectionsItems<T extends { id: string, collection: 
         setItems(newItems);
     }
 
-    const selectedItems = useMemo(() => items.filter(b => {
-        if (selectedCollectionId === SpecialsCollections.ALL) {
+    const selectedItems = useMemo(() => items.filter(item => {
+        if (selectedCollectionId === SpecialsCollections.ALL && item.collection !== SpecialsCollections.TRASH) {
             return true;
         }
 
-        return b.collection === selectedCollectionId
+        return item.collection === selectedCollectionId
     }), [items, selectedCollectionId])
 
 

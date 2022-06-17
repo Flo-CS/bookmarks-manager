@@ -37,11 +37,15 @@ const collectionApi = new ElectronCollectionAPI()
 // Temporary code, only for the MVP creation process*
 export function App() {
     const {
-        itemsRoot: collectionsRoot,
+        getItems: getCollections,
         insertItem: insertCollection,
-        getPathTo,
+        getPathTo: getPathToCollection,
         setItems: setCollections
     } = useTree<string, Collection>(SpecialsCollections.ROOT)
+
+    const {
+        getItems: getTrash
+    } = useTree<string, Collection>(SpecialsCollections.TRASH)
 
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(SpecialsCollections.ALL);
     const {
@@ -54,18 +58,19 @@ export function App() {
         setItems: setBookmarks
     } = useCollectionsItems<Bookmark>([], selectedCollectionId);
 
+
     const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useIdModal<BookmarkData>(bookmarks);
     const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useIdModal<BookmarkData>();
 
     useEffect(() => {
         async function fetchBookmarks() {
-            const bookmarks = await bookmarkApi.getBookmarks()
-            setBookmarks(bookmarks)
+            const fetchedBookmarks = await bookmarkApi.getBookmarks()
+            setBookmarks(fetchedBookmarks)
         }
 
         async function fetchCollections() {
-            const collections = await collectionApi.getCollections()
-            setCollections(collections)
+            const fetchedCollections = await collectionApi.getCollections()
+            setCollections(fetchedCollections)
         }
 
         fetchBookmarks()
@@ -75,8 +80,8 @@ export function App() {
 
     function handleAddCollection(name: string) {
         const newCollection = createDefaultCollection(name, selectedCollectionId)
-        collectionApi.addCollection(newCollection).then(collection => {
-            insertCollection(collection)
+        collectionApi.addCollection(newCollection).then(createdCollection => {
+            insertCollection(createdCollection)
         })
     }
 
@@ -94,38 +99,49 @@ export function App() {
     }
 
     function handleEditModalSave(data: Partial<Bookmark>) {
-        if (editModalBookmark) {
-            bookmarkApi.updateBookmark(editModalBookmark.id, data).then((newBookmark) => {
-                updateBookmark(editModalBookmark.id, newBookmark)
-            })
-            closeEditModal()
-        }
+        if (!editModalBookmark) return;
+
+        bookmarkApi.updateBookmark(editModalBookmark.id, data).then((updatedBookmark) => {
+            updateBookmark(editModalBookmark.id, updatedBookmark)
+        })
+        closeEditModal()
     }
 
     function handleNewModalSave(data: Partial<Bookmark>) {
-        if (newModalBookmark) {
-            const newBookmark = {...newModalBookmark, ...data}
-            bookmarkApi.addBookmark(newBookmark).then((bookmark) => {
-                addBookmark(bookmark)
-                closeNewModal()
-            })
-        }
+        if (!newModalBookmark) return;
+
+        const newBookmark = {...newModalBookmark, ...data}
+        bookmarkApi.addBookmark(newBookmark).then((createdBookmark) => {
+            addBookmark(createdBookmark)
+            closeNewModal()
+        })
     }
 
     function handleBookmarkTagRemove(id: string, tag: string) {
         const bookmark = getBookmark(id);
-        if (bookmark) {
-            const newTags = bookmark.tags.filter(t => t !== tag);
-            bookmarkApi.updateBookmark(bookmark.id, {tags: newTags}).then((newBookmark) => {
-                updateBookmark(bookmark.id, newBookmark)
-            })
-        }
+        if (!bookmark) return;
+
+        const newTags = bookmark.tags.filter(t => t !== tag);
+        bookmarkApi.updateBookmark(bookmark.id, {tags: newTags}).then((updatedBookmark) => {
+            updateBookmark(bookmark.id, updatedBookmark)
+        })
+
     }
 
     function handleBookmarkDelete(id: string) {
-        bookmarkApi.removeBookmark(id).then(() => {
-            removeBookmark(id)
-        })
+        const bookmark = getBookmark(id)
+        if (!bookmark) return;
+
+        if (bookmark.collection === SpecialsCollections.TRASH) {
+            bookmarkApi.removeBookmark(id).then(() => {
+                removeBookmark(id)
+            })
+        } else {
+            const newCollection = {collection: SpecialsCollections.TRASH}
+            bookmarkApi.updateBookmark(id, newCollection).then((updatedBookmark) => {
+                updateBookmark(id, updatedBookmark)
+            })
+        }
     }
 
     function handleCollectionFolding(id: string, isFolded: boolean) {
@@ -133,14 +149,14 @@ export function App() {
     }
 
     const allTags = useMemo(() => uniq(flatten(bookmarks.map(bookmark => bookmark.tags))), [bookmarks])
-    const selectedCollectionPath = useMemo(() => getPathTo(selectedCollectionId), [selectedCollectionId])
+    const selectedCollectionPath = useMemo(() => getPathToCollection(selectedCollectionId), [selectedCollectionId])
 
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyle/>
             <TagsContext.Provider value={allTags}>
                 <Layout className="app">
-                    <Sidebar collections={{main: collectionsRoot.children || []}}
+                    <Sidebar collections={{main: getCollections(), trash: getTrash()}}
                              onCollectionAdd={handleAddCollection}
                              afterCollectionFoldingChange={handleCollectionFolding}
                              onSelectedCollectionChange={handleCollectionSelection}

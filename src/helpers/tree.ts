@@ -1,23 +1,23 @@
 // TODO: use parent ?
-export interface TreeNode<K, V> {
-    children?: TreeNode<K, V>[];
+export interface TreeNode<K> {
+    children?: TreeNode<K>[];
     id: K;
 }
 
 export type KeyType = number | string | symbol;
 
-export default class Tree<K extends KeyType, V extends TreeNode<K, V>> {
-    readonly root: TreeNode<K, V>;
+export default class Tree<K extends KeyType> {
+    readonly root: TreeNode<K>;
 
-    constructor(root: TreeNode<K, V>) {
+    constructor(root: TreeNode<K>) {
         this.root = Object.assign({}, root);
     }
 
-    getRoot(): V {
-        return this.root as V;
+    getItems() {
+        return this.root.children;
     }
 
-    * preOrderTraversal(root: TreeNode<K, V> = this.root): IterableIterator<TreeNode<K, V>> {
+    * preOrderTraversal(root: TreeNode<K> = this.root): IterableIterator<TreeNode<K>> {
         yield root;
         if (root.children?.length) {
             for (const child of root.children) {
@@ -26,14 +26,14 @@ export default class Tree<K extends KeyType, V extends TreeNode<K, V>> {
         }
     }
 
-    find(nodeId: K, root: TreeNode<K, V> = this.root): TreeNode<K, V> | null {
+    find(nodeId: K, root: TreeNode<K> = this.root): TreeNode<K> | null {
         for (const node of this.preOrderTraversal(root)) {
             if (node.id === nodeId) return node;
         }
         return null;
     }
 
-    insert(parentNodeId: K, newNode: TreeNode<K, V>, index: number = 0): Tree<K, V> | null {
+    insert(parentNodeId: K, newNode: TreeNode<K>, index: number = 0): Tree<K> | null {
         if (this.find(newNode.id, this.root)) return null;
         index = index < 0 ? 0 : index;
 
@@ -50,7 +50,7 @@ export default class Tree<K extends KeyType, V extends TreeNode<K, V>> {
         return null;
     }
 
-    remove(nodeId: K): Tree<K, V> | null {
+    remove(nodeId: K): Tree<K> | null {
         for (const node of this.preOrderTraversal(this.root)) {
             if (!node.children) continue
 
@@ -63,7 +63,7 @@ export default class Tree<K extends KeyType, V extends TreeNode<K, V>> {
         return null
     }
 
-    move(nodeId: K, destinationNodeId: K, index: number = 0): Tree<K, V> | null {
+    move(nodeId: K, destinationNodeId: K, index: number = 0): Tree<K> | null {
         const node = this.find(nodeId, this.root);
         const destinationNode = this.find(destinationNodeId, this.root);
 
@@ -79,9 +79,9 @@ export default class Tree<K extends KeyType, V extends TreeNode<K, V>> {
 
     // TODO: maybe improve this ? because it's not a pure function, not very efficient and readable
     findPath(nodeId: K) {
-        const path: TreeNode<K, V>[] = [];
+        const path: TreeNode<K>[] = [];
 
-        const findPathRec = (node: TreeNode<K, V>) => {
+        const findPathRec = (node: TreeNode<K>) => {
             if (node.id === nodeId) {
                 path.push(node);
                 return true;
