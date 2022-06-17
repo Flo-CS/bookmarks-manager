@@ -4,8 +4,8 @@ import useClickOutside from "../hooks/useClickOutside";
 import {buttonReset} from "../styles/utils";
 
 const MenuContainer = styled.div<{ ref: React.RefObject<any>, left?: number, top?: number }>`
-  position: absolute;
-  z-index: 1000;
+  position: fixed;
+  z-index: 1000 !important;
   overflow: hidden;
   ${({theme}) => {
     return css`

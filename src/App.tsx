@@ -35,20 +35,17 @@ const bookmarkApi = new ElectronBookmarkAPI();
 const collectionApi = new ElectronCollectionAPI()
 
 // Temporary code, only for the MVP creation process*
+const COLLECTIONS_TREE_ROOT = "collectionsTree"
+
 export function App() {
     const {
-        getItems: getCollections,
+        getChildren: getCollections,
         insertItem: insertCollection,
         getPathTo: getPathToCollection,
         removeItem: removeCollection,
-        setItems: setCollections,
-    } = useTree<string, Collection>(SpecialsCollections.ROOT)
-
-    const {
-        getItems: getTrashCollections,
-        insertItem: insertTrashCollection,
-        removeItem: removeTrashCollection
-    } = useTree<string, Collection>(SpecialsCollections.TRASH)
+        moveItem: moveCollection,
+        addItems: addCollections,
+    } = useTree<string, Collection>(COLLECTIONS_TREE_ROOT)
 
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(SpecialsCollections.ALL);
     const {
@@ -61,16 +58,24 @@ export function App() {
         setItems: setBookmarks
     } = useCollectionsItems<Bookmark>([], selectedCollectionId);
 
-
     const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useIdModal<BookmarkData>(bookmarks);
     const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useIdModal<BookmarkData>();
 
     useEffect(() => {
+        addCollections([
+            {
+                id: SpecialsCollections.TRASH,
+                parent: COLLECTIONS_TREE_ROOT
+            }, {
+                id: SpecialsCollections.MAIN,
+                parent: COLLECTIONS_TREE_ROOT
+            }])
+
         bookmarkApi.getBookmarks().then(fetchedBookmarks => {
             setBookmarks(fetchedBookmarks)
         })
         collectionApi.getCollections().then(fetchedCollections => {
-            setCollections(fetchedCollections)
+            addCollections(fetchedCollections)
         })
     }, [])
 
@@ -82,17 +87,23 @@ export function App() {
         })
     }
 
-    function handleRemoveCollection(id: string) {
-        const collectionUpdate = {parent: SpecialsCollections.TRASH}
-        collectionApi.updateCollection(id, collectionUpdate).then((updatedCollection) => {
-            removeCollection(id)
-            insertTrashCollection(updatedCollection)
-        })
+    function handleRemoveCollection(id: string, isTrash: boolean) {
+        if (isTrash) {
+            collectionApi.removeCollection(id).then(() => {
+                removeCollection(id)
+            })
+        } else {
+            const collectionUpdate = {parent: SpecialsCollections.TRASH}
+            collectionApi.updateCollection(id, collectionUpdate).then((updatedCollection) => {
+                // TODO: Update collection here ??
+                moveCollection(id, SpecialsCollections.TRASH)
+            })
+        }
     }
 
     function handleRemoveTrashCollection(id: string) {
         collectionApi.removeCollection(id).then(() => {
-            removeTrashCollection(id)
+            removeCollection(id)
         })
     }
 
@@ -168,8 +179,8 @@ export function App() {
             <TagsContext.Provider value={allTags}>
                 <Layout className="app">
                     <Sidebar collections={{
-                        main: getCollections(),
-                        trash: getTrashCollections()
+                        main: getCollections(SpecialsCollections.MAIN),
+                        trash: getCollections(SpecialsCollections.TRASH)
                     }}
                              onCollectionAdd={handleAddCollection}
                              onCollectionRemove={handleRemoveCollection}

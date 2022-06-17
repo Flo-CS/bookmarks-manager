@@ -5,7 +5,7 @@ export enum SpecialsCollections {
     ALL = "%ALL%",
     TRASH = "%TRASH%",
     WITHOUT_COLLECTION = "%WITHOUT_COLLECTION%",
-    ROOT = "%ROOT%"
+    MAIN = "%MAIN%"
 }
 
 export interface Collection extends Omit<CollectionData, "parent"> {
@@ -26,6 +26,6 @@ export function createDefaultCollection(name: string, selectedCollectionId: stri
     return {
         name: name,
         id: uuidv4(),
-        parent: Object.values(SpecialsCollections).includes(selectedCollectionId as unknown as SpecialsCollections) ? SpecialsCollections.ROOT : selectedCollectionId,
+        parent: Object.values(SpecialsCollections).includes(selectedCollectionId as unknown as SpecialsCollections) ? SpecialsCollections.MAIN : selectedCollectionId,
     }
 }

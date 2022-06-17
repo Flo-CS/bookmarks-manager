@@ -80,7 +80,7 @@ export const Collection = sequelize.define('Collection', {
             type: DataTypes.STRING,
             allowNull: true
         },
-        parent: {type: DataTypes.UUID, defaultValue: SpecialsCollections.ROOT},
+        parent: {type: DataTypes.UUID, defaultValue: SpecialsCollections.MAIN},
         isFolded: {type: DataTypes.BOOLEAN, defaultValue: true},
     },
     {

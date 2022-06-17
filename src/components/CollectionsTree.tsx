@@ -1,20 +1,22 @@
 import React from "react";
 import CollectionTreeItem, {CollectionTreeItemProps} from "./CollectionTreeItem";
 
-type Props = {
-    collections?: TreeCollectionData[],
-    children?: React.ReactNode,
-    selectedCollectionId?: string,
-    onCollectionClick?: (collectionId: string) => void,
-    afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void
-}
-
 export interface TreeCollectionData {
     id: string,
     icon?: React.ComponentType,
     name: string,
     isFolded?: boolean,
-    children?: TreeCollectionData[]
+    children?: TreeCollectionData[],
+}
+
+type Props = {
+    collections?: TreeCollectionData[],
+    children?: React.ReactNode,
+    selectedCollectionId?: string,
+    onCollectionClick?: (collectionId: string) => void,
+    afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void,
+    menuItems?: string[],
+    onMenuItemClick?: (menuItemId: string, collectionId: string) => void
 }
 
 export default function CollectionsTree({
@@ -22,11 +24,17 @@ export default function CollectionsTree({
                                             children,
                                             selectedCollectionId,
                                             onCollectionClick,
-                                            afterCollectionFoldingChange
+                                            afterCollectionFoldingChange,
+                                            menuItems,
+                                            onMenuItemClick
                                         }: Props) {
 
     function handleCollectionClick(collectionId: string) {
         onCollectionClick && onCollectionClick(collectionId)
+    }
+
+    function handleMenuItemClick(menuItemId: string, collectionId: string) {
+        onMenuItemClick && onMenuItemClick(menuItemId, collectionId)
     }
 
     function collectionsToComponent(collections: TreeCollectionData[]) {
@@ -40,6 +48,8 @@ export default function CollectionsTree({
                 onClick: handleCollectionClick,
                 isSelected: collection.id === selectedCollectionId,
                 afterFoldingChange: afterCollectionFoldingChange,
+                menuItems: menuItems,
+                onMenuItemClick: handleMenuItemClick
             }
 
             if (collection.children) {

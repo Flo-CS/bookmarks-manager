@@ -45,7 +45,7 @@ export default function useTree<K extends TreeKeyType, V extends CompleteItem<K>
         return itemsTree.findPath(itemId) as V[]
     }
 
-    function setItems(items: SimpleItem<K>[]) {
+    function addItems(items: SimpleItem<K>[]) {
         type ItemType = SimpleItem<K> & { done: boolean }
         type ItemsByIdType = Record<K, ItemType>
 
@@ -60,7 +60,7 @@ export default function useTree<K extends TreeKeyType, V extends CompleteItem<K>
             const stack: SimpleItem<K>[] = [item];
 
             let currentItem = item
-            while (currentItem.parent !== rootId && !currentItem.done) {
+            while (currentItem && currentItem.parent !== rootId && !currentItem.done) {
                 stack.unshift(currentItem)
                 currentItem.done = true;
                 currentItem = itemsById[currentItem.parent]
@@ -72,14 +72,11 @@ export default function useTree<K extends TreeKeyType, V extends CompleteItem<K>
         }
     }
 
-    function getItems() {
-        return (itemsTree.getItems() || []) as V[]
+    function getChildren(id?: K) {
+        return (itemsTree.getChildren(id) || []) as V[]
     }
-
 
     return {
-        getItems, insertItem, removeItem, moveItem, getPathTo, setItems
+        getChildren, insertItem, removeItem, moveItem, getPathTo, addItems
     }
-
-
 }

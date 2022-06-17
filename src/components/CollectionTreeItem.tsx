@@ -2,6 +2,8 @@ import React, {useState} from "react";
 import CollectionName from "./CollectionName";
 import {MdArrowDropDown, MdArrowRight} from "react-icons/md";
 import styled, {css} from "styled-components";
+import Menu from "./Menu";
+import useMenu from "../hooks/useMenu";
 
 
 const Wrapper = styled.div<{ isSelected: boolean }>`
@@ -74,7 +76,9 @@ export type CollectionTreeItemProps = {
     onClick?: (collectionId: string) => void,
     isSelected?: boolean,
     afterFoldingChange?: (collectionId: string, isFolded: boolean) => void,
-    children?: React.ReactNode
+    children?: React.ReactNode,
+    menuItems?: string[],
+    onMenuItemClick?: (menuItemId: string, collectionId: string) => void
 }
 
 export default function CollectionTreeItem({
@@ -84,11 +88,15 @@ export default function CollectionTreeItem({
                                                name,
                                                icon,
                                                onClick,
+                                               menuItems,
+                                               onMenuItemClick,
                                                isSelected,
                                                afterFoldingChange,
                                                children
                                            }: CollectionTreeItemProps) {
     const [isFolded, setIsFolded] = useState<boolean>(!!isDefaultFolded);
+    const [menuStatus, openMenu, closeMenu] = useMenu();
+
 
     function handleFoldButtonClick(e: React.SyntheticEvent) {
         e.stopPropagation();
@@ -102,8 +110,22 @@ export default function CollectionTreeItem({
         onClick && onClick(collectionId);
     }
 
+    function handleRightItemClick(e: React.MouseEvent) {
+        openMenu(e.clientX, e.clientY)
+    }
+
+    function handleMenuClose() {
+        closeMenu()
+    }
+
+    function handleMenuItemClick(menuItemId: string) {
+        onMenuItemClick && onMenuItemClick(menuItemId, collectionId)
+    }
+
+
     return <Wrapper isSelected={!!isSelected} data-testid={`collection-wrapper-${collectionId}`}>
-        <Container onClick={handleItemClick} role="button" aria-label="click collection tree item">
+        <Container onClick={handleItemClick} role="button" aria-label="click collection tree item"
+                   onContextMenu={handleRightItemClick}>
             {React.Children.count(children) !== 0 &&
                 <FoldButton onClick={handleFoldButtonClick} aria-label="toggle children folding">
                     {isFolded ? <MdArrowRight/> : <MdArrowDropDown/>}
@@ -112,6 +134,12 @@ export default function CollectionTreeItem({
             {count && <Count>
                 {count}
             </Count>}
+            {menuItems && <Menu position={menuStatus.position} onClose={handleMenuClose} isShow={menuStatus.isOpened}>
+                {menuItems.map((item) => {
+                    return <Menu.Item key={item} id={item} onClick={() => handleMenuItemClick(item)}>{item}</Menu.Item>
+                })
+                }
+            </Menu>}
         </Container>
         {!isFolded && children}
     </Wrapper>

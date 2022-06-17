@@ -13,8 +13,11 @@ export default class Tree<K extends TreeKeyType> {
         this.root = Object.assign({}, root);
     }
 
-    getItems() {
-        return this.root.children;
+    getChildren(nodeId?: K) {
+        if (!nodeId) {
+            return this.root.children;
+        }
+        return this.find(nodeId)?.children
     }
 
     * preOrderTraversal(root: TreeNode<K> = this.root): IterableIterator<TreeNode<K>> {
