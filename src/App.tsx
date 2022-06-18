@@ -37,9 +37,9 @@ const collectionApi = new ElectronCollectionAPI()
 // Temporary code, only for the MVP creation process*
 const COLLECTIONS_TREE_ROOT = "collectionsTree"
 
-export function App() {
+export function App(): JSX.Element {
     const {
-        getChildren: getCollections,
+        getItemChildren: getCollectionsChildren,
         insertItem: insertCollection,
         getPathTo: getPathToCollection,
         removeItem: removeCollection,
@@ -179,8 +179,8 @@ export function App() {
             <TagsContext.Provider value={allTags}>
                 <Layout className="app">
                     <Sidebar collections={{
-                        main: getCollections(SpecialsCollections.MAIN),
-                        trash: getCollections(SpecialsCollections.TRASH)
+                        main: getCollectionsChildren(SpecialsCollections.MAIN),
+                        trash: getCollectionsChildren(SpecialsCollections.TRASH)
                     }}
                              onCollectionAdd={handleAddCollection}
                              onCollectionRemove={handleRemoveCollection}

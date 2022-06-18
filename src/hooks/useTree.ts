@@ -72,11 +72,11 @@ export default function useTree<K extends TreeKeyType, V extends CompleteItem<K>
         }
     }
 
-    function getChildren(id?: K) {
+    function getItemChildren(id?: K) {
         return (itemsTree.getChildren(id) || []) as V[]
     }
 
     return {
-        getChildren, insertItem, removeItem, moveItem, getPathTo, addItems
+        getItemChildren, insertItem, removeItem, moveItem, getPathTo, addItems
     }
 }
