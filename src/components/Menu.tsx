@@ -3,13 +3,13 @@ import styled, {css} from "styled-components"
 import useClickOutside from "../hooks/useClickOutside";
 import {buttonReset} from "../styles/utils";
 
-const MenuContainer = styled.div<{ ref: React.RefObject<any>, left?: number, top?: number }>`
+const MenuContainer = styled.div<{ ref: React.RefObject<HTMLDivElement>, left?: number, top?: number }>`
   position: fixed;
   z-index: 1000 !important;
   overflow: hidden;
   ${({theme}) => {
     return css`
-      background-color: ${theme.colors.darkGrey};
+      background-color: ${theme.colors.black};
       border-radius: ${theme.radius.medium};
     `
   }}
@@ -55,7 +55,7 @@ interface MenuProps {
     children: React.ReactNode
 }
 
-export function Menu({onClose, isShow, children, position}: MenuProps) {
+export function Menu({onClose, isShow, children, position}: MenuProps): JSX.Element {
     const ref = useRef<HTMLDivElement>(null);
 
     function handleClickOutside() {
@@ -78,7 +78,7 @@ interface MenuItemProps {
     id: string | number | symbol
 }
 
-export function MenuItem({onClick, id, children}: MenuItemProps) {
+export function MenuItem({onClick, id, children}: MenuItemProps): JSX.Element {
     function handleClick() {
         onClick && onClick(id)
     }
