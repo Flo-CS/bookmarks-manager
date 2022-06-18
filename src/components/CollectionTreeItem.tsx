@@ -93,7 +93,7 @@ export default function CollectionTreeItem({
                                                isSelected,
                                                afterFoldingChange,
                                                children
-                                           }: CollectionTreeItemProps) {
+                                           }: CollectionTreeItemProps): JSX.Element {
     const [isFolded, setIsFolded] = useState<boolean>(!!isDefaultFolded);
     const [menuStatus, openMenu, closeMenu] = useMenu();
 
@@ -123,9 +123,10 @@ export default function CollectionTreeItem({
     }
 
 
-    return <Wrapper isSelected={!!isSelected} data-testid={`collection-wrapper-${collectionId}`}>
+    return <Wrapper isSelected={!!isSelected} data-testid={`collection-wrapper-${collectionId}`}
+                    onContextMenu={handleRightItemClick}>
         <Container onClick={handleItemClick} role="button" aria-label="click collection tree item"
-                   onContextMenu={handleRightItemClick}>
+        >
             {React.Children.count(children) !== 0 &&
                 <FoldButton onClick={handleFoldButtonClick} aria-label="toggle children folding">
                     {isFolded ? <MdArrowRight/> : <MdArrowDropDown/>}
