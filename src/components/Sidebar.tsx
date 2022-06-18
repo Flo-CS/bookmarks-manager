@@ -58,7 +58,7 @@ export default function Sidebar({
                                     selectedCollectionId,
                                     onSelectedCollectionChange,
                                     afterCollectionFoldingChange
-                                }: Props) {
+                                }: Props): JSX.Element {
     const [newCollectionName, setNewCollectionName] = useState<string>("");
 
     function handleNewCollectionInputChange(e: ChangeEvent<HTMLInputElement>) {
@@ -82,6 +82,10 @@ export default function Sidebar({
         }
     }
 
+    function handleAfterCollectionFoldingChange(collectionId: string, isFolded: boolean) {
+        afterCollectionFoldingChange && afterCollectionFoldingChange(collectionId, isFolded)
+    }
+
     const menuItems = ["Remove"]
 
     return <Container>
@@ -89,11 +93,13 @@ export default function Sidebar({
             <CollectionTreeItem collectionId={SpecialsCollections.ALL} name="All" icon={MdAllInbox}/>
             <CollectionTreeItem collectionId={SpecialsCollections.WITHOUT_COLLECTION} name="Without collection"
                                 icon={IoAlbums}/>
-            <CollectionTreeItem collectionId={SpecialsCollections.TRASH} name="Trash" icon={IoTrash}>
+            <CollectionTreeItem collectionId={SpecialsCollections.TRASH} name="Trash" icon={IoTrash}
+                                isDefaultFolded={true}>
                 <CollectionsTree collections={collections.trash} selectedCollectionId={selectedCollectionId}
                                  onCollectionClick={handleCollectionClick}
                                  menuItems={menuItems}
                                  onMenuItemClick={(menuItemId, collectionId) => handleMenuItemClick(menuItemId, collectionId, true)}
+                                 afterCollectionFoldingChange={handleAfterCollectionFoldingChange}
                 />
             </CollectionTreeItem>
         </CollectionsTree>
@@ -101,7 +107,7 @@ export default function Sidebar({
         <CollectionsTree collections={collections.main}
                          selectedCollectionId={selectedCollectionId}
                          onCollectionClick={handleCollectionClick}
-                         afterCollectionFoldingChange={afterCollectionFoldingChange}
+                         afterCollectionFoldingChange={handleAfterCollectionFoldingChange}
                          menuItems={menuItems}
                          onMenuItemClick={(menuItemId, collectionId) => handleMenuItemClick(menuItemId, collectionId, false)}
         />
