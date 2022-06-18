@@ -12,7 +12,7 @@ import {Bookmark, BookmarkData, createDefaultBookmark} from "./helpers/bookmarks
 import {Collection, createDefaultCollection, SpecialsCollections} from "./helpers/collections";
 import useIdModal from "./hooks/useIdModal";
 import useCollectionsItems from "./hooks/useCollectionsItems";
-import useTree from "./hooks/useTree";
+import useCollectionsTree from "./hooks/useCollectionsTree";
 import {GlobalStyle} from "./styles/GlobalStyle";
 import {theme} from "./styles/Theme";
 
@@ -39,13 +39,13 @@ const COLLECTIONS_TREE_ROOT = "collectionsTree"
 
 export function App(): JSX.Element {
     const {
-        getItemChildren: getCollectionsChildren,
-        insertItem: insertCollection,
-        getPathTo: getPathToCollection,
-        removeItem: removeCollection,
-        moveItem: moveCollection,
-        addItems: addCollections,
-    } = useTree<string, Collection>(COLLECTIONS_TREE_ROOT)
+        getCollectionsChildren,
+        insertCollection,
+        getPathToCollection,
+        removeCollection,
+        moveCollection,
+        addCollections,
+    } = useCollectionsTree<string, Collection>(COLLECTIONS_TREE_ROOT)
 
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(SpecialsCollections.ALL);
     const {
