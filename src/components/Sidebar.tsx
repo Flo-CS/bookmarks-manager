@@ -44,7 +44,7 @@ type Props = {
         trash?: TreeCollectionData[]
     },
     onCollectionAdd?: (collectionName: string) => void,
-    onCollectionRemove?: (collectionId: string, isTrash: boolean) => void,
+    onCollectionRemove?: (collectionId: string, isInTrash: boolean) => void,
     onTrashCollectionRemove?: (collectionId: string) => void
     selectedCollectionId?: string,
     onSelectedCollectionChange?: (collectionId: string) => void,
@@ -76,9 +76,9 @@ export default function Sidebar({
         onSelectedCollectionChange && onSelectedCollectionChange(collectionId)
     }
 
-    function handleMenuItemClick(menuItemId: string, collectionId: string, isTrash: boolean) {
+    function handleMenuItemClick(menuItemId: string, collectionId: string, isInTrash: boolean) {
         if (menuItemId === "Remove") {
-            onCollectionRemove && onCollectionRemove(collectionId, isTrash)
+            onCollectionRemove && onCollectionRemove(collectionId, isInTrash)
         }
     }
 

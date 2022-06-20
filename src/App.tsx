@@ -87,8 +87,8 @@ export function App(): JSX.Element {
         })
     }
 
-    function handleRemoveCollection(id: string, isTrash: boolean) {
-        if (isTrash) {
+    function handleRemoveCollection(id: string, isInTrash: boolean) {
+        if (isInTrash) {
             collectionApi.removeCollection(id).then(() => {
                 removeCollection(id)
             })
