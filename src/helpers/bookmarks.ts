@@ -7,25 +7,29 @@ export enum BookmarkVariant {
     ICON = "icon"
 }
 
-export interface BookmarkData {
-    tags: string[],
-    description?: string,
+export interface BookmarkMinimum {
     id: string,
     url: string,
     collection: string,
     variant: BookmarkVariant,
+}
+
+export interface BookmarkData extends BookmarkMinimum {
+    tags: string[],
     creationDate: Date,
     modificationDate: Date,
-    openHistory?: Date[],
-    copyHistory?: Date[],
+    openHistory: Date[],
+    copyHistory: Date[],
+    description?: string,
     siteName?: string,
     linkTitle?: string,
     faviconPath?: string,
     previewPath?: string
 }
 
-export interface Bookmark extends BookmarkData {
-
+export interface ModalBookmark extends BookmarkMinimum {
+    tags?: string[],
+    description?: string,
 }
 
 
@@ -36,12 +40,9 @@ export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) =>
     )
 }
 
-export function createDefaultBookmark(selectedCollectionId: string): Omit<BookmarkData, "creationDate" | "modificationDate"> {
+export function createDefaultBookmark(selectedCollectionId: string) {
     return {
-        linkTitle: "",
         url: "",
-        tags: [],
-        description: "",
         collection: Object.values(SpecialsCollections).includes(selectedCollectionId as unknown as SpecialsCollections) ? SpecialsCollections.WITHOUT_COLLECTION : selectedCollectionId,
         variant: BookmarkVariant.PREVIEW,
         id: uuidv4()

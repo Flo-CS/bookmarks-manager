@@ -1,5 +1,5 @@
-import {BookmarkData} from "./bookmarks";
-import {CollectionData} from "./collections";
+import {BookmarkData, BookmarkMinimum} from "./bookmarks";
+import {CollectionData, CollectionMinimum} from "./collections";
 
 
 export class ElectronBookmarkAPI {
@@ -7,7 +7,7 @@ export class ElectronBookmarkAPI {
         return await window.bridge.sendMessage("removeBookmark", id);
     }
 
-    async addBookmark(bookmark: BookmarkData): Promise<BookmarkData> {
+    async addBookmark(bookmark: BookmarkMinimum | BookmarkData): Promise<BookmarkData> {
         return await window.bridge.sendMessage("addBookmark", bookmark);
     }
 
@@ -29,7 +29,7 @@ export class ElectronCollectionAPI {
         return await window.bridge.sendMessage("getCollections")
     }
 
-    async addCollection(collection: CollectionData): Promise<CollectionData> {
+    async addCollection(collection: CollectionMinimum | CollectionData): Promise<CollectionData> {
         return await window.bridge.sendMessage("addCollection", collection)
     }
 

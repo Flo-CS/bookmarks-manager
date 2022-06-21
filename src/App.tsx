@@ -8,11 +8,11 @@ import CollectionsBreadCrumb from "./components/CollectionsBreadCrumb";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import {ElectronBookmarkAPI, ElectronCollectionAPI} from "./helpers/api";
-import {Bookmark, BookmarkData, createDefaultBookmark} from "./helpers/bookmarks";
-import {Collection, createDefaultCollection, SpecialsCollections} from "./helpers/collections";
+import {BookmarkData, createDefaultBookmark, ModalBookmark} from "./helpers/bookmarks";
+import {CollectionDataExtended, createDefaultCollection, SpecialsCollections} from "./helpers/collections";
 import useIdModal from "./hooks/useIdModal";
 import useCollectionsItems from "./hooks/useCollectionsItems";
-import useCollectionsTree from "./hooks/useCollectionsTree";
+import useTree from "./hooks/useTree";
 import {GlobalStyle} from "./styles/GlobalStyle";
 import {theme} from "./styles/Theme";
 
@@ -34,18 +34,25 @@ export const TagsContext = React.createContext<string[]>([]);
 const bookmarkApi = new ElectronBookmarkAPI();
 const collectionApi = new ElectronCollectionAPI()
 
-// Temporary code, only for the MVP creation process*
-const COLLECTIONS_TREE_ROOT = "collectionsTree"
-
 export function App(): JSX.Element {
     const {
-        getCollectionsChildren,
-        insertCollection,
-        getPathToCollection,
-        removeCollection,
-        moveCollection,
-        addCollections,
-    } = useCollectionsTree<string, Collection>(COLLECTIONS_TREE_ROOT)
+        getTreeNodeChildren: getCollectionsChildren,
+        insertNode: insertCollection,
+        getPathToTreeNode: getPathToCollection,
+        removeNode: removeCollection,
+        updateNode: updateCollection,
+        insertNodes: addCollections,
+    } = useTree<CollectionDataExtended>({
+        rootsNodes: [{
+            name: SpecialsCollections.TRASH,
+            id: SpecialsCollections.TRASH,
+        }, {
+            name: SpecialsCollections.MAIN,
+            id: SpecialsCollections.MAIN,
+        }],
+        getKey: (collection) => collection.id,
+        getParent: (collection) => collection.parent
+    })
 
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(SpecialsCollections.ALL);
     const {
@@ -56,21 +63,12 @@ export function App(): JSX.Element {
         getItem: getBookmark,
         addItem: addBookmark,
         setItems: setBookmarks
-    } = useCollectionsItems<Bookmark>([], selectedCollectionId);
+    } = useCollectionsItems<BookmarkData>([], selectedCollectionId);
 
-    const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useIdModal<BookmarkData>(bookmarks);
-    const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useIdModal<BookmarkData>();
+    const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useIdModal<ModalBookmark>(bookmarks);
+    const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useIdModal<ModalBookmark>();
 
     useEffect(() => {
-        addCollections([
-            {
-                id: SpecialsCollections.TRASH,
-                parent: COLLECTIONS_TREE_ROOT
-            }, {
-                id: SpecialsCollections.MAIN,
-                parent: COLLECTIONS_TREE_ROOT
-            }])
-
         bookmarkApi.getBookmarks().then(fetchedBookmarks => {
             setBookmarks(fetchedBookmarks)
         })
@@ -95,8 +93,7 @@ export function App(): JSX.Element {
         } else {
             const collectionUpdate = {parent: SpecialsCollections.TRASH}
             collectionApi.updateCollection(id, collectionUpdate).then((updatedCollection) => {
-                // TODO: Update collection here ??
-                moveCollection(id, SpecialsCollections.TRASH)
+                updateCollection(id, updatedCollection)
             })
         }
     }
@@ -120,7 +117,7 @@ export function App(): JSX.Element {
         openEditModal(id)
     }
 
-    function handleEditModalSave(data: Partial<Bookmark>) {
+    function handleEditModalSave(data: Partial<BookmarkData>) {
         if (!editModalBookmark) return;
 
         bookmarkApi.updateBookmark(editModalBookmark.id, data).then((updatedBookmark) => {
@@ -129,7 +126,7 @@ export function App(): JSX.Element {
         closeEditModal()
     }
 
-    function handleNewModalSave(data: Partial<Bookmark>) {
+    function handleNewModalSave(data: Partial<BookmarkData>) {
         if (!newModalBookmark) return;
 
         const newBookmark = {...newModalBookmark, ...data}

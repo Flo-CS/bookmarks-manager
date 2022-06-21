@@ -8,24 +8,32 @@ export enum SpecialsCollections {
     MAIN = "%MAIN%"
 }
 
-export interface Collection extends Omit<CollectionData, "parent"> {
-    parent?: Collection,
-    children?: Collection[],
-    icon?: React.ComponentType,
-}
-
-export interface CollectionData {
+export interface CollectionMinimum {
     id: string,
     name: string,
     parent: string,
-    isFolded?: boolean,
-    iconPath?: string,
 }
 
-export function createDefaultCollection(name: string, selectedCollectionId: string): CollectionData {
+export interface CollectionData extends CollectionMinimum {
+    iconPath?: string,
+    isFolded?: boolean,
+}
+
+export interface CollectionDataExtended extends Omit<CollectionData, "parent"> {
+    icon?: React.ComponentType,
+    parent?: string
+}
+
+export interface Collection extends Omit<CollectionDataExtended, "parent"> {
+    parent?: Collection
+    children?: Collection[]
+}
+
+export function createDefaultCollection(name: string, selectedCollectionId: string) {
     return {
         name: name,
         id: uuidv4(),
         parent: Object.values(SpecialsCollections).includes(selectedCollectionId as unknown as SpecialsCollections) ? SpecialsCollections.MAIN : selectedCollectionId,
+        isFolded: false
     }
 }

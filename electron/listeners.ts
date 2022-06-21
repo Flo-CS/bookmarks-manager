@@ -1,7 +1,7 @@
 import {ipcMain} from "electron";
 import {Bookmark, Collection} from "./models";
-import {CollectionData} from "../src/helpers/collections";
-import {BookmarkData} from "../src/helpers/bookmarks";
+import {CollectionData, CollectionMinimum} from "../src/helpers/collections";
+import {BookmarkData, BookmarkMinimum} from "../src/helpers/bookmarks";
 
 export async function registerBridgeListeners() {
 
@@ -10,14 +10,14 @@ export async function registerBridgeListeners() {
         return bookmarks.map(bookmark => bookmark.get())
     })
 
-    ipcMain.handle("addBookmark", async (_event, bookmarkData: BookmarkData): Promise<BookmarkData> => {
+    ipcMain.handle("addBookmark", async (_event, bookmarkData: BookmarkMinimum | BookmarkData): Promise<BookmarkData> => {
         const bookmark = await Bookmark.create({
             ...bookmarkData
         }, {})
         return bookmark.get();
     })
 
-    ipcMain.handle("updateBookmark", async (_event, id: string, bookmarkData: BookmarkData): Promise<BookmarkData> => {
+    ipcMain.handle("updateBookmark", async (_event, id: string, bookmarkData: Partial<CollectionData>): Promise<BookmarkData> => {
         await Bookmark.update({
             ...bookmarkData
         }, {
@@ -39,12 +39,12 @@ export async function registerBridgeListeners() {
         return collections.map(collection => collection.get())
     })
 
-    ipcMain.handle("addCollection", async (_event, collectionData: CollectionData): Promise<CollectionData> => {
+    ipcMain.handle("addCollection", async (_event, collectionData: CollectionMinimum | CollectionData): Promise<CollectionData> => {
         const collection = await Collection.create({...collectionData})
         return collection.get()
     })
 
-    ipcMain.handle("updateCollection", async (_event, id: string, collectionData: CollectionData): Promise<CollectionData> => {
+    ipcMain.handle("updateCollection", async (_event, id: string, collectionData: Partial<CollectionData>): Promise<CollectionData> => {
         await Collection.update({
             ...collectionData
         }, {
