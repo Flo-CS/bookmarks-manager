@@ -30,14 +30,13 @@ export interface Bookmark extends BookmarkData {
 
 
 // TODO: Move that to a separate file
-export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) => any) {
+export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) => unknown) {
     return toPairs(
         groupBy(bookmarks, groupFunc)
     )
 }
 
-export function createDefaultBookmark(selectedCollectionId: string): BookmarkData {
-    // @ts-ignore
+export function createDefaultBookmark(selectedCollectionId: string): Omit<BookmarkData, "creationDate" | "modificationDate"> {
     return {
         linkTitle: "",
         url: "",
