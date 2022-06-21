@@ -11,10 +11,25 @@ export const sequelize = new Sequelize({dialect: "sqlite", storage: databasePath
 
 
 export const Bookmark = sequelize.define('Bookmark', {
-    linkTitle: DataTypes.STRING,
+    id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        allowNull: false,
+        defaultValue: DataTypes.UUIDV4
+    },
     url: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    collection: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: SpecialsCollections.WITHOUT_COLLECTION,
+    },
+    variant: {
+        type: DataTypes.ENUM(...Object.values(BookmarkVariant)),
+        allowNull: false,
+        defaultValue: BookmarkVariant.PREVIEW,
     },
     tags: {
         type: DataTypes.TEXT,
@@ -26,26 +41,21 @@ export const Bookmark = sequelize.define('Bookmark', {
             return tags ? tags.split(ARRAY_SEPARATOR) : [];
         }
     },
-    description: DataTypes.STRING,
-    collection: {
-        type: DataTypes.STRING,
-        defaultValue: SpecialsCollections.WITHOUT_COLLECTION,
-        allowNull: false
+    description: {
+        type: DataTypes.STRING
     },
-    variant: {
-        type: DataTypes.ENUM(...Object.values(BookmarkVariant)),
-        defaultValue: BookmarkVariant.PREVIEW,
-        allowNull: false
+    linkTitle: {
+        type: DataTypes.STRING
     },
-    id: {
-        type: DataTypes.UUID,
-        primaryKey: true,
-        allowNull: false,
-        defaultValue: DataTypes.UUIDV4
+    faviconPath: {
+        type: DataTypes.STRING
     },
-    faviconPath: DataTypes.STRING,
-    previewPath: DataTypes.STRING,
-    siteName: DataTypes.STRING,
+    previewPath: {
+        type: DataTypes.STRING
+    },
+    siteName: {
+        type: DataTypes.STRING
+    },
     openHistory: {
         type: DataTypes.TEXT,
         set(dates: Date[]) {
@@ -59,7 +69,6 @@ export const Bookmark = sequelize.define('Bookmark', {
     copyHistory: {
         type: DataTypes.TEXT,
         set(dates: Date[]) {
-            console.log(dates.map(date => date.toUTCString()).join(ARRAY_SEPARATOR))
             this.setDataValue("copyHistory", dates.map(date => date.toUTCString()).join(ARRAY_SEPARATOR))
         },
         get() {
@@ -74,14 +83,29 @@ export const Bookmark = sequelize.define('Bookmark', {
 });
 
 export const Collection = sequelize.define('Collection', {
-        id: {type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4},
-        name: DataTypes.STRING,
-        iconPath: {
-            type: DataTypes.STRING,
-            allowNull: true
+        id: {
+            type: DataTypes.UUID,
+            primaryKey: true,
+            allowNull: false,
+            defaultValue: DataTypes.UUIDV4
         },
-        parent: {type: DataTypes.UUID, defaultValue: SpecialsCollections.MAIN},
-        isFolded: {type: DataTypes.BOOLEAN, defaultValue: true},
+        parent: {
+            type: DataTypes.UUID,
+            allowNull: false,
+            defaultValue: SpecialsCollections.MAIN
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        isFolded: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        iconPath: {
+            type: DataTypes.STRING
+        },
     },
     {
         timestamps: true,
