@@ -1,8 +1,20 @@
 import {BookmarkData, BookmarkMinimum} from "./bookmarks";
 import {CollectionData, CollectionMinimum} from "./collections";
 
+export type APIRequestMessage = {
+    "removeBookmark": { params: [string], result: void }
+    "addBookmark": { params: [BookmarkMinimum | BookmarkData], result: BookmarkData },
+    "getBookmarks": { params: [], result: BookmarkData[] }
+    "getBookmark": { params: [string], result: BookmarkData },
+    "updateBookmark": { params: [string, Partial<BookmarkData>], result: BookmarkData },
+    "getCollections": { params: [], result: CollectionData[] },
+    "addCollection": { params: [CollectionMinimum | CollectionData], result: CollectionData },
+    "updateCollection": { params: [string, Partial<CollectionData>], result: CollectionData };
+    "removeCollection": { params: [string], result: void }
+}
 
-export class ElectronBookmarkAPI {
+export class ElectronAPI {
+
     async removeBookmark(id: string): Promise<void> {
         return await window.bridge.sendMessage("removeBookmark", id);
     }
@@ -22,9 +34,7 @@ export class ElectronBookmarkAPI {
     async updateBookmark(id: string, bookmark: Partial<BookmarkData>): Promise<BookmarkData> {
         return await window.bridge.sendMessage("updateBookmark", id, bookmark);
     }
-}
 
-export class ElectronCollectionAPI {
     async getCollections(): Promise<CollectionData[]> {
         return await window.bridge.sendMessage("getCollections")
     }

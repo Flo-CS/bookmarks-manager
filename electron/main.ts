@@ -1,6 +1,6 @@
 import {app, BrowserWindow} from 'electron'
 import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
-import {registerBridgeListeners} from './listeners';
+import {registerBridgeHandlers} from './bridgeManager';
 import * as path from "path";
 
 let mainWindow: BrowserWindow | null
@@ -35,7 +35,7 @@ function createWindow() {
 app.on('ready', createWindow)
     .whenReady()
     .then(async () => {
-        await registerBridgeListeners()
+        await registerBridgeHandlers()
         await installExtension(REACT_DEVELOPER_TOOLS)
     })
     .catch(e => console.error(e))
