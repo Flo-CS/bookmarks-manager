@@ -1,5 +1,5 @@
 import {DataTypes, Sequelize} from 'sequelize';
-import {SpecialsCollections} from '../src/helpers/collections';
+import {TopCollections} from '../src/helpers/collections';
 import * as path from "path"
 import {app} from 'electron';
 import {BookmarkVariant} from "../src/helpers/bookmarks";
@@ -24,8 +24,7 @@ export const Bookmark = sequelize.define('Bookmark', {
     collection: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: SpecialsCollections.WITHOUT_COLLECTION,
-
+        defaultValue: TopCollections.MAIN,
     },
     variant: {
         type: DataTypes.ENUM(...Object.values(BookmarkVariant)),
@@ -93,7 +92,7 @@ export const Collection = sequelize.define('Collection', {
         parent: {
             type: DataTypes.UUID,
             allowNull: false,
-            defaultValue: SpecialsCollections.MAIN
+            defaultValue: TopCollections.MAIN
         },
         name: {
             type: DataTypes.STRING,
@@ -115,5 +114,5 @@ export const Collection = sequelize.define('Collection', {
     });
 
 (async () => {
-    await sequelize.sync();
+    await sequelize.sync({force: true, alter: true});
 })();

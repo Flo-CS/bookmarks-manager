@@ -54,7 +54,7 @@ export async function registerBridgeHandlers() {
             const updatedCollection = await Collection.findByPk(id);
             return updatedCollection?.get();
         },
-        "removeCollection": async (event, id) => {
+        "removeCollection": async (event, id, removeAction) => {
             await Collection.destroy({
                 where: {id: id}
             })

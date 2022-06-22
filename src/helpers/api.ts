@@ -10,7 +10,7 @@ export type APIRequestMessage = {
     "getCollections": { params: [], result: CollectionData[] },
     "addCollection": { params: [CollectionMinimum | CollectionData], result: CollectionData },
     "updateCollection": { params: [string, Partial<CollectionData>], result: CollectionData };
-    "removeCollection": { params: [string], result: void }
+    "removeCollection": { params: [string, "removeChildren" | "moveChildren"], result: void }
 }
 
 export class ElectronAPI {
@@ -47,7 +47,7 @@ export class ElectronAPI {
         return await window.bridge.sendMessage("updateCollection", id, collection)
     }
 
-    async removeCollection(id: string) {
-        return await window.bridge.sendMessage("removeCollection", id)
+    async removeCollection(id: string, removeAction: "removeChildren" | "moveChildren" = "removeChildren") {
+        return await window.bridge.sendMessage("removeCollection", id, removeAction)
     }
 }

@@ -1,6 +1,6 @@
 import {groupBy, toPairs} from "lodash";
 import {v4 as uuidv4} from 'uuid';
-import {SpecialsCollections} from "./collections";
+import {getParentCollectionId, TreeOutputCollection} from "./collections";
 
 export enum BookmarkVariant {
     PREVIEW = "preview",
@@ -40,10 +40,10 @@ export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) =>
     )
 }
 
-export function createDefaultBookmark(selectedCollectionId: string) {
+export function createDefaultBookmark(selectedCollectionPath: TreeOutputCollection[]) {
     return {
         url: "",
-        collection: Object.values(SpecialsCollections).includes(selectedCollectionId as unknown as SpecialsCollections) ? SpecialsCollections.WITHOUT_COLLECTION : selectedCollectionId,
+        collection: getParentCollectionId(selectedCollectionPath),
         variant: BookmarkVariant.PREVIEW,
         id: uuidv4()
     }

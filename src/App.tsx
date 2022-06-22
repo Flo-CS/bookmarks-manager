@@ -1,4 +1,3 @@
-import {flatten, uniq} from "lodash";
 import React, {useEffect, useMemo, useState} from "react";
 import styled, {ThemeProvider} from "styled-components";
 import BookmarkModal from "./components/BookmarkModal";
@@ -9,12 +8,13 @@ import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import {ElectronAPI} from "./helpers/api";
 import {BookmarkData, createDefaultBookmark, ModalBookmark} from "./helpers/bookmarks";
-import {createDefaultCollection, SpecialsCollections, TreeInputCollection} from "./helpers/collections";
+import {createDefaultCollection, TopCollections, TreeInputCollection, VirtualCollections} from "./helpers/collections";
 import useIdModal from "./hooks/useIdModal";
 import useCollectionsItems from "./hooks/useCollectionsItems";
 import useTree from "./hooks/useTree";
 import {GlobalStyle} from "./styles/GlobalStyle";
 import {theme} from "./styles/Theme";
+import {flatten, slice, uniq} from "lodash";
 
 const Layout = styled.div`
   display: grid;
@@ -35,15 +35,15 @@ const API = new ElectronAPI();
 
 
 const COLLECTIONS_TREE_ROOTS = [{
-    name: SpecialsCollections.TRASH,
-    id: SpecialsCollections.TRASH,
+    name: TopCollections.TRASH,
+    id: TopCollections.TRASH,
 }, {
-    name: SpecialsCollections.MAIN,
-    id: SpecialsCollections.MAIN,
+    name: TopCollections.MAIN,
+    id: TopCollections.MAIN,
 }]
 
 export function App(): JSX.Element {
-    const [selectedCollectionId, setSelectedCollectionId] = useState<string>(SpecialsCollections.ALL);
+    const [selectedCollectionId, setSelectedCollectionId] = useState<string>(VirtualCollections.ALL);
 
     const {
         items: bookmarks,
@@ -73,6 +73,15 @@ export function App(): JSX.Element {
     const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useIdModal<ModalBookmark>(bookmarks);
     const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useIdModal<ModalBookmark>();
 
+    const allTags = useMemo(() => uniq(flatten(bookmarks.map(bookmark => bookmark.tags))), [bookmarks])
+    const selectedCollectionPath = useMemo(() => getPathToCollection(selectedCollectionId), [selectedCollectionId])
+    const bookmarksToShow = useMemo(() => {
+        if (selectedCollectionId === VirtualCollections.ALL) {
+            return bookmarks.filter(bookmark => bookmark.collection !== TopCollections.TRASH);
+        }
+        return selectedBookmarks;
+    }, [bookmarks, selectedBookmarks]);
+
     useEffect(() => {
         API.getBookmarks().then(fetchedBookmarks => {
             setBookmarks(fetchedBookmarks)
@@ -82,9 +91,8 @@ export function App(): JSX.Element {
         })
     }, [])
 
-
     function handleAddCollection(name: string) {
-        const newCollection = createDefaultCollection(name, selectedCollectionId)
+        const newCollection = createDefaultCollection(name, selectedCollectionPath)
         API.addCollection(newCollection).then(createdCollection => {
             insertCollection(createdCollection)
         })
@@ -96,7 +104,7 @@ export function App(): JSX.Element {
                 removeCollection(id)
             })
         } else {
-            API.updateCollection(id, {parent: SpecialsCollections.TRASH}).then((updatedCollection) => {
+            API.updateCollection(id, {parent: TopCollections.TRASH}).then((updatedCollection) => {
                 updateCollection(id, updatedCollection)
             })
         }
@@ -113,7 +121,7 @@ export function App(): JSX.Element {
     }
 
     function handleBookmarkCreation() {
-        const newBookmark = createDefaultBookmark(selectedCollectionId);
+        const newBookmark = createDefaultBookmark(selectedCollectionPath);
         openNewModal(newBookmark);
     }
 
@@ -155,12 +163,12 @@ export function App(): JSX.Element {
         const bookmark = getBookmark(id)
         if (!bookmark) return;
 
-        if (bookmark.collection === SpecialsCollections.TRASH) {
+        if (bookmark.collection === TopCollections.TRASH) {
             API.removeBookmark(id).then(() => {
                 removeBookmark(id)
             })
         } else {
-            API.updateBookmark(id, {collection: SpecialsCollections.TRASH}).then((updatedBookmark) => {
+            API.updateBookmark(id, {collection: TopCollections.TRASH}).then((updatedBookmark) => {
                 updateBookmark(id, updatedBookmark)
             })
         }
@@ -170,16 +178,13 @@ export function App(): JSX.Element {
         API.updateCollection(id, {isFolded: isFolded})
     }
 
-    const allTags = useMemo(() => uniq(flatten(bookmarks.map(bookmark => bookmark.tags))), [bookmarks])
-    const selectedCollectionPath = useMemo(() => getPathToCollection(selectedCollectionId), [selectedCollectionId])
-
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyle/>
             <TagsContext.Provider value={allTags}>
                 <Layout className="app">
-                    <Sidebar mainCollections={getCollectionChildren(SpecialsCollections.MAIN)}
-                             trashCollections={getCollectionChildren(SpecialsCollections.TRASH)}
+                    <Sidebar mainCollections={getCollectionChildren(TopCollections.MAIN)}
+                             trashCollections={getCollectionChildren(TopCollections.TRASH)}
                              collectionsItems={bookmarks}
                              onCollectionAdd={handleAddCollection}
                              onCollectionRemove={handleRemoveCollection}
@@ -190,12 +195,12 @@ export function App(): JSX.Element {
                     <Main>
                         <TopBar onAdd={handleBookmarkCreation}/>
                         <CollectionsBreadCrumb>
-                            {selectedCollectionPath.map(collection => {
+                            {slice(selectedCollectionPath, 1).map(collection => {
                                 return <CollectionName key={collection.id} name={collection.name}
                                                        icon={collection.icon}/>
                             })}
                         </CollectionsBreadCrumb>
-                        <BookmarksLayout bookmarks={selectedBookmarks} onTagRemove={handleBookmarkTagRemove}
+                        <BookmarksLayout bookmarks={bookmarksToShow} onTagRemove={handleBookmarkTagRemove}
                                          onDelete={handleBookmarkDelete} onEdit={handleBookmarkEdit}/>
                     </Main>
                     <BookmarkModal

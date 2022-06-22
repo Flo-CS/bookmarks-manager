@@ -109,11 +109,11 @@ export default function useTree<V>({
         let currentNode: TreeNode<V> | undefined = getTreeNode(nodeKey)
         const stack: TreeNode<V>[] = []
 
-        while (currentNode?.parent) {
+        while (currentNode) {
             stack.push(currentNode)
             currentNode = currentNode.parent
         }
-        return stack
+        return stack.reverse()
     }
 
     return {

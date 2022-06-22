@@ -2,7 +2,7 @@ import React, {ChangeEvent, KeyboardEvent, useState} from "react"
 import styled from "styled-components";
 import CollectionsTree from "./CollectionsTree";
 import CollectionTreeItem from "./CollectionTreeItem";
-import {SpecialsCollections, TreeCollectionItem, TreeOutputCollection} from "../helpers/collections";
+import {TopCollections, TreeCollectionItem, TreeOutputCollection, VirtualCollections} from "../helpers/collections";
 
 import {MdAllInbox} from "react-icons/md";
 import {IoAlbums, IoTrash} from "react-icons/io5"
@@ -96,17 +96,17 @@ export default function Sidebar({
     const trashMenuItems = ["Delete"]
     const menuItems = ["Remove"]
 
-    const allCollectionsItemsCount = collectionsItems?.filter(item => item.collection !== SpecialsCollections.TRASH).length
-    const withoutCollectionsItemsCount = collectionsItems?.filter(item => item.collection === SpecialsCollections.WITHOUT_COLLECTION).length
-    const trashCollectionsItemsCount = collectionsItems?.filter(item => item.collection === SpecialsCollections.TRASH).length
+    const allCollectionsItemsCount = collectionsItems?.filter(item => item.collection !== TopCollections.TRASH).length
+    const withoutCollectionsItemsCount = collectionsItems?.filter(item => item.collection === TopCollections.MAIN).length
+    const trashCollectionsItemsCount = collectionsItems?.filter(item => item.collection === TopCollections.TRASH).length
 
     return <Container>
         <CollectionsTree onCollectionClick={handleCollectionClick} selectedCollectionId={selectedCollectionId}>
-            <CollectionTreeItem collectionId={SpecialsCollections.ALL} name="All" icon={MdAllInbox}
+            <CollectionTreeItem collectionId={VirtualCollections.ALL} name="All" icon={MdAllInbox}
                                 count={allCollectionsItemsCount}/>
-            <CollectionTreeItem collectionId={SpecialsCollections.WITHOUT_COLLECTION} name="Without collection"
+            <CollectionTreeItem collectionId={TopCollections.MAIN} name="Without collection"
                                 icon={IoAlbums} count={withoutCollectionsItemsCount}/>
-            <CollectionTreeItem collectionId={SpecialsCollections.TRASH} name="Trash" icon={IoTrash}
+            <CollectionTreeItem collectionId={TopCollections.TRASH} name="Trash" icon={IoTrash}
                                 isDefaultFolded={true} count={trashCollectionsItemsCount}>
                 <CollectionsTree collections={trashCollections} selectedCollectionId={selectedCollectionId}
                                  onCollectionClick={handleCollectionClick}

@@ -1,11 +1,15 @@
+import {last} from "lodash";
 import React from "react";
 import {v4 as uuidv4} from 'uuid';
 
-export enum SpecialsCollections {
-    ALL = "%ALL%",
-    TRASH = "%TRASH%",
-    WITHOUT_COLLECTION = "%WITHOUT_COLLECTION%",
-    MAIN = "%MAIN%"
+export const TopCollections = {
+    TRASH: "%TRASH%",
+    MAIN: "%MAIN%"
+}
+
+export const VirtualCollections = {
+    ALL: "%ALL%",
+    WITHOUT_COLLECTION: "%WITHOUT_COLLECTION%"
 }
 
 export interface CollectionMinimum {
@@ -26,7 +30,8 @@ export interface CollectionDataExtended extends CollectionData {
 
 export interface TreeOutputCollection extends Omit<CollectionDataExtended, "parent"> {
     children?: TreeOutputCollection[],
-    count: number
+    parent?: TreeOutputCollection
+    count?: number
 }
 
 export interface TreeInputCollection extends Omit<CollectionDataExtended, "parent"> {
@@ -37,11 +42,19 @@ export interface TreeCollectionItem {
     collection: string
 }
 
-export function createDefaultCollection(name: string, selectedCollectionId: string) {
+export function getParentCollectionId(selectedCollectionPath: { id: string }[]): string {
+    const topCollectionId = selectedCollectionPath[0].id
+    if (selectedCollectionPath.length <= 0 || Object.values(VirtualCollections).includes(topCollectionId) || topCollectionId === TopCollections.TRASH) {
+        return TopCollections.MAIN
+    }
+    return last(selectedCollectionPath)?.id || TopCollections.MAIN
+}
+
+export function createDefaultCollection(name: string, selectedCollectionPath: TreeOutputCollection[]) {
     return {
         name: name,
         id: uuidv4(),
-        parent: Object.values(SpecialsCollections).includes(selectedCollectionId as unknown as SpecialsCollections) ? SpecialsCollections.MAIN : selectedCollectionId,
+        parent: getParentCollectionId(selectedCollectionPath),
         isFolded: false
     }
 }

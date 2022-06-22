@@ -1,5 +1,4 @@
 import {useMemo, useState} from "react";
-import {SpecialsCollections} from "../helpers/collections";
 
 interface Classifiable {
     id: string,
@@ -32,10 +31,6 @@ export default function useCollectionsItems<T extends Classifiable>(initItems: T
     }
 
     const selectedItems = useMemo(() => items.filter(item => {
-        if (selectedCollectionId === SpecialsCollections.ALL && item.collection !== SpecialsCollections.TRASH) {
-            return true;
-        }
-
         return item.collection === selectedCollectionId
     }), [items, selectedCollectionId])
 

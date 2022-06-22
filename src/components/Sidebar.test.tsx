@@ -3,7 +3,7 @@ import {fireEvent, screen} from "@testing-library/react";
 import React from "react";
 import {collections} from "../../tests/mockData";
 import Sidebar from "./Sidebar";
-import {SpecialsCollections} from "../helpers/collections";
+import {TopCollections, VirtualCollections} from "../helpers/collections";
 
 describe("Sidebar component", () => {
     it("calls onCollectionAdded with collection name", () => {
@@ -45,10 +45,10 @@ describe("Sidebar component", () => {
         render(<Sidebar mainCollections={collections} onSelectedCollectionChange={onCollectionSelectMock}/>)
 
         fireEvent.click(screen.getByText("All",))
-        expect(onCollectionSelectMock).toHaveBeenCalledWith(SpecialsCollections.ALL)
+        expect(onCollectionSelectMock).toHaveBeenCalledWith(VirtualCollections.ALL)
         expect(onCollectionSelectMock).toHaveBeenCalledTimes(1)
         fireEvent.click(screen.getByText("Trash"))
-        expect(onCollectionSelectMock).toHaveBeenCalledWith(SpecialsCollections.TRASH)
+        expect(onCollectionSelectMock).toHaveBeenCalledWith(TopCollections.TRASH)
         expect(onCollectionSelectMock).toHaveBeenCalledTimes(2)
         fireEvent.click(screen.getByText("121", {exact: true}))
         expect(onCollectionSelectMock).toHaveBeenCalledWith("121")
