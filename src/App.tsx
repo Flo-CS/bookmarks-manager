@@ -88,8 +88,8 @@ export function App(): JSX.Element {
         })
     }
 
-    function handleRemoveCollection(id: string, isInTrash: boolean) {
-        if (isInTrash) {
+    function handleRemoveCollection(id: string, isDefinitiveDelete: boolean) {
+        if (isDefinitiveDelete) {
             collectionApi.removeCollection(id).then(() => {
                 removeCollection(id)
             })

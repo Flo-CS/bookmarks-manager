@@ -43,7 +43,7 @@ type Props = {
     trashCollections?: TreeOutputCollection[],
     collectionsItems?: TreeCollectionItem[],
     onCollectionAdd?: (collectionName: string) => void,
-    onCollectionRemove?: (collectionId: string, isInTrash: boolean) => void,
+    onCollectionRemove?: (collectionId: string, isDefinitiveDelete: boolean) => void,
     onTrashCollectionRemove?: (collectionId: string) => void
     selectedCollectionId?: string,
     onSelectedCollectionChange?: (collectionId: string) => void,
@@ -77,9 +77,15 @@ export default function Sidebar({
         onSelectedCollectionChange && onSelectedCollectionChange(collectionId)
     }
 
-    function handleMenuItemClick(menuItemId: string, collectionId: string, isInTrash: boolean) {
+    function handleMenuItemClick(menuItemId: string, collectionId: string) {
         if (menuItemId === "Remove") {
-            onCollectionRemove && onCollectionRemove(collectionId, isInTrash)
+            onCollectionRemove && onCollectionRemove(collectionId, false)
+        }
+    }
+
+    function handleTrashMenuItemClick(menuItemId: string, collectionId: string) {
+        if (menuItemId === "Delete") {
+            onCollectionRemove && onCollectionRemove(collectionId, true)
         }
     }
 
@@ -87,6 +93,7 @@ export default function Sidebar({
         afterCollectionFoldingChange && afterCollectionFoldingChange(collectionId, isFolded)
     }
 
+    const trashMenuItems = ["Delete"]
     const menuItems = ["Remove"]
 
     return <Container>
@@ -98,8 +105,8 @@ export default function Sidebar({
                                 isDefaultFolded={true}>
                 <CollectionsTree collections={trashCollections} selectedCollectionId={selectedCollectionId}
                                  onCollectionClick={handleCollectionClick}
-                                 menuItems={menuItems}
-                                 onMenuItemClick={(menuItemId, collectionId) => handleMenuItemClick(menuItemId, collectionId, true)}
+                                 menuItems={trashMenuItems}
+                                 onMenuItemClick={handleTrashMenuItemClick}
                                  afterCollectionFoldingChange={handleAfterCollectionFoldingChange}
                 />
             </CollectionTreeItem>
@@ -110,7 +117,7 @@ export default function Sidebar({
                          onCollectionClick={handleCollectionClick}
                          afterCollectionFoldingChange={handleAfterCollectionFoldingChange}
                          menuItems={menuItems}
-                         onMenuItemClick={(menuItemId, collectionId) => handleMenuItemClick(menuItemId, collectionId, false)}
+                         onMenuItemClick={handleMenuItemClick}
         />
         <AddCollectionInputLabel htmlFor="add-collection-input">New collection...</AddCollectionInputLabel>
         <AddCollectionInput id="add-collection-input" onChange={handleNewCollectionInputChange}
