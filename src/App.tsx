@@ -64,8 +64,10 @@ export function App(): JSX.Element {
         insertNodes: insertCollections,
     } = useTree<TreeInputCollection>({
         rootNodes: COLLECTIONS_TREE_ROOTS,
+        leafChildren: bookmarks,
         getKey: (collection) => collection.id,
         getParent: (collection) => collection.parent,
+        getLeafChildParent: (bookmark) => bookmark.collection
     })
 
     const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useIdModal<ModalBookmark>(bookmarks);

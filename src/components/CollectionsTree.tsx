@@ -44,6 +44,7 @@ export default function CollectionsTree({
                 afterFoldingChange: afterCollectionFoldingChange,
                 menuItems: menuItems,
                 onMenuItemClick: handleMenuItemClick,
+                count: collection.count
             }
 
             if (collection.children) {

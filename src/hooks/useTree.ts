@@ -5,6 +5,8 @@ type NodeKey = string | number
 
 type TreeOptions<V> = {
     rootNodes?: V[],
+    leafChildren?: Record<any, any>[],
+    getLeafChildParent?: (leafChild: Record<any, any>) => NodeKey,
     getKey?: (node: V) => NodeKey,
     getParent?: (node: V) => NodeKey | undefined,
 }
@@ -12,15 +14,18 @@ type TreeOptions<V> = {
 type TreeNode<V> = V & {
     children?: TreeNode<V>[],
     parent?: TreeNode<V>,
+    count?: number,
     __key__: NodeKey,
     __childrenKeys__: NodeKey[],
     __parentKey__: NodeKey
 }
 
 export default function useTree<V>({
-                                       rootNodes,
+                                       rootNodes = [],
                                        getParent = (item: any) => item.parent,
-                                       getKey = (item: any) => item.key
+                                       getKey = (item: any) => item.key,
+                                       leafChildren = [],
+                                       getLeafChildParent = (leafChild) => leafChild.parent
                                    }: TreeOptions<V>) {
 
 
@@ -28,9 +33,13 @@ export default function useTree<V>({
         keyBy(rootNodes, (node) => getKey(node))
     );
 
-    const tree = useMemo<Record<NodeKey, TreeNode<V>>>(() => {
+    const treeNodesByKey = useMemo<Record<NodeKey, TreeNode<V>>>(() => {
         return buildTree();
     }, [unlinkedNodesByKey, getParent, getKey]);
+
+    const tree = useMemo<Record<NodeKey, TreeNode<V>>>(() => {
+        return fillTree(treeNodesByKey)
+    }, [treeNodesByKey, leafChildren, getLeafChildParent])
 
     function buildTree(): Record<NodeKey, TreeNode<V>> {
         const nodesByKey = mapValues(unlinkedNodesByKey, (unlinkedNode, unlinkedNodeKey) => {
@@ -42,6 +51,7 @@ export default function useTree<V>({
                 get children(): TreeNode<V>[] {
                     return this.__childrenKeys__.map(childKey => nodesByKey[childKey])
                 },
+                count: undefined,
                 __key__: unlinkedNodeKey,
                 __parentKey__: getParent(unlinkedNode),
                 __childrenKeys__: [],
@@ -50,14 +60,17 @@ export default function useTree<V>({
             return newNode as TreeNode<V>
         })
 
-        forEach(nodesByKey, (node) => {
+        return nodesByKey;
+    }
+
+    function fillTree(tree: Record<NodeKey, TreeNode<V>>): Record<NodeKey, TreeNode<V>> {
+        return forEach(tree, (node, nodeKey) => {
             if (node.parent) {
                 node.parent.__childrenKeys__.push(node.__key__)
                 node.__parentKey__ = node.parent.__key__
             }
+            node.count = leafChildren?.filter(leafChild => getLeafChildParent(leafChild) === nodeKey).length
         })
-
-        return nodesByKey;
     }
 
     function getTreeNode(nodeKey: NodeKey): TreeNode<V> {

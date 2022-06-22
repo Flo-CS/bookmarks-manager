@@ -96,13 +96,18 @@ export default function Sidebar({
     const trashMenuItems = ["Delete"]
     const menuItems = ["Remove"]
 
+    const allCollectionsItemsCount = collectionsItems?.filter(item => item.collection !== SpecialsCollections.TRASH).length
+    const withoutCollectionsItemsCount = collectionsItems?.filter(item => item.collection === SpecialsCollections.WITHOUT_COLLECTION).length
+    const trashCollectionsItemsCount = collectionsItems?.filter(item => item.collection === SpecialsCollections.TRASH).length
+
     return <Container>
         <CollectionsTree onCollectionClick={handleCollectionClick} selectedCollectionId={selectedCollectionId}>
-            <CollectionTreeItem collectionId={SpecialsCollections.ALL} name="All" icon={MdAllInbox}/>
+            <CollectionTreeItem collectionId={SpecialsCollections.ALL} name="All" icon={MdAllInbox}
+                                count={allCollectionsItemsCount}/>
             <CollectionTreeItem collectionId={SpecialsCollections.WITHOUT_COLLECTION} name="Without collection"
-                                icon={IoAlbums}/>
+                                icon={IoAlbums} count={withoutCollectionsItemsCount}/>
             <CollectionTreeItem collectionId={SpecialsCollections.TRASH} name="Trash" icon={IoTrash}
-                                isDefaultFolded={true}>
+                                isDefaultFolded={true} count={trashCollectionsItemsCount}>
                 <CollectionsTree collections={trashCollections} selectedCollectionId={selectedCollectionId}
                                  onCollectionClick={handleCollectionClick}
                                  menuItems={trashMenuItems}

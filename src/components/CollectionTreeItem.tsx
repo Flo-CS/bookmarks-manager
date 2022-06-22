@@ -132,7 +132,7 @@ export default function CollectionTreeItem({
                     {isFolded ? <MdArrowRight/> : <MdArrowDropDown/>}
                 </FoldButton>}
             <CollectionName name={name} icon={icon}/>
-            {count && <Count>
+            {count !== undefined && <Count>
                 {count}
             </Count>}
             {menuItems && <Menu position={menuStatus.position} onClose={handleMenuClose} isShow={menuStatus.isOpened}>
