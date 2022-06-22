@@ -1,9 +1,9 @@
 import React from "react";
-import {Collection} from "../src/helpers/collections";
 import {BookmarkVariant} from "../src/helpers/bookmarks";
+import {TreeOutputCollection} from "../src/helpers/collections";
 
 
-export const collections: Collection[] = [
+export const collections: TreeOutputCollection[] = [
     {
         id: "1",
         name: "1",

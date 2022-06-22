@@ -9,7 +9,7 @@ import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import {ElectronBookmarkAPI, ElectronCollectionAPI} from "./helpers/api";
 import {BookmarkData, createDefaultBookmark, ModalBookmark} from "./helpers/bookmarks";
-import {CollectionDataExtended, createDefaultCollection, SpecialsCollections} from "./helpers/collections";
+import {createDefaultCollection, SpecialsCollections, TreeInputCollection} from "./helpers/collections";
 import useIdModal from "./hooks/useIdModal";
 import useCollectionsItems from "./hooks/useCollectionsItems";
 import useTree from "./hooks/useTree";
@@ -34,27 +34,17 @@ export const TagsContext = React.createContext<string[]>([]);
 const bookmarkApi = new ElectronBookmarkAPI();
 const collectionApi = new ElectronCollectionAPI()
 
-export function App(): JSX.Element {
-    const {
-        getTreeNodeChildren: getCollectionsChildren,
-        insertNode: insertCollection,
-        getPathToTreeNode: getPathToCollection,
-        removeNode: removeCollection,
-        updateNode: updateCollection,
-        insertNodes: addCollections,
-    } = useTree<CollectionDataExtended>({
-        rootsNodes: [{
-            name: SpecialsCollections.TRASH,
-            id: SpecialsCollections.TRASH,
-        }, {
-            name: SpecialsCollections.MAIN,
-            id: SpecialsCollections.MAIN,
-        }],
-        getKey: (collection) => collection.id,
-        getParent: (collection) => collection.parent
-    })
+const COLLECTIONS_TREE_ROOTS = [{
+    name: SpecialsCollections.TRASH,
+    id: SpecialsCollections.TRASH,
+}, {
+    name: SpecialsCollections.MAIN,
+    id: SpecialsCollections.MAIN,
+}]
 
+export function App(): JSX.Element {
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(SpecialsCollections.ALL);
+
     const {
         items: bookmarks,
         selectedItems: selectedBookmarks,
@@ -65,6 +55,19 @@ export function App(): JSX.Element {
         setItems: setBookmarks
     } = useCollectionsItems<BookmarkData>([], selectedCollectionId);
 
+    const {
+        getTreeNodeChildren: getCollectionChildren,
+        insertNode: insertCollection,
+        getPathToTreeNode: getPathToCollection,
+        removeNode: removeCollection,
+        updateNode: updateCollection,
+        insertNodes: insertCollections,
+    } = useTree<TreeInputCollection>({
+        rootNodes: COLLECTIONS_TREE_ROOTS,
+        getKey: (collection) => collection.id,
+        getParent: (collection) => collection.parent,
+    })
+
     const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useIdModal<ModalBookmark>(bookmarks);
     const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useIdModal<ModalBookmark>();
 
@@ -73,7 +76,7 @@ export function App(): JSX.Element {
             setBookmarks(fetchedBookmarks)
         })
         collectionApi.getCollections().then(fetchedCollections => {
-            addCollections(fetchedCollections)
+            insertCollections(fetchedCollections)
         })
     }, [])
 
@@ -91,8 +94,7 @@ export function App(): JSX.Element {
                 removeCollection(id)
             })
         } else {
-            const collectionUpdate = {parent: SpecialsCollections.TRASH}
-            collectionApi.updateCollection(id, collectionUpdate).then((updatedCollection) => {
+            collectionApi.updateCollection(id, {parent: SpecialsCollections.TRASH}).then((updatedCollection) => {
                 updateCollection(id, updatedCollection)
             })
         }
@@ -156,8 +158,7 @@ export function App(): JSX.Element {
                 removeBookmark(id)
             })
         } else {
-            const collectionUpdate = {collection: SpecialsCollections.TRASH}
-            bookmarkApi.updateBookmark(id, collectionUpdate).then((updatedBookmark) => {
+            bookmarkApi.updateBookmark(id, {collection: SpecialsCollections.TRASH}).then((updatedBookmark) => {
                 updateBookmark(id, updatedBookmark)
             })
         }
@@ -175,10 +176,9 @@ export function App(): JSX.Element {
             <GlobalStyle/>
             <TagsContext.Provider value={allTags}>
                 <Layout className="app">
-                    <Sidebar collections={{
-                        main: getCollectionsChildren(SpecialsCollections.MAIN),
-                        trash: getCollectionsChildren(SpecialsCollections.TRASH)
-                    }}
+                    <Sidebar mainCollections={getCollectionChildren(SpecialsCollections.MAIN)}
+                             trashCollections={getCollectionChildren(SpecialsCollections.TRASH)}
+                             collectionsItems={bookmarks}
                              onCollectionAdd={handleAddCollection}
                              onCollectionRemove={handleRemoveCollection}
                              onTrashCollectionRemove={handleRemoveTrashCollection}

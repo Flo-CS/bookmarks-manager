@@ -5,7 +5,7 @@ import {render} from "../../tests/utilities";
 import {cleanup, fireEvent, screen, within} from "@testing-library/react";
 import {theme} from "../styles/Theme";
 import {collections} from "../../tests/mockData";
-import {Collection} from "../helpers/collections";
+import {TreeOutputCollection} from "../helpers/collections";
 
 
 describe("CollectionsTreeView component", () => {
@@ -13,7 +13,7 @@ describe("CollectionsTreeView component", () => {
     it("renders collections hierarchy correctly", () => {
         render(<CollectionsTree collections={collections}/>)
 
-        function mapCollections(collections: Collection[], parentElement?: HTMLElement) {
+        function mapCollections(collections: TreeOutputCollection[], parentElement?: HTMLElement) {
             collections.forEach((collection) => {
 
                 let collectionElem;

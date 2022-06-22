@@ -1,8 +1,8 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from "react"
 import styled from "styled-components";
-import CollectionsTree, {TreeCollectionData} from "./CollectionsTree";
+import CollectionsTree from "./CollectionsTree";
 import CollectionTreeItem from "./CollectionTreeItem";
-import {SpecialsCollections} from "../helpers/collections";
+import {SpecialsCollections, TreeCollectionItem, TreeOutputCollection} from "../helpers/collections";
 
 import {MdAllInbox} from "react-icons/md";
 import {IoAlbums, IoTrash} from "react-icons/io5"
@@ -39,10 +39,9 @@ const Separator = styled.hr`
 `
 
 type Props = {
-    collections: {
-        main: TreeCollectionData[],
-        trash?: TreeCollectionData[]
-    },
+    mainCollections: TreeOutputCollection[]
+    trashCollections?: TreeOutputCollection[],
+    collectionsItems?: TreeCollectionItem[],
     onCollectionAdd?: (collectionName: string) => void,
     onCollectionRemove?: (collectionId: string, isInTrash: boolean) => void,
     onTrashCollectionRemove?: (collectionId: string) => void
@@ -52,7 +51,9 @@ type Props = {
 }
 
 export default function Sidebar({
-                                    collections,
+                                    mainCollections,
+                                    trashCollections,
+                                    collectionsItems,
                                     onCollectionAdd,
                                     onCollectionRemove,
                                     selectedCollectionId,
@@ -95,7 +96,7 @@ export default function Sidebar({
                                 icon={IoAlbums}/>
             <CollectionTreeItem collectionId={SpecialsCollections.TRASH} name="Trash" icon={IoTrash}
                                 isDefaultFolded={true}>
-                <CollectionsTree collections={collections.trash} selectedCollectionId={selectedCollectionId}
+                <CollectionsTree collections={trashCollections} selectedCollectionId={selectedCollectionId}
                                  onCollectionClick={handleCollectionClick}
                                  menuItems={menuItems}
                                  onMenuItemClick={(menuItemId, collectionId) => handleMenuItemClick(menuItemId, collectionId, true)}
@@ -104,7 +105,7 @@ export default function Sidebar({
             </CollectionTreeItem>
         </CollectionsTree>
         <Separator/>
-        <CollectionsTree collections={collections.main}
+        <CollectionsTree collections={mainCollections}
                          selectedCollectionId={selectedCollectionId}
                          onCollectionClick={handleCollectionClick}
                          afterCollectionFoldingChange={handleAfterCollectionFoldingChange}

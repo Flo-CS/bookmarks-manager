@@ -1,16 +1,10 @@
 import React from "react";
 import CollectionTreeItem, {CollectionTreeItemProps} from "./CollectionTreeItem";
+import {TreeOutputCollection} from "../helpers/collections";
 
-export interface TreeCollectionData {
-    id: string,
-    icon?: React.ComponentType,
-    name: string,
-    isFolded?: boolean,
-    children?: TreeCollectionData[],
-}
 
 type Props = {
-    collections?: TreeCollectionData[],
+    collections?: TreeOutputCollection[],
     children?: React.ReactNode,
     selectedCollectionId?: string,
     onCollectionClick?: (collectionId: string) => void,
@@ -37,7 +31,7 @@ export default function CollectionsTree({
         onMenuItemClick && onMenuItemClick(menuItemId, collectionId)
     }
 
-    function collectionsToComponent(collections: TreeCollectionData[]) {
+    function collectionsToComponent(collections: TreeOutputCollection[]) {
         return collections.map((collection) => {
             const commonProps = {
                 key: collection.id,
@@ -49,7 +43,7 @@ export default function CollectionsTree({
                 isSelected: collection.id === selectedCollectionId,
                 afterFoldingChange: afterCollectionFoldingChange,
                 menuItems: menuItems,
-                onMenuItemClick: handleMenuItemClick
+                onMenuItemClick: handleMenuItemClick,
             }
 
             if (collection.children) {

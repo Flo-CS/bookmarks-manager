@@ -19,14 +19,21 @@ export interface CollectionData extends CollectionMinimum {
     isFolded?: boolean,
 }
 
-export interface CollectionDataExtended extends Omit<CollectionData, "parent"> {
+export interface CollectionDataExtended extends CollectionData {
     icon?: React.ComponentType,
+
+}
+
+export interface TreeOutputCollection extends Omit<CollectionDataExtended, "parent"> {
+    children?: TreeOutputCollection[]
+}
+
+export interface TreeInputCollection extends Omit<CollectionDataExtended, "parent"> {
     parent?: string
 }
 
-export interface Collection extends Omit<CollectionDataExtended, "parent"> {
-    parent?: Collection
-    children?: Collection[]
+export interface TreeCollectionItem {
+    collection: string
 }
 
 export function createDefaultCollection(name: string, selectedCollectionId: string) {

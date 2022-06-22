@@ -4,48 +4,45 @@ import {useMemo, useState} from "react";
 type NodeKey = string | number
 
 type TreeOptions<V> = {
-    rootsNodes?: V[],
-    getKey?: (node: Record<NodeKey, any>) => NodeKey,
-    getParent?: (node: Record<NodeKey, any>) => NodeKey,
-    childrenPropertyName?: NodeKey,
-    parentPropertyName?: NodeKey,
-    keyPropertyName?: NodeKey
+    rootNodes?: V[],
+    getKey?: (node: V) => NodeKey,
+    getParent?: (node: V) => NodeKey | undefined,
 }
 
 type TreeNode<V> = V & {
     children?: TreeNode<V>[],
-    parent: TreeNode<V>,
+    parent?: TreeNode<V>,
     __key__: NodeKey,
     __childrenKeys__: NodeKey[],
     __parentKey__: NodeKey
 }
 
 export default function useTree<V>({
-                                       rootsNodes,
-                                       getParent = (item) => item.parent,
-                                       getKey = (item) => item.key,
+                                       rootNodes,
+                                       getParent = (item: any) => item.parent,
+                                       getKey = (item: any) => item.key
                                    }: TreeOptions<V>) {
 
 
     const [unlinkedNodesByKey, setNodesByKey] = useState<Record<NodeKey, V>>(
-        keyBy(rootsNodes, (node) => getKey(node))
+        keyBy(rootNodes, (node) => getKey(node))
     );
 
     const tree = useMemo<Record<NodeKey, TreeNode<V>>>(() => {
         return buildTree();
-    }, [unlinkedNodesByKey]);
+    }, [unlinkedNodesByKey, getParent, getKey]);
 
     function buildTree(): Record<NodeKey, TreeNode<V>> {
-        const nodesByKey = mapValues(unlinkedNodesByKey, (unlinkedNode) => {
+        const nodesByKey = mapValues(unlinkedNodesByKey, (unlinkedNode, unlinkedNodeKey) => {
             const newNode = {
                 ...unlinkedNode,
-                get parent(): TreeNode<V> {
-                    return nodesByKey[this.__parentKey__]
+                get parent(): TreeNode<V> | undefined {
+                    return this.__parentKey__ ? nodesByKey[this.__parentKey__] : undefined
                 },
                 get children(): TreeNode<V>[] {
-                    return this.__childrenKeys__.map(key => nodesByKey[key])
+                    return this.__childrenKeys__.map(childKey => nodesByKey[childKey])
                 },
-                __key__: getKey(unlinkedNode),
+                __key__: unlinkedNodeKey,
                 __parentKey__: getParent(unlinkedNode),
                 __childrenKeys__: [],
             }
@@ -65,10 +62,6 @@ export default function useTree<V>({
 
     function getTreeNode(nodeKey: NodeKey): TreeNode<V> {
         return tree[nodeKey]
-    }
-
-    function getTreeNodeParent(nodeKey: NodeKey): TreeNode<V> | undefined {
-        return getTreeNode(nodeKey).parent
     }
 
     function getTreeNodeChildren(nodeKey: NodeKey): TreeNode<V>[] {
@@ -118,6 +111,5 @@ export default function useTree<V>({
         insertNodes,
         getTreeNode,
         getTreeNodeChildren,
-        getTreeNodeParent
     }
 }

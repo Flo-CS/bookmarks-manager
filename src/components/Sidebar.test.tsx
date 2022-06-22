@@ -9,7 +9,7 @@ describe("Sidebar component", () => {
     it("calls onCollectionAdded with collection name", () => {
         const onCollectionAddedMock = jest.fn()
 
-        render(<Sidebar collections={{main: collections}} onCollectionAdd={onCollectionAddedMock}/>)
+        render(<Sidebar mainCollections={collections} onCollectionAdd={onCollectionAddedMock}/>)
 
         const input = screen.getByLabelText("New collection...")
 
@@ -24,7 +24,7 @@ describe("Sidebar component", () => {
         expect(onCollectionAddedMock).toHaveBeenCalledWith("aNewCollectionName");
     })
     it("clears input when collection added", () => {
-        render(<Sidebar collections={{main: collections}}/>)
+        render(<Sidebar mainCollections={collections}/>)
 
         const input = screen.getByLabelText("New collection...")
 
@@ -42,7 +42,7 @@ describe("Sidebar component", () => {
     it("handles collection selection", () => {
         const onCollectionSelectMock = jest.fn();
 
-        render(<Sidebar collections={{main: collections}} onSelectedCollectionChange={onCollectionSelectMock}/>)
+        render(<Sidebar mainCollections={collections} onSelectedCollectionChange={onCollectionSelectMock}/>)
 
         fireEvent.click(screen.getByText("All",))
         expect(onCollectionSelectMock).toHaveBeenCalledWith(SpecialsCollections.ALL)
