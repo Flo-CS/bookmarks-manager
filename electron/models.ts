@@ -7,7 +7,7 @@ import {BookmarkVariant} from "../src/helpers/bookmarks";
 const ARRAY_SEPARATOR = ";";
 
 export const databasePath = path.join(app.getPath("userData"), "main.db");
-export const sequelize = new Sequelize({dialect: "sqlite", storage: databasePath});
+export const sequelize: Sequelize = new Sequelize({dialect: "sqlite", storage: databasePath});
 
 
 export const Bookmark = sequelize.define('Bookmark', {
@@ -25,6 +25,7 @@ export const Bookmark = sequelize.define('Bookmark', {
         type: DataTypes.STRING,
         allowNull: false,
         defaultValue: SpecialsCollections.WITHOUT_COLLECTION,
+
     },
     variant: {
         type: DataTypes.ENUM(...Object.values(BookmarkVariant)),
