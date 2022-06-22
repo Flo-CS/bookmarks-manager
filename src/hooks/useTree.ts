@@ -14,7 +14,7 @@ type TreeOptions<V> = {
 type TreeNode<V> = V & {
     children?: TreeNode<V>[],
     parent?: TreeNode<V>,
-    count?: number,
+    count: number,
     __key__: NodeKey,
     __childrenKeys__: NodeKey[],
     __parentKey__: NodeKey
@@ -51,7 +51,7 @@ export default function useTree<V>({
                 get children(): TreeNode<V>[] {
                     return this.__childrenKeys__.map(childKey => nodesByKey[childKey])
                 },
-                count: undefined,
+                count: 0,
                 __key__: unlinkedNodeKey,
                 __parentKey__: getParent(unlinkedNode),
                 __childrenKeys__: [],

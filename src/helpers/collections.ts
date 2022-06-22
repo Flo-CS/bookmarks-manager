@@ -26,7 +26,7 @@ export interface CollectionDataExtended extends CollectionData {
 
 export interface TreeOutputCollection extends Omit<CollectionDataExtended, "parent"> {
     children?: TreeOutputCollection[],
-    count?: number
+    count: number
 }
 
 export interface TreeInputCollection extends Omit<CollectionDataExtended, "parent"> {
