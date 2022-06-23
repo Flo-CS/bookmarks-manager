@@ -12,7 +12,7 @@ export type APIRequestMessage = {
     "addCollection": { params: [CollectionMinimum | CollectionData], result: CollectionData },
     "updateCollection": { params: [string, Partial<CollectionData>], result: CollectionData };
     "removeCollection": { params: [string, "removeChildren" | "moveChildren"], result: void },
-    "fetchSiteData": { params: [string, boolean], result: WebsiteData }
+    "fetchWebsiteData": { params: [string, boolean], result: WebsiteData }
 }
 type APIRequest<T extends keyof APIRequestMessage> = (...params: APIRequestMessage[T]["params"]) => Promise<APIRequestMessage[T]["result"]>
 type APIRequests = {
@@ -21,35 +21,35 @@ type APIRequests = {
 
 export class ElectronAPI implements APIRequests {
 
-    async removeBookmark(id: string): Promise<void> {
+    async removeBookmark(id: string) {
         return await window.bridge.sendMessage("removeBookmark", id);
     }
 
-    async addBookmark(bookmark: BookmarkMinimum | BookmarkData): Promise<BookmarkData> {
+    async addBookmark(bookmark: BookmarkMinimum | BookmarkData) {
         return await window.bridge.sendMessage("addBookmark", bookmark);
     }
 
-    async getBookmarks(): Promise<BookmarkData[]> {
+    async getBookmarks() {
         return await window.bridge.sendMessage("getBookmarks");
     }
 
-    async getBookmark(id: string): Promise<BookmarkData> {
+    async getBookmark(id: string) {
         return await window.bridge.sendMessage("getBookmark", id);
     }
 
-    async updateBookmark(id: string, bookmark: Partial<BookmarkData>): Promise<BookmarkData> {
+    async updateBookmark(id: string, bookmark: Partial<BookmarkData>) {
         return await window.bridge.sendMessage("updateBookmark", id, bookmark);
     }
 
-    async getCollections(): Promise<CollectionData[]> {
+    async getCollections() {
         return await window.bridge.sendMessage("getCollections")
     }
 
-    async addCollection(collection: CollectionMinimum | CollectionData): Promise<CollectionData> {
+    async addCollection(collection: CollectionMinimum | CollectionData) {
         return await window.bridge.sendMessage("addCollection", collection)
     }
 
-    async updateCollection(id: string, collection: Partial<CollectionData>): Promise<CollectionData> {
+    async updateCollection(id: string, collection: Partial<CollectionData>) {
         return await window.bridge.sendMessage("updateCollection", id, collection)
     }
 
@@ -57,8 +57,8 @@ export class ElectronAPI implements APIRequests {
         return await window.bridge.sendMessage("removeCollection", id, removeAction)
     }
 
-    async fetchSiteData(url: string, forceDataRefresh = false): Promise<WebsiteData> {
-        return await window.bridge.sendMessage("fetchSiteData", url, forceDataRefresh)
+    async fetchWebsiteData(url: string, forceDataRefresh = false) {
+        return await window.bridge.sendMessage("fetchWebsiteData", url, forceDataRefresh)
     }
 
 
