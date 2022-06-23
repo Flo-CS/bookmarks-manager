@@ -1,5 +1,6 @@
 import {BookmarkData, BookmarkMinimum} from "./bookmarks";
 import {CollectionData, CollectionMinimum} from "./collections";
+import {WebsiteData} from "./websiteData";
 
 export type APIRequestMessage = {
     "removeBookmark": { params: [string], result: void }
@@ -10,10 +11,15 @@ export type APIRequestMessage = {
     "getCollections": { params: [], result: CollectionData[] },
     "addCollection": { params: [CollectionMinimum | CollectionData], result: CollectionData },
     "updateCollection": { params: [string, Partial<CollectionData>], result: CollectionData };
-    "removeCollection": { params: [string, "removeChildren" | "moveChildren"], result: void }
+    "removeCollection": { params: [string, "removeChildren" | "moveChildren"], result: void },
+    "fetchSiteData": { params: [string, boolean], result: WebsiteData }
 }
+type APIRequest<T extends keyof APIRequestMessage> = (...params: APIRequestMessage[T]["params"]) => Promise<APIRequestMessage[T]["result"]>
+type APIRequests = {
+    [T in keyof APIRequestMessage]: APIRequest<T>;
+};
 
-export class ElectronAPI {
+export class ElectronAPI implements APIRequests {
 
     async removeBookmark(id: string): Promise<void> {
         return await window.bridge.sendMessage("removeBookmark", id);
@@ -50,4 +56,10 @@ export class ElectronAPI {
     async removeCollection(id: string, removeAction: "removeChildren" | "moveChildren" = "removeChildren") {
         return await window.bridge.sendMessage("removeCollection", id, removeAction)
     }
+
+    async fetchSiteData(url: string, forceDataRefresh = false): Promise<WebsiteData> {
+        return await window.bridge.sendMessage("fetchSiteData", url, forceDataRefresh)
+    }
+
+
 }
