@@ -40,6 +40,9 @@ export const Website = sequelize.define<any, any>("Website", {
             isUrl: true
         },
         get(): WebsitePicture {
+            if (!this.getDataValue("faviconPicture")) {
+                return [null, null]
+            }
             return getWebsitePicture("favicon", this.getDataValue("faviconPicture"), this.id)
         }
     },
@@ -49,6 +52,9 @@ export const Website = sequelize.define<any, any>("Website", {
             isUrl: true
         },
         get(): WebsitePicture {
+            if (!this.getDataValue("previewPicture")) {
+                return [null, null]
+            }
             return getWebsitePicture("preview", this.getDataValue("previewPicture"), this.id)
         }
     },
