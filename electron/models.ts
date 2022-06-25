@@ -1,14 +1,71 @@
-import {DataTypes, Sequelize} from 'sequelize';
+import {DataTypes, Sequelize} from "sequelize"
 import {TopCollections} from '../src/helpers/collections';
 import * as path from "path"
 import {app} from 'electron';
 import {BookmarkVariant} from "../src/helpers/bookmarks";
+import {WebsiteMetadata, WebsitePicture} from "../src/helpers/websiteMetadata";
+import {getWebsitePicture} from "./dataFiles";
 
 const ARRAY_SEPARATOR = ";";
 
 export const databasePath = path.join(app.getPath("userData"), "main.db");
+
+
 export const sequelize: Sequelize = new Sequelize({dialect: "sqlite", storage: databasePath});
 
+export const Website = sequelize.define<any, any>("Website", {
+    id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        allowNull: false,
+        defaultValue: DataTypes.UUIDV4
+    },
+    url: {
+        type: DataTypes.TEXT("tiny"),
+        allowNull: false,
+        unique: true,
+        validate: {
+            isUrl: true,
+        }
+    },
+    title: {
+        type: DataTypes.STRING
+    },
+    description: {
+        type: DataTypes.TEXT("tiny")
+    },
+    faviconPicture: {
+        type: DataTypes.TEXT("tiny"),
+        validate: {
+            isUrl: true
+        },
+        get(): WebsitePicture {
+            return getWebsitePicture("favicon", this.getDataValue("faviconPicture"), this.id)
+        }
+    },
+    previewPicture: {
+        type: DataTypes.TEXT("tiny"),
+        validate: {
+            isUrl: true
+        },
+        get(): WebsitePicture {
+            return getWebsitePicture("preview", this.getDataValue("previewPicture"), this.id)
+        }
+    },
+    metadata: {
+        type: DataTypes.VIRTUAL,
+        get(): WebsiteMetadata {
+            return {
+                description: this.description,
+                title: this.title,
+                pictures: {
+                    preview: this.previewPicture,
+                    favicon: this.faviconPicture
+                }
+            };
+        },
+    },
+}, {})
 
 export const Bookmark = sequelize.define('Bookmark', {
     id: {
