@@ -49,7 +49,7 @@ export const Website = sequelize.define<any, any>("Website", {
     previewPicture: {
         type: DataTypes.TEXT("tiny"),
         validate: {
-            isUrl: undefined
+            isUrl: true
         },
         get(): WebsitePicture | undefined {
             if (!this.getDataValue("previewPicture")) {
