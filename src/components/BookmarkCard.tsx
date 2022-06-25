@@ -36,9 +36,9 @@ const CardHead = styled.div`
 
 const Picture = styled.img<{ isIcon?: boolean }>`
   margin-right: ${props => props.theme.spacing.medium};
-  height: ${props => props.isIcon ? `${ICON_HEIGHT}px` : "100%"};
+  max-height: ${props => props.isIcon ? `${ICON_HEIGHT}px` : "100px"};
   display: inline-block;
-  max-width: 100px;
+  object-fit: cover;
 `
 
 const Title = styled.h3`
