@@ -39,9 +39,9 @@ export const Website = sequelize.define<any, any>("Website", {
         validate: {
             isUrl: true
         },
-        get(): WebsitePicture {
+        get(): WebsitePicture | undefined {
             if (!this.getDataValue("faviconPicture")) {
-                return [null, null]
+                return undefined
             }
             return getWebsitePicture("favicon", this.getDataValue("faviconPicture"), this.id)
         }
@@ -49,11 +49,11 @@ export const Website = sequelize.define<any, any>("Website", {
     previewPicture: {
         type: DataTypes.TEXT("tiny"),
         validate: {
-            isUrl: true
+            isUrl: undefined
         },
-        get(): WebsitePicture {
+        get(): WebsitePicture | undefined {
             if (!this.getDataValue("previewPicture")) {
-                return [null, null]
+                return undefined
             }
             return getWebsitePicture("preview", this.getDataValue("previewPicture"), this.id)
         }
