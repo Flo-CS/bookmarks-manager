@@ -65,7 +65,7 @@ export const Website = sequelize.define<any, any>("Website", {
             };
         },
     },
-}, {})
+}, {timestamps: true, createdAt: "creationDate", updatedAt: "modificationDate"})
 
 export const Bookmark = sequelize.define('Bookmark', {
     id: {

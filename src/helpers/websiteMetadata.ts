@@ -2,10 +2,15 @@ export type PicturesVariant = "favicon" | "screenshot" | "preview"
 export type WebsitesVariant = "page" | "site"
 
 export type WebsitePicture = [string, string]
-export type WebsiteMetadata = {
+
+export interface CommonWebsiteMetadata<T extends string | WebsitePicture> {
     title?: string
     description?: string
     pictures: Partial<{
-        [_ in PicturesVariant]: WebsitePicture
+        [_ in PicturesVariant]: T
     }>
 }
+
+export type FetchedWebsiteMetadata = CommonWebsiteMetadata<string>
+
+export type WebsiteMetadata = CommonWebsiteMetadata<WebsitePicture>

@@ -28,6 +28,7 @@
     "react-icons": "^4.3.1",
     "react-modal": "^3.14.4",
     "styled-components": "5.3.0",
+    "unfurl.js": "^5.7.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -46,6 +47,7 @@
     "@testing-library/jest-dom": "5.14.1",
     "@testing-library/react": "11.2.7",
     "@testing-library/react-hooks": "^7.0.2",
+    "@timfish/webpack-asset-relocator-loader": "^0.1.0",
     "@types/electron-devtools-installer": "2.2.0",
     "@types/jest": "26.0.23",
     "@types/node": "^18.0.0",

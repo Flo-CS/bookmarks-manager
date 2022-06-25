@@ -1,6 +1,7 @@
 import {ipcMain} from "electron";
-import {Bookmark, Collection} from "./models";
+import {Bookmark, Collection, Website} from "./models";
 import {APIRequestMessage} from "../src/helpers/api";
+import {fetchWebsiteMetadata} from "./websiteDataFetcher";
 
 
 type BridgeHandler<T extends keyof APIRequestMessage> = (event: Electron.IpcMainInvokeEvent, ...params: APIRequestMessage[T]["params"]) => Promise<APIRequestMessage[T]["result"]>
@@ -58,6 +59,33 @@ export async function registerBridgeHandlers() {
             await Collection.destroy({
                 where: {id: id}
             })
+        },
+        "fetchWebsiteData": async (event, URL: string, forceDataRefresh: boolean) => {
+            // TODO: NOT FINISHED
+            const websiteMetadata = await fetchWebsiteMetadata(URL)
+            const website = await Website.findOrCreate({
+                where: {
+                    url: URL
+                },
+                defaults: {
+                    url: URL,
+                    title: websiteMetadata.title,
+                    description: websiteMetadata.description,
+                    faviconPicture: websiteMetadata.pictures.favicon,
+                    previewPicture: websiteMetadata.pictures.preview,
+                }
+            })
+
+            const websiteData = website[0].get()
+
+            return {
+                websiteURL: websiteData.url,
+                pageURL: websiteData.url,
+                metadata: {
+                    page: websiteData.metadata,
+                    site: websiteData.metadata
+                }
+            }
         }
     }
 
