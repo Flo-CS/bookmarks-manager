@@ -1,6 +1,6 @@
 export type PicturesVariant = "favicon" | "screenshot" | "preview"
 
-export type WebsitePicture = [string, string]
+export type WebsitePicture = [string | null, string | null]
 
 export interface CommonWebsiteMetadata<T extends string | WebsitePicture> {
     title?: string
