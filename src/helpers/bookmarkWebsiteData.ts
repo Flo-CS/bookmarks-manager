@@ -1,7 +1,6 @@
-import {WebsiteMetadata, WebsitesVariant} from "./websiteMetadata";
+import {WebsiteMetadata} from "./websiteMetadata";
 
 export interface BookmarkWebsiteData {
-    pageURL: string
-    websiteURL: string
-    metadata: { [_ in WebsitesVariant]: WebsiteMetadata }
+    URL: string
+    metadata: WebsiteMetadata
 }

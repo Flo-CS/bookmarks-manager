@@ -1,5 +1,4 @@
 export type PicturesVariant = "favicon" | "screenshot" | "preview"
-export type WebsitesVariant = "page" | "site"
 
 export type WebsitePicture = [string, string]
 

@@ -79,12 +79,8 @@ export async function registerBridgeHandlers() {
             const websiteData = website[0].get()
 
             return {
-                websiteURL: websiteData.url,
-                pageURL: websiteData.url,
-                metadata: {
-                    page: websiteData.metadata,
-                    site: websiteData.metadata
-                }
+                URL: websiteData.url,
+                metadata: websiteData.metadata,
             }
         }
     }
