@@ -181,8 +181,8 @@ export function App(): JSX.Element {
         API.updateCollection(id, {isFolded: isFolded})
     }
 
-    async function handleModalFetch(URL: string): Promise<ModalFetchedWebsiteMetadata> {
-        const {metadata} = await API.fetchWebsiteData(URL)
+    async function handleModalFetch(URL: string, forceDataRefresh: boolean): Promise<ModalFetchedWebsiteMetadata> {
+        const {metadata} = await API.fetchWebsiteData(URL, forceDataRefresh)
         return {
             linkTitle: metadata.title,
             description: metadata.description,

@@ -61,7 +61,11 @@ export async function registerBridgeHandlers() {
             })
         },
         "fetchWebsiteData": async (event, URL: string, forceDataRefresh: boolean) => {
-            // TODO: NOT FINISHED
+            if (forceDataRefresh) {
+                Website.destroy({
+                    where: {url: URL}
+                })
+            }
             const websiteMetadata = await fetchWebsiteMetadata(URL)
             const website = await Website.findOrCreate({
                 where: {

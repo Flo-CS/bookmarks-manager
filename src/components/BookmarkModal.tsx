@@ -120,7 +120,7 @@ type Props<T extends InitialModalBookmark> = {
     modalTitle?: string
     initialBookmark?: T
     onClose: () => void
-    fetchWebsiteMetadata: (url: string) => Promise<ModalFetchedWebsiteMetadata>
+    fetchWebsiteMetadata: (url: string, forceDataRefresh: boolean) => Promise<ModalFetchedWebsiteMetadata>
     onBookmarkSave: (data: T & SavedModalBookmark | undefined) => void
 }
 
@@ -174,17 +174,17 @@ export default function BookmarkModal<T extends InitialModalBookmark>({
         const modifications = getBookmarkFieldsModifications()
 
         if (modifications.url) {
-            await handleFetchWebsiteMetadata((value) => value === "")
+            await handleFetchWebsiteMetadata(false, (value) => value === "",)
         }
     }
 
     async function handleManualFetchWebsiteMetadata() {
-        await handleFetchWebsiteMetadata()
+        await handleFetchWebsiteMetadata(true)
     }
 
-    async function handleFetchWebsiteMetadata(eraseIf?: (value: unknown, key: string) => boolean) {
+    async function handleFetchWebsiteMetadata(forceDataRefresh: boolean, eraseIf?: (value: unknown, key: string) => boolean,) {
         setIsFetching(true)
-        const websiteMetadata = await fetchWebsiteMetadata(bookmarkFields.url)
+        const websiteMetadata = await fetchWebsiteMetadata(bookmarkFields.url, forceDataRefresh)
         updateBookmarkFields(websiteMetadata, eraseIf)
         setIsFetching(false)
     }

@@ -60,6 +60,4 @@ export class ElectronAPI implements APIRequests {
     async fetchWebsiteData(url: string, forceDataRefresh = false) {
         return await window.bridge.sendMessage("fetchWebsiteData", url, forceDataRefresh)
     }
-
-
 }

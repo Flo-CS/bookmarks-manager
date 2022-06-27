@@ -82,6 +82,7 @@ export const Bookmark = sequelize.define('Bookmark', {
     },
     url: {
         type: DataTypes.STRING,
+        primaryKey: true,
         allowNull: false
     },
     collection: {
@@ -177,5 +178,5 @@ export const Collection = sequelize.define('Collection', {
     });
 
 (async () => {
-    await sequelize.sync({force: true, alter: true});
+    await sequelize.sync();
 })();
