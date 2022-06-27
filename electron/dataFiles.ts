@@ -18,5 +18,5 @@ export function getDataFilePath<T extends keyof DataPaths>(type: T, fileId: stri
 }
 
 export function getWebsitePicture(type: PicturesVariant, pictureURL: string, websiteId: string): WebsitePicture {
-    return [pictureURL, getDataFilePath(type, websiteId, path.extname(pictureURL))]
+    return {url: pictureURL, localPath: getDataFilePath(type, websiteId, path.extname(pictureURL))}
 }

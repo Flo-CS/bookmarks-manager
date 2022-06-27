@@ -186,8 +186,8 @@ export function App(): JSX.Element {
         return {
             linkTitle: metadata.title,
             description: metadata.description,
-            faviconPath: metadata.pictures.favicon?.[0],
-            previewPath: metadata.pictures.preview?.[0]
+            faviconPath: metadata.pictures.favicon?.url,
+            previewPath: metadata.pictures.preview?.url
         }
     }
 

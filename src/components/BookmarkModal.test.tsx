@@ -184,7 +184,7 @@ describe("BookmarkModal component", () => {
         }))
 
         expect(handleFetchBookmarkData).toHaveBeenCalledTimes(1)
-        expect(handleFetchBookmarkData).toHaveBeenCalledWith("https://google.com")
+        expect(handleFetchBookmarkData).toHaveBeenCalledWith("https://google.com", expect.anything())
     })
     it.todo("handles invalid url")
 })
