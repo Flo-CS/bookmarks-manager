@@ -1,6 +1,6 @@
 import {BookmarkData, BookmarkMinimum} from "./bookmarks";
 import {CollectionData, CollectionMinimum} from "./collections";
-import {BookmarkWebsiteData} from "./bookmarkWebsiteData";
+import {WebsiteData} from "./websiteData";
 
 export type APIRequestMessage = {
     "removeBookmark": { params: [string], result: void }
@@ -12,7 +12,7 @@ export type APIRequestMessage = {
     "addCollection": { params: [CollectionMinimum | CollectionData], result: CollectionData },
     "updateCollection": { params: [string, Partial<CollectionData>], result: CollectionData };
     "removeCollection": { params: [string, "removeChildren" | "moveChildren"], result: void },
-    "fetchWebsiteData": { params: [string, boolean], result: BookmarkWebsiteData }
+    "fetchWebsiteData": { params: [string, boolean], result: WebsiteData }
 }
 type APIRequest<T extends keyof APIRequestMessage> = (...params: APIRequestMessage[T]["params"]) => Promise<APIRequestMessage[T]["result"]>
 type APIRequests = {

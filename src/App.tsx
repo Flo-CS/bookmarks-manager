@@ -1,20 +1,25 @@
 import React, {useEffect, useMemo, useState} from "react";
 import styled, {ThemeProvider} from "styled-components";
-import BookmarkModal from "./components/BookmarkModal";
+import BookmarkModal, {
+    InitialModalBookmark,
+    ModalFetchedWebsiteMetadata,
+    SavedModalBookmark
+} from "./components/BookmarkModal";
 import BookmarksLayout from "./components/BookmarksLayout";
 import CollectionName from "./components/CollectionName";
 import CollectionsBreadCrumb from "./components/CollectionsBreadCrumb";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import {ElectronAPI} from "./helpers/api";
-import {BookmarkData, createDefaultBookmark, ModalBookmark} from "./helpers/bookmarks";
+import {BookmarkData, BookmarkMinimum, createDefaultBookmark} from "./helpers/bookmarks";
 import {createDefaultCollection, TopCollections, TreeInputCollection, VirtualCollections} from "./helpers/collections";
-import useIdModal from "./hooks/useIdModal";
+import useModal from "./hooks/useModal";
 import useCollectionsItems from "./hooks/useCollectionsItems";
 import useTree from "./hooks/useTree";
 import {GlobalStyle} from "./styles/GlobalStyle";
 import {theme} from "./styles/Theme";
 import {flatten, slice, uniq} from "lodash";
+
 
 const Layout = styled.div`
   display: grid;
@@ -70,8 +75,8 @@ export function App(): JSX.Element {
         getLeafChildParent: (bookmark) => bookmark.collection
     })
 
-    const [isEditModalOpen, editModalBookmark, openEditModal, closeEditModal] = useIdModal<ModalBookmark>(bookmarks);
-    const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useIdModal<ModalBookmark>();
+    const [isEditModalOpen, editModalBookmarkId, openEditModal, closeEditModal] = useModal<string>();
+    const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useModal<BookmarkMinimum & InitialModalBookmark>();
 
     const allTags = useMemo(() => uniq(flatten(bookmarks.map(bookmark => bookmark.tags))), [bookmarks])
     const selectedCollectionPath = useMemo(() => getPathToCollection(selectedCollectionId), [selectedCollectionId])
@@ -121,28 +126,26 @@ export function App(): JSX.Element {
     }
 
     function handleBookmarkCreation() {
-        const newBookmark = createDefaultBookmark(selectedCollectionPath);
-        openNewModal(newBookmark);
+        openNewModal(createDefaultBookmark(selectedCollectionPath));
     }
 
     function handleBookmarkEdit(id: string) {
         openEditModal(id)
     }
 
-    function handleEditModalSave(data: Partial<BookmarkData>) {
-        if (!editModalBookmark) return;
+    function handleEditModalSave(data: SavedModalBookmark | undefined) {
+        if (!editModalBookmarkId || !data) return
 
-        API.updateBookmark(editModalBookmark.id, data).then((updatedBookmark) => {
-            updateBookmark(editModalBookmark.id, updatedBookmark)
+        API.updateBookmark(editModalBookmarkId, data).then((updatedBookmark) => {
+            updateBookmark(editModalBookmarkId, updatedBookmark)
         })
         closeEditModal()
     }
 
-    function handleNewModalSave(data: Partial<BookmarkData>) {
-        if (!newModalBookmark) return;
+    function handleNewModalSave(data: BookmarkMinimum & SavedModalBookmark | undefined) {
+        if (!data) return
 
-        const newBookmark = {...newModalBookmark, ...data}
-        API.addBookmark(newBookmark).then((createdBookmark) => {
+        API.addBookmark(data).then((createdBookmark) => {
             addBookmark(createdBookmark)
             closeNewModal()
         })
@@ -178,6 +181,17 @@ export function App(): JSX.Element {
         API.updateCollection(id, {isFolded: isFolded})
     }
 
+    async function handleModalFetch(URL: string): Promise<ModalFetchedWebsiteMetadata> {
+        const {metadata} = await API.fetchWebsiteData(URL)
+        return {
+            linkTitle: metadata.title,
+            description: metadata.description,
+            faviconPath: metadata.pictures.favicon?.[0],
+            previewPath: metadata.pictures.preview?.[0]
+        }
+    }
+
+
     return (
         <ThemeProvider theme={theme}>
             <GlobalStyle/>
@@ -207,14 +221,16 @@ export function App(): JSX.Element {
                         isOpen={isEditModalOpen}
                         onClose={closeEditModal}
                         onBookmarkSave={handleEditModalSave}
-                        title="Edit bookmark"
-                        originalBookmark={editModalBookmark}/>
+                        modalTitle="Edit bookmark"
+                        initialBookmark={getBookmark(editModalBookmarkId)}
+                        fetchWebsiteMetadata={handleModalFetch}/>
                     <BookmarkModal
                         isOpen={isNewModalOpen}
                         onClose={closeNewModal}
                         onBookmarkSave={handleNewModalSave}
-                        title="Add new bookmark"
-                        originalBookmark={newModalBookmark}/>
+                        modalTitle="Add new bookmark"
+                        initialBookmark={newModalBookmark}
+                        fetchWebsiteMetadata={handleModalFetch}/>
                 </Layout>
             </TagsContext.Provider>
         </ThemeProvider>

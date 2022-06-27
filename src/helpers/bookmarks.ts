@@ -1,6 +1,7 @@
 import {groupBy, toPairs} from "lodash";
-import {v4 as uuidv4} from 'uuid';
 import {getParentCollectionId, TreeOutputCollection} from "./collections";
+import {v4 as uuidv4} from 'uuid';
+
 
 export enum BookmarkVariant {
     PREVIEW = "preview",
@@ -27,11 +28,6 @@ export interface BookmarkData extends BookmarkMinimum {
     previewPath?: string
 }
 
-export interface ModalBookmark extends BookmarkMinimum {
-    tags?: string[],
-    description?: string,
-}
-
 
 // TODO: Move that to a separate file
 export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) => unknown) {
@@ -40,9 +36,9 @@ export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) =>
     )
 }
 
-export function createDefaultBookmark(selectedCollectionPath: TreeOutputCollection[]) {
+export function createDefaultBookmark(selectedCollectionPath: TreeOutputCollection[]): BookmarkMinimum {
     return {
-        url: "",
+        url: "https://",
         collection: getParentCollectionId(selectedCollectionPath),
         variant: BookmarkVariant.PREVIEW,
         id: uuidv4()

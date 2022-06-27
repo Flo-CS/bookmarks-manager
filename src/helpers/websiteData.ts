@@ -1,6 +1,6 @@
 import {WebsiteMetadata} from "./websiteMetadata";
 
-export interface BookmarkWebsiteData {
+export interface WebsiteData {
     URL: string
     metadata: WebsiteMetadata
 }
