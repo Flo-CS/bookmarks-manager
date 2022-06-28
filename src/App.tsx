@@ -27,6 +27,7 @@ import {theme} from "./styles/Theme";
 import {flatten, slice, uniq} from "lodash";
 import {DndProvider} from "react-dnd";
 import {HTML5Backend} from "react-dnd-html5-backend";
+import {DndTypes, IdDroppedItem} from "./helpers/dragAndDrop";
 
 
 const Layout = styled.div`
@@ -133,21 +134,28 @@ export function App(): JSX.Element {
         setSelectedCollectionId(collectionId)
     }
 
-    function handleCollectionMove(parentCollectionId: string, collectionId: string) {
-        API.updateCollection(collectionId, {parent: parentCollectionId}).then(updatedCollection => {
-            updateCollection(collectionId, updatedCollection)
-        })
+    function handleDropOnCollection(parentCollectionId: string, droppedItem: IdDroppedItem) {
+        if (droppedItem.type === DndTypes.COLLECTION_ITEM) {
+            API.updateCollection(droppedItem.id, {parent: parentCollectionId}).then(updatedCollection => {
+                updateCollection(droppedItem.id, updatedCollection)
+            })
+        } else if (droppedItem.type === DndTypes.BOOKMARK_CARD) {
+            API.updateBookmark(droppedItem.id, {collection: parentCollectionId}).then(updatedBookmark => {
+                updateBookmark(droppedItem.id, updatedBookmark)
+            })
+        }
     }
 
-    function canCollectionMove(parentCollectionId: string, collectionId: string) {
-        const parentCollectionPath = getPathToCollection(parentCollectionId).map(collection => collection.id).join(COLLECTIONS_SEPARATOR)
-        const collectionPath = getPathToCollection(collectionId).map(collection => collection.id).join(COLLECTIONS_SEPARATOR)
+    function canDropOnCollection(parentCollectionId: string, droppedItem: IdDroppedItem) {
+        if (droppedItem.type === DndTypes.COLLECTION_ITEM) {
+            const parentCollectionPath = getPathToCollection(parentCollectionId).map(collection => collection.id).join(COLLECTIONS_SEPARATOR)
+            const collectionPath = getPathToCollection(droppedItem.id).map(collection => collection.id).join(COLLECTIONS_SEPARATOR)
 
-        // Can't drop on itself
-        if (parentCollectionPath === collectionPath) return false
-        // Can't drop collection inside itself
-        if (parentCollectionPath.startsWith(collectionPath)) return false
-
+            // Can't drop on itself
+            if (parentCollectionPath === collectionPath) return false
+            // Can't drop collection inside itself
+            if (parentCollectionPath.startsWith(collectionPath)) return false
+        }
         return true
     }
 
@@ -233,8 +241,8 @@ export function App(): JSX.Element {
                                  afterCollectionFoldingChange={handleCollectionFolding}
                                  onSelectedCollectionChange={handleCollectionSelection}
                                  selectedCollectionId={selectedCollectionId}
-                                 onCollectionMove={handleCollectionMove}
-                                 canCollectionMove={canCollectionMove}/>
+                                 onDropOnCollection={handleDropOnCollection}
+                                 canDropOnCollection={canDropOnCollection}/>
                         <Main>
                             <TopBar onAdd={handleBookmarkCreation}/>
                             <CollectionsBreadCrumb>

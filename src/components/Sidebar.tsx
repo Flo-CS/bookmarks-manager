@@ -6,6 +6,7 @@ import {TopCollections, TreeCollectionItem, TreeOutputCollection, VirtualCollect
 
 import {MdAllInbox} from "react-icons/md";
 import {IoAlbums, IoTrash} from "react-icons/io5"
+import {IdDroppedItem} from "../helpers/dragAndDrop";
 
 const Container = styled.section`
   display: flex;
@@ -44,12 +45,12 @@ type Props = {
     collectionsItems?: TreeCollectionItem[],
     onCollectionAdd?: (collectionName: string) => void,
     onCollectionRemove?: (collectionId: string, isDefinitiveDelete: boolean) => void,
-    onCollectionMove?: (parentCollectionId: string, collectionId: string) => void,
     onTrashCollectionRemove?: (collectionId: string) => void
     selectedCollectionId?: string,
     onSelectedCollectionChange?: (collectionId: string) => void,
     afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void,
-    canCollectionMove?: (parentCollectionId: string, collectionId: string) => boolean
+    onDropOnCollection?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void,
+    canDropOnCollection?: (parentCollectionId: string, droppedItem: IdDroppedItem) => boolean
 }
 
 export default function Sidebar({
@@ -61,8 +62,8 @@ export default function Sidebar({
                                     selectedCollectionId,
                                     onSelectedCollectionChange,
                                     afterCollectionFoldingChange,
-                                    onCollectionMove,
-                                    canCollectionMove
+                                    onDropOnCollection,
+                                    canDropOnCollection
                                 }: Props) {
     const [newCollectionName, setNewCollectionName] = useState<string>("");
 
@@ -119,8 +120,8 @@ export default function Sidebar({
                          afterCollectionFoldingChange={afterCollectionFoldingChange}
                          menuItems={menuItems}
                          onMenuItemClick={handleMenuItemClick}
-                         onDrop={onCollectionMove}
-                         canDrop={canCollectionMove}
+                         onDrop={onDropOnCollection}
+                         canDrop={canDropOnCollection}
         />
         <AddCollectionInputLabel htmlFor="add-collection-input">New collection...</AddCollectionInputLabel>
         <AddCollectionInput id="add-collection-input" onChange={handleNewCollectionInputChange}

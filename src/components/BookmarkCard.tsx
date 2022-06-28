@@ -6,16 +6,19 @@ import {MdContentCopy, MdDelete, MdEdit} from "react-icons/md";
 import useHover from "../hooks/useHover";
 import {useRef} from "react";
 import {BookmarkVariant} from "../helpers/bookmarks";
+import {DndTypes, IdDragItem} from "../helpers/dragAndDrop";
+import {useDrag} from "react-dnd";
 
 const ICON_HEIGHT = 40;
 
-const Card = styled.article`
+const Card = styled.article<{ isDragging: boolean }>`
   border-radius: ${props => props.theme.radius.medium};
   font-size: ${props => props.theme.fontSizes.medium}rem;
   background-color: ${props => props.theme.colors.darkGrey};
   display: flex;
   overflow: hidden;
   min-height: 120px;
+  opacity: ${props => props.isDragging ? 0.3 : 1};
 `
 
 const TitleContainer = styled.div`
@@ -142,6 +145,10 @@ type Props = {
     onTagRemove?: (id: string) => void
 }
 
+interface DragCollectedProps {
+    isDragging: boolean
+}
+
 export default function BookmarkCard({
                                          variant,
                                          title,
@@ -153,10 +160,21 @@ export default function BookmarkCard({
                                          datetime,
                                          onEdit,
                                          onDelete,
-                                         onTagRemove
+                                         onTagRemove,
                                      }: Props) {
     const ref = useRef(null);
     const isHovered = useHover(ref);
+    const [{isDragging}, drag] = useDrag<IdDragItem, void, DragCollectedProps>({
+        type: DndTypes.BOOKMARK_CARD,
+        item: {
+            id: id
+        },
+        collect: (monitor) => {
+            return {
+                isDragging: monitor.isDragging()
+            }
+        }
+    })
 
     function handleCopyLinkButtonClick() {
         navigator.clipboard.writeText(link);
@@ -176,8 +194,8 @@ export default function BookmarkCard({
 
     const isVariantIcon = variant === BookmarkVariant.ICON && picturePath;
     const isVariantPreview = variant === BookmarkVariant.PREVIEW && picturePath;
-    return <Card ref={ref}>
-        <CardInside>
+    return <Card ref={ref} isDragging={isDragging}>
+        <CardInside ref={drag}>
             {isVariantPreview && <Picture src={picturePath} alt="Preview or website icon picture"/>}
             <CardFlow>
                 <CardHead>

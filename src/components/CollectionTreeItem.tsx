@@ -5,43 +5,34 @@ import styled, {css} from "styled-components";
 import Menu from "./Menu";
 import useMenu from "../hooks/useMenu";
 import {useDrag, useDrop} from "react-dnd";
-import {DndType} from "../helpers/dragAndDrop";
+import {DndTypes, IdDragItem, IdDroppedItem} from "../helpers/dragAndDrop";
 
 
-const Wrapper = styled.div<{ isSelected: boolean, isDragging: boolean, isDropping: boolean }>`
+const Wrapper = styled.div<{ isSelected: boolean }>`
   position: relative;
 
   & & {
     padding-left: ${props => props.theme.spacing.large};
   }
 
-  ${props => {
-    return css`
-      opacity: ${props.isDragging ? 0.2 : 1};
-
-      ${props.isDropping && css`
-        border: dashed 1px ${props.theme.colors.lightGrey}
-      `};
-
-      ${props.isSelected && css`
-        &::before {
-          z-index: 0;
-          content: "";
-          position: absolute;
-          top: 0;
-          right: 0;
-          display: block;
-          background-color: ${props.theme.colors.accent1};
-          border-radius: ${props.theme.radius.small};
-          height: 35px;
-          width: 100%;
-        }`
-      }
-    `
-  }
+  ${props => css`
+    ${props.isSelected &&
+    css`&::before {
+      z-index: 0;
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: block;
+      background-color: ${props.theme.colors.accent1};
+      border-radius: ${props.theme.radius.small};
+      height: 35px;
+      width: 100%;
+    }`
+    }`
   }`
 
-const Container = styled.div`
+const Container = styled.div<{ isDragging: boolean, isDropping: boolean }>`
   height: 35px;
   width: 100%;
   padding: 0 ${props => props.theme.spacing.big};
@@ -49,6 +40,14 @@ const Container = styled.div`
   align-items: center;
   cursor: pointer;
 
+  ${props => css`
+    opacity: ${props.isDragging ? 0.2 : 1};
+
+    ${props.isDropping &&
+    css`border: dashed 1px ${props.theme.colors.lightGrey}`
+    };
+  `
+  }
   & > * {
     z-index: 99;
 
@@ -88,21 +87,19 @@ export type Props = {
     children?: React.ReactNode,
     menuItems?: string[],
     onMenuItemClick?: (menuItemId: string, collectionId: string) => void,
-    onDrop?: (parentCollectionId: string, collectionId: string) => void,
-    canDrop?: (parentCollectionId: string, collectionId: string) => boolean
+    onDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void,
+    canDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => boolean
 }
 
-export interface DndItem {
-    id: string
-}
-
-export interface DndDragCollectedProps {
+interface DragCollectedProps {
     isDragging: boolean
 }
 
-export interface DndDropCollectionProps {
-    isDropping: boolean
+
+interface DropCollectedProps {
+    isDroppingHover: boolean
 }
+
 
 export default function CollectionTreeItem({
                                                collectionId,
@@ -117,33 +114,32 @@ export default function CollectionTreeItem({
                                                afterFoldingChange,
                                                children,
                                                onDrop,
-                                               canDrop
+                                               canDrop,
                                            }: Props): JSX.Element {
     const [isFolded, setIsFolded] = useState<boolean>(!!isDefaultFolded);
     const [menuStatus, openMenu, closeMenu] = useMenu();
 
-    const [{isDragging}, drag] = useDrag<DndItem, unknown, DndDragCollectedProps>({
-        type: DndType.COLLECTION_ITEM, item: {
+    const [{isDragging}, drag] = useDrag<IdDragItem, void, DragCollectedProps>({
+        type: DndTypes.COLLECTION_ITEM,
+        item: {
             id: collectionId
         },
         collect: (monitor) => ({
             isDragging: monitor.isDragging()
         })
     })
-    const [{isDropping}, drop] = useDrop<DndItem, unknown, DndDropCollectionProps>({
-        accept: DndType.COLLECTION_ITEM,
+    const [{isDroppingHover}, drop] = useDrop<IdDragItem, void, DropCollectedProps>({
+        accept: [DndTypes.COLLECTION_ITEM, DndTypes.BOOKMARK_CARD],
         drop: (item, monitor) => {
-            const isDroppedOnShallowItem = monitor.isOver({shallow: true})
-            if (isDroppedOnShallowItem) {
-                onDrop && onDrop(collectionId, item.id)
-            }
+            if (!monitor.getItemType()) return;
+            onDrop && onDrop(collectionId, {id: item.id, type: monitor.getItemType() as DndTypes})
         },
-        canDrop: (item) => {
-            if (!canDrop) return true
-            return canDrop(collectionId, item.id)
+        canDrop: (item, monitor) => {
+            if (!canDrop || !monitor.getItemType()) return false
+            return canDrop(collectionId, {id: item.id, type: monitor.getItemType() as DndTypes})
         },
         collect: (monitor) => ({
-            isDropping: monitor.isOver({shallow: true}) && monitor.canDrop()
+            isDroppingHover: monitor.isOver({shallow: true}) && monitor.canDrop()
         }),
     })
 
@@ -174,10 +170,10 @@ export default function CollectionTreeItem({
 
 
     return <Wrapper isSelected={!!isSelected} data-testid={`collection-wrapper-${collectionId}`}
-                    onContextMenu={handleRightItemClick} ref={(ref) => drag(drop(ref))} isDragging={isDragging}
-                    isDropping={isDropping}>
+                    onContextMenu={handleRightItemClick}>
         <Container onClick={handleItemClick} role="button" aria-label="click collection tree item"
-        >
+                   ref={(ref) => drag(drop(ref))} isDragging={isDragging}
+                   isDropping={isDroppingHover}>
             {React.Children.count(children) !== 0 &&
                 <FoldButton onClick={handleFoldButtonClick} aria-label="toggle children folding">
                     {isFolded ? <MdArrowRight/> : <MdArrowDropDown/>}
