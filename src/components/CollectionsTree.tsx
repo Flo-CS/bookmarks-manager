@@ -1,5 +1,5 @@
 import React from "react";
-import CollectionTreeItem, {CollectionTreeItemProps} from "./CollectionTreeItem";
+import CollectionTreeItem from "./CollectionTreeItem";
 import {TreeOutputCollection} from "../helpers/collections";
 
 
@@ -10,7 +10,9 @@ type Props = {
     onCollectionClick?: (collectionId: string) => void,
     afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void,
     menuItems?: string[],
-    onMenuItemClick?: (menuItemId: string, collectionId: string) => void
+    onMenuItemClick?: (menuItemId: string, collectionId: string) => void,
+    onDrop?: (parentCollectionId: string, collectionId: string) => void,
+    canDrop?: (parentCollectionId: string, collectionId: string) => boolean
 }
 
 export default function CollectionsTree({
@@ -20,16 +22,11 @@ export default function CollectionsTree({
                                             onCollectionClick,
                                             afterCollectionFoldingChange,
                                             menuItems,
-                                            onMenuItemClick
+                                            onMenuItemClick,
+                                            onDrop,
+                                            canDrop
                                         }: Props) {
 
-    function handleCollectionClick(collectionId: string) {
-        onCollectionClick && onCollectionClick(collectionId)
-    }
-
-    function handleMenuItemClick(menuItemId: string, collectionId: string) {
-        onMenuItemClick && onMenuItemClick(menuItemId, collectionId)
-    }
 
     function collectionsToComponent(collections: TreeOutputCollection[]) {
         return collections.map((collection) => {
@@ -39,12 +36,14 @@ export default function CollectionsTree({
                 icon: collection.icon,
                 name: collection.name,
                 isDefaultFolded: collection.isFolded,
-                onClick: handleCollectionClick,
+                onClick: onCollectionClick,
                 isSelected: collection.id === selectedCollectionId,
                 afterFoldingChange: afterCollectionFoldingChange,
                 menuItems: menuItems,
-                onMenuItemClick: handleMenuItemClick,
-                count: collection.count
+                onMenuItemClick: onMenuItemClick,
+                count: collection.count,
+                onDrop: onDrop,
+                canDrop: canDrop
             }
 
             if (collection.children) {
@@ -63,9 +62,9 @@ export default function CollectionsTree({
         if (React.isValidElement(child)) {
             return React.cloneElement(child, {
                 ...child.props,
-                onClick: handleCollectionClick,
+                onClick: onCollectionClick,
                 isSelected: child.props.collectionId === selectedCollectionId,
-            } as CollectionTreeItemProps)
+            } as Props)
         }
     })
 

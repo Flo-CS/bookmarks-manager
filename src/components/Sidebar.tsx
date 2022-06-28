@@ -44,10 +44,12 @@ type Props = {
     collectionsItems?: TreeCollectionItem[],
     onCollectionAdd?: (collectionName: string) => void,
     onCollectionRemove?: (collectionId: string, isDefinitiveDelete: boolean) => void,
+    onCollectionMove?: (parentCollectionId: string, collectionId: string) => void,
     onTrashCollectionRemove?: (collectionId: string) => void
     selectedCollectionId?: string,
     onSelectedCollectionChange?: (collectionId: string) => void,
-    afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void
+    afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void,
+    canCollectionMove?: (parentCollectionId: string, collectionId: string) => boolean
 }
 
 export default function Sidebar({
@@ -58,8 +60,10 @@ export default function Sidebar({
                                     onCollectionRemove,
                                     selectedCollectionId,
                                     onSelectedCollectionChange,
-                                    afterCollectionFoldingChange
-                                }: Props): JSX.Element {
+                                    afterCollectionFoldingChange,
+                                    onCollectionMove,
+                                    canCollectionMove
+                                }: Props) {
     const [newCollectionName, setNewCollectionName] = useState<string>("");
 
     function handleNewCollectionInputChange(e: ChangeEvent<HTMLInputElement>) {
@@ -71,10 +75,6 @@ export default function Sidebar({
             onCollectionAdd && onCollectionAdd(newCollectionName)
             setNewCollectionName("")
         }
-    }
-
-    function handleCollectionClick(collectionId: string) {
-        onSelectedCollectionChange && onSelectedCollectionChange(collectionId)
     }
 
     function handleMenuItemClick(menuItemId: string, collectionId: string) {
@@ -89,10 +89,6 @@ export default function Sidebar({
         }
     }
 
-    function handleAfterCollectionFoldingChange(collectionId: string, isFolded: boolean) {
-        afterCollectionFoldingChange && afterCollectionFoldingChange(collectionId, isFolded)
-    }
-
     const trashMenuItems = ["Delete"]
     const menuItems = ["Remove"]
 
@@ -101,7 +97,7 @@ export default function Sidebar({
     const trashCollectionsItemsCount = collectionsItems?.filter(item => item.collection === TopCollections.TRASH).length
 
     return <Container>
-        <CollectionsTree onCollectionClick={handleCollectionClick} selectedCollectionId={selectedCollectionId}>
+        <CollectionsTree onCollectionClick={onSelectedCollectionChange} selectedCollectionId={selectedCollectionId}>
             <CollectionTreeItem collectionId={VirtualCollections.ALL} name="All" icon={MdAllInbox}
                                 count={allCollectionsItemsCount}/>
             <CollectionTreeItem collectionId={TopCollections.MAIN} name="Without collection"
@@ -109,20 +105,22 @@ export default function Sidebar({
             <CollectionTreeItem collectionId={TopCollections.TRASH} name="Trash" icon={IoTrash}
                                 isDefaultFolded={true} count={trashCollectionsItemsCount}>
                 <CollectionsTree collections={trashCollections} selectedCollectionId={selectedCollectionId}
-                                 onCollectionClick={handleCollectionClick}
+                                 onCollectionClick={onSelectedCollectionChange}
                                  menuItems={trashMenuItems}
                                  onMenuItemClick={handleTrashMenuItemClick}
-                                 afterCollectionFoldingChange={handleAfterCollectionFoldingChange}
+                                 afterCollectionFoldingChange={afterCollectionFoldingChange}
                 />
             </CollectionTreeItem>
         </CollectionsTree>
         <Separator/>
         <CollectionsTree collections={mainCollections}
                          selectedCollectionId={selectedCollectionId}
-                         onCollectionClick={handleCollectionClick}
-                         afterCollectionFoldingChange={handleAfterCollectionFoldingChange}
+                         onCollectionClick={onSelectedCollectionChange}
+                         afterCollectionFoldingChange={afterCollectionFoldingChange}
                          menuItems={menuItems}
                          onMenuItemClick={handleMenuItemClick}
+                         onDrop={onCollectionMove}
+                         canDrop={canCollectionMove}
         />
         <AddCollectionInputLabel htmlFor="add-collection-input">New collection...</AddCollectionInputLabel>
         <AddCollectionInput id="add-collection-input" onChange={handleNewCollectionInputChange}

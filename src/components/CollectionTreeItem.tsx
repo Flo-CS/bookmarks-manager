@@ -4,9 +4,11 @@ import {MdArrowDropDown, MdArrowRight} from "react-icons/md";
 import styled, {css} from "styled-components";
 import Menu from "./Menu";
 import useMenu from "../hooks/useMenu";
+import {useDrag, useDrop} from "react-dnd";
+import {DndType} from "../helpers/dragAndDrop";
 
 
-const Wrapper = styled.div<{ isSelected: boolean }>`
+const Wrapper = styled.div<{ isSelected: boolean, isDragging: boolean, isDropping: boolean }>`
   position: relative;
 
   & & {
@@ -14,8 +16,14 @@ const Wrapper = styled.div<{ isSelected: boolean }>`
   }
 
   ${props => {
-    if (props.isSelected) {
-      return css`
+    return css`
+      opacity: ${props.isDragging ? 0.2 : 1};
+
+      ${props.isDropping && css`
+        border: dashed 1px ${props.theme.colors.lightGrey}
+      `};
+
+      ${props.isSelected && css`
         &::before {
           z-index: 0;
           content: "";
@@ -23,12 +31,13 @@ const Wrapper = styled.div<{ isSelected: boolean }>`
           top: 0;
           right: 0;
           display: block;
-          background-color: ${props => props.theme.colors.accent1};
-          border-radius: ${props => props.theme.radius.small};
+          background-color: ${props.theme.colors.accent1};
+          border-radius: ${props.theme.radius.small};
           height: 35px;
           width: 100%;
-      `
-    }
+        }`
+      }
+    `
   }
   }`
 
@@ -67,7 +76,7 @@ const Count = styled.p`
   margin-left: auto;
 `
 
-export type CollectionTreeItemProps = {
+export type Props = {
     collectionId: string,
     isDefaultFolded?: boolean,
     count?: number,
@@ -78,7 +87,21 @@ export type CollectionTreeItemProps = {
     afterFoldingChange?: (collectionId: string, isFolded: boolean) => void,
     children?: React.ReactNode,
     menuItems?: string[],
-    onMenuItemClick?: (menuItemId: string, collectionId: string) => void
+    onMenuItemClick?: (menuItemId: string, collectionId: string) => void,
+    onDrop?: (parentCollectionId: string, collectionId: string) => void,
+    canDrop?: (parentCollectionId: string, collectionId: string) => boolean
+}
+
+export interface DndItem {
+    id: string
+}
+
+export interface DndDragCollectedProps {
+    isDragging: boolean
+}
+
+export interface DndDropCollectionProps {
+    isDropping: boolean
 }
 
 export default function CollectionTreeItem({
@@ -92,10 +115,37 @@ export default function CollectionTreeItem({
                                                onMenuItemClick,
                                                isSelected,
                                                afterFoldingChange,
-                                               children
-                                           }: CollectionTreeItemProps): JSX.Element {
+                                               children,
+                                               onDrop,
+                                               canDrop
+                                           }: Props): JSX.Element {
     const [isFolded, setIsFolded] = useState<boolean>(!!isDefaultFolded);
     const [menuStatus, openMenu, closeMenu] = useMenu();
+
+    const [{isDragging}, drag] = useDrag<DndItem, unknown, DndDragCollectedProps>({
+        type: DndType.COLLECTION_ITEM, item: {
+            id: collectionId
+        },
+        collect: (monitor) => ({
+            isDragging: monitor.isDragging()
+        })
+    })
+    const [{isDropping}, drop] = useDrop<DndItem, unknown, DndDropCollectionProps>({
+        accept: DndType.COLLECTION_ITEM,
+        drop: (item, monitor) => {
+            const isDroppedOnShallowItem = monitor.isOver({shallow: true})
+            if (isDroppedOnShallowItem) {
+                onDrop && onDrop(collectionId, item.id)
+            }
+        },
+        canDrop: (item) => {
+            if (!canDrop) return true
+            return canDrop(collectionId, item.id)
+        },
+        collect: (monitor) => ({
+            isDropping: monitor.isOver({shallow: true}) && monitor.canDrop()
+        }),
+    })
 
 
     function handleFoldButtonClick(e: React.SyntheticEvent) {
@@ -124,7 +174,8 @@ export default function CollectionTreeItem({
 
 
     return <Wrapper isSelected={!!isSelected} data-testid={`collection-wrapper-${collectionId}`}
-                    onContextMenu={handleRightItemClick}>
+                    onContextMenu={handleRightItemClick} ref={(ref) => drag(drop(ref))} isDragging={isDragging}
+                    isDropping={isDropping}>
         <Container onClick={handleItemClick} role="button" aria-label="click collection tree item"
         >
             {React.Children.count(children) !== 0 &&

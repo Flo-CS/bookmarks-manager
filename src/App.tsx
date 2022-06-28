@@ -12,7 +12,13 @@ import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import {ElectronAPI} from "./helpers/api";
 import {BookmarkData, BookmarkMinimum, createDefaultBookmark} from "./helpers/bookmarks";
-import {createDefaultCollection, TopCollections, TreeInputCollection, VirtualCollections} from "./helpers/collections";
+import {
+    COLLECTIONS_SEPARATOR,
+    createDefaultCollection,
+    TopCollections,
+    TreeInputCollection,
+    VirtualCollections
+} from "./helpers/collections";
 import useModal from "./hooks/useModal";
 import useCollectionsItems from "./hooks/useCollectionsItems";
 import useTree from "./hooks/useTree";
@@ -127,6 +133,24 @@ export function App(): JSX.Element {
         setSelectedCollectionId(collectionId)
     }
 
+    function handleCollectionMove(parentCollectionId: string, collectionId: string) {
+        API.updateCollection(collectionId, {parent: parentCollectionId}).then(updatedCollection => {
+            updateCollection(collectionId, updatedCollection)
+        })
+    }
+
+    function canCollectionMove(parentCollectionId: string, collectionId: string) {
+        const parentCollectionPath = getPathToCollection(parentCollectionId).map(collection => collection.id).join(COLLECTIONS_SEPARATOR)
+        const collectionPath = getPathToCollection(collectionId).map(collection => collection.id).join(COLLECTIONS_SEPARATOR)
+
+        // Can't drop on itself
+        if (parentCollectionPath === collectionPath) return false
+        // Can't drop collection inside itself
+        if (parentCollectionPath.startsWith(collectionPath)) return false
+
+        return true
+    }
+
     function handleBookmarkCreation() {
         openNewModal(createDefaultBookmark(selectedCollectionPath));
     }
@@ -208,7 +232,9 @@ export function App(): JSX.Element {
                                  onTrashCollectionRemove={handleRemoveTrashCollection}
                                  afterCollectionFoldingChange={handleCollectionFolding}
                                  onSelectedCollectionChange={handleCollectionSelection}
-                                 selectedCollectionId={selectedCollectionId}/>
+                                 selectedCollectionId={selectedCollectionId}
+                                 onCollectionMove={handleCollectionMove}
+                                 canCollectionMove={canCollectionMove}/>
                         <Main>
                             <TopBar onAdd={handleBookmarkCreation}/>
                             <CollectionsBreadCrumb>
