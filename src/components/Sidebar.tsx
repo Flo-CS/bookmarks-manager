@@ -102,9 +102,11 @@ export default function Sidebar({
             <CollectionTreeItem collectionId={VirtualCollections.ALL} name="All" icon={MdAllInbox}
                                 count={allCollectionsItemsCount}/>
             <CollectionTreeItem collectionId={TopCollections.MAIN} name="Without collection"
-                                icon={IoAlbums} count={withoutCollectionsItemsCount}/>
+                                icon={IoAlbums} count={withoutCollectionsItemsCount} onDrop={onDropOnCollection}
+                                canDrop={canDropOnCollection}/>
             <CollectionTreeItem collectionId={TopCollections.TRASH} name="Trash" icon={IoTrash}
-                                isDefaultFolded={true} count={trashCollectionsItemsCount}>
+                                isDefaultFolded={true} count={trashCollectionsItemsCount} canDrop={canDropOnCollection}
+                                onDrop={onDropOnCollection}>
                 <CollectionsTree collections={trashCollections} selectedCollectionId={selectedCollectionId}
                                  onCollectionClick={onSelectedCollectionChange}
                                  menuItems={trashMenuItems}
