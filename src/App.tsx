@@ -19,6 +19,8 @@ import useTree from "./hooks/useTree";
 import {GlobalStyle} from "./styles/GlobalStyle";
 import {theme} from "./styles/Theme";
 import {flatten, slice, uniq} from "lodash";
+import {DndProvider} from "react-dnd";
+import {HTML5Backend} from "react-dnd-html5-backend";
 
 
 const Layout = styled.div`
@@ -193,46 +195,48 @@ export function App(): JSX.Element {
 
 
     return (
-        <ThemeProvider theme={theme}>
-            <GlobalStyle/>
-            <TagsContext.Provider value={allTags}>
-                <Layout className="app">
-                    <Sidebar mainCollections={getCollectionChildren(TopCollections.MAIN)}
-                             trashCollections={getCollectionChildren(TopCollections.TRASH)}
-                             collectionsItems={bookmarks}
-                             onCollectionAdd={handleAddCollection}
-                             onCollectionRemove={handleRemoveCollection}
-                             onTrashCollectionRemove={handleRemoveTrashCollection}
-                             afterCollectionFoldingChange={handleCollectionFolding}
-                             onSelectedCollectionChange={handleCollectionSelection}
-                             selectedCollectionId={selectedCollectionId}/>
-                    <Main>
-                        <TopBar onAdd={handleBookmarkCreation}/>
-                        <CollectionsBreadCrumb>
-                            {slice(selectedCollectionPath, 1).map(collection => {
-                                return <CollectionName key={collection.id} name={collection.name}
-                                                       icon={collection.icon}/>
-                            })}
-                        </CollectionsBreadCrumb>
-                        <BookmarksLayout bookmarks={bookmarksToShow} onTagRemove={handleBookmarkTagRemove}
-                                         onDelete={handleBookmarkDelete} onEdit={handleBookmarkEdit}/>
-                    </Main>
-                    <BookmarkModal
-                        isOpen={isEditModalOpen}
-                        onClose={closeEditModal}
-                        onBookmarkSave={handleEditModalSave}
-                        modalTitle="Edit bookmark"
-                        initialBookmark={getBookmark(editModalBookmarkId)}
-                        fetchWebsiteMetadata={handleModalFetch}/>
-                    <BookmarkModal
-                        isOpen={isNewModalOpen}
-                        onClose={closeNewModal}
-                        onBookmarkSave={handleNewModalSave}
-                        modalTitle="Add new bookmark"
-                        initialBookmark={newModalBookmark}
-                        fetchWebsiteMetadata={handleModalFetch}/>
-                </Layout>
-            </TagsContext.Provider>
-        </ThemeProvider>
+        <DndProvider backend={HTML5Backend}>
+            <ThemeProvider theme={theme}>
+                <GlobalStyle/>
+                <TagsContext.Provider value={allTags}>
+                    <Layout className="app">
+                        <Sidebar mainCollections={getCollectionChildren(TopCollections.MAIN)}
+                                 trashCollections={getCollectionChildren(TopCollections.TRASH)}
+                                 collectionsItems={bookmarks}
+                                 onCollectionAdd={handleAddCollection}
+                                 onCollectionRemove={handleRemoveCollection}
+                                 onTrashCollectionRemove={handleRemoveTrashCollection}
+                                 afterCollectionFoldingChange={handleCollectionFolding}
+                                 onSelectedCollectionChange={handleCollectionSelection}
+                                 selectedCollectionId={selectedCollectionId}/>
+                        <Main>
+                            <TopBar onAdd={handleBookmarkCreation}/>
+                            <CollectionsBreadCrumb>
+                                {slice(selectedCollectionPath, 1).map(collection => {
+                                    return <CollectionName key={collection.id} name={collection.name}
+                                                           icon={collection.icon}/>
+                                })}
+                            </CollectionsBreadCrumb>
+                            <BookmarksLayout bookmarks={bookmarksToShow} onTagRemove={handleBookmarkTagRemove}
+                                             onDelete={handleBookmarkDelete} onEdit={handleBookmarkEdit}/>
+                        </Main>
+                        <BookmarkModal
+                            isOpen={isEditModalOpen}
+                            onClose={closeEditModal}
+                            onBookmarkSave={handleEditModalSave}
+                            modalTitle="Edit bookmark"
+                            initialBookmark={getBookmark(editModalBookmarkId)}
+                            fetchWebsiteMetadata={handleModalFetch}/>
+                        <BookmarkModal
+                            isOpen={isNewModalOpen}
+                            onClose={closeNewModal}
+                            onBookmarkSave={handleNewModalSave}
+                            modalTitle="Add new bookmark"
+                            initialBookmark={newModalBookmark}
+                            fetchWebsiteMetadata={handleModalFetch}/>
+                    </Layout>
+                </TagsContext.Provider>
+            </ThemeProvider>
+        </DndProvider>
     )
 }
