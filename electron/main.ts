@@ -1,4 +1,4 @@
-import {app, BrowserWindow} from 'electron'
+import {app, BrowserWindow, shell} from 'electron'
 import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
 import {registerBridgeHandlers} from './bridgeManager';
 import * as path from "path";
@@ -21,15 +21,28 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY
-        }
+            preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+
+        },
+
     })
+
+    mainWindow.webContents.setWindowOpenHandler(({url}) => {
+        if (url.startsWith('https:')) {
+            shell.openExternal(url);
+        }
+        return {
+            action: 'deny',
+        };
+    });
 
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
 
     mainWindow.on('closed', () => {
         mainWindow = null
     })
+
+
 }
 
 app.on('ready', createWindow)

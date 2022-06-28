@@ -202,7 +202,7 @@ export default function BookmarkCard({
                     {isVariantIcon && <Picture src={picturePath} alt="Preview or website icon picture" isIcon/>}
                     <TitleContainer>
                         <Title>{title}</Title>
-                        <Link href={link}>{link}</Link>
+                        <Link href={link} target="_blank" rel="noopener noreferrer">{link}</Link>
                     </TitleContainer>
                     {(!isHovered && datetime) && <DateTime data-testid="datetime"
                                                            dateTime={datetime.toISOString()}>{formatDistanceToNow(datetime, {addSuffix: true})}</DateTime>}
