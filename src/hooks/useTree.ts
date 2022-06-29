@@ -9,6 +9,7 @@ type TreeOptions<V> = {
     getLeafChildParent?: (leafChild: Record<any, any>) => NodeKey,
     getKey?: (node: V) => NodeKey,
     getParent?: (node: V) => NodeKey | undefined,
+    getIndex?: (node: V) => number
 }
 
 type TreeNode<V> = V & {
@@ -24,6 +25,7 @@ export default function useTree<V>({
                                        rootNodes = [],
                                        getParent = (item: any) => item.parent,
                                        getKey = (item: any) => item.key,
+                                       getIndex = (item: any) => item.index,
                                        leafChildren = [],
                                        getLeafChildParent = (leafChild) => leafChild.parent
                                    }: TreeOptions<V>) {
@@ -49,7 +51,7 @@ export default function useTree<V>({
                     return this.__parentKey__ ? nodesByKey[this.__parentKey__] : undefined
                 },
                 get children(): TreeNode<V>[] {
-                    return this.__childrenKeys__.map(childKey => nodesByKey[childKey])
+                    return this.__childrenKeys__.map(childKey => nodesByKey[childKey]).sort((child1, child2) => getIndex(child1) - getIndex(child2))
                 },
                 count: 0,
                 __key__: unlinkedNodeKey,

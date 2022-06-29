@@ -156,7 +156,7 @@ export const Collection = sequelize.define('Collection', {
         parent: {
             type: DataTypes.UUID,
             allowNull: false,
-            defaultValue: TopCollections.MAIN
+            defaultValue: TopCollections.MAIN,
         },
         name: {
             type: DataTypes.STRING,
@@ -170,6 +170,10 @@ export const Collection = sequelize.define('Collection', {
         iconPath: {
             type: DataTypes.STRING
         },
+        index: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        }
     },
     {
         timestamps: true,

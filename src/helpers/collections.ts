@@ -1,6 +1,7 @@
 import {last} from "lodash";
 import React from "react";
 import {v4 as uuidv4} from 'uuid';
+import {arrayMoveImmutable} from "array-move"
 
 export const COLLECTIONS_SEPARATOR = "/"
 export const TopCollections = {
@@ -17,6 +18,7 @@ export interface CollectionMinimum {
     id: string,
     name: string,
     parent: string,
+    index: number
 }
 
 export interface CollectionData extends CollectionMinimum {
@@ -43,6 +45,12 @@ export interface TreeCollectionItem {
     collection: string
 }
 
+export interface ReorderedCollection {
+    id: string,
+    index: number,
+    parent: string
+}
+
 export function getParentCollectionId(selectedCollectionPath: { id: string }[]): string {
     const topCollectionId = selectedCollectionPath[0].id
     if (selectedCollectionPath.length <= 0 || Object.values(VirtualCollections).includes(topCollectionId) || topCollectionId === TopCollections.TRASH) {
@@ -51,11 +59,22 @@ export function getParentCollectionId(selectedCollectionPath: { id: string }[]):
     return last(selectedCollectionPath)?.id || TopCollections.MAIN
 }
 
-export function createDefaultCollection(name: string, selectedCollectionPath: TreeOutputCollection[]) {
+export function createDefaultCollection(name: string, selectedCollectionPath: TreeOutputCollection[], index: number) {
     return {
         name: name,
         id: uuidv4(),
         parent: getParentCollectionId(selectedCollectionPath),
-        isFolded: false
+        isFolded: false,
+        index: index
     }
+}
+
+export function reorderCollections(collections: ReorderedCollection[], collectionToMove: ReorderedCollection, newIndex: number): ReorderedCollection[] {
+    return arrayMoveImmutable(collections, collectionToMove.index, newIndex).map((collection, index) => {
+        return {
+            id: collection.id,
+            index: index,
+            parent: collection.parent
+        }
+    })
 }

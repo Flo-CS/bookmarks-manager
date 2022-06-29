@@ -18,6 +18,7 @@
     "@types/lodash": "^4.14.179",
     "@types/react-modal": "^3.13.1",
     "@types/uuid": "^8.3.4",
+    "array-move": "^4.0.0",
     "date-fns": "^2.28.0",
     "fuse.js": "^6.5.3",
     "identity-obj-proxy": "^3.0.0",

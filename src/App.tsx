@@ -51,9 +51,11 @@ const API = new ElectronAPI();
 const COLLECTIONS_TREE_ROOTS = [{
     name: TopCollections.TRASH,
     id: TopCollections.TRASH,
+    index: -1
 }, {
     name: TopCollections.MAIN,
     id: TopCollections.MAIN,
+    index: -1
 }]
 
 export function App(): JSX.Element {
@@ -106,7 +108,8 @@ export function App(): JSX.Element {
     }, [])
 
     function handleAddCollection(name: string) {
-        const newCollection = createDefaultCollection(name, selectedCollectionPath)
+        const collectionIndex = getCollectionChildren(selectedCollectionId).length
+        const newCollection = createDefaultCollection(name, selectedCollectionPath, collectionIndex)
         API.addCollection(newCollection).then(createdCollection => {
             insertCollection(createdCollection)
         })
@@ -136,8 +139,11 @@ export function App(): JSX.Element {
 
     function handleDropOnCollection(parentCollectionId: string, droppedItem: IdDroppedItem) {
         if (droppedItem.type === DndTypes.COLLECTION_ITEM) {
-            API.updateCollection(droppedItem.id, {parent: parentCollectionId}).then(updatedCollection => {
-                updateCollection(droppedItem.id, updatedCollection)
+            API.reorderCollections(droppedItem.id, parentCollectionId, droppedItem.index).then(collectionReorder => {
+                collectionReorder.forEach(reorderedCollection => updateCollection(reorderedCollection.id, {
+                    index: reorderedCollection.index,
+                    parent: reorderedCollection.parent
+                }))
             })
         } else if (droppedItem.type === DndTypes.BOOKMARK_CARD) {
             API.updateBookmark(droppedItem.id, {collection: parentCollectionId}).then(updatedBookmark => {

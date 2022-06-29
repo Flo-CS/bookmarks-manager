@@ -2,6 +2,7 @@ import {ipcMain} from "electron";
 import {Bookmark, Collection, Website} from "./models";
 import {APIRequestMessage} from "../src/helpers/api";
 import {fetchWebsiteMetadata} from "./websiteDataFetcher";
+import {reorderCollections} from "../src/helpers/collections";
 
 
 type BridgeHandler<T extends keyof APIRequestMessage> = (event: Electron.IpcMainInvokeEvent, ...params: APIRequestMessage[T]["params"]) => Promise<APIRequestMessage[T]["result"]>
@@ -54,6 +55,36 @@ export async function registerBridgeHandlers() {
 
             const updatedCollection = await Collection.findByPk(id);
             return updatedCollection?.get();
+        },
+        "reorderCollections": async (event, id, newParentId, newIndex) => {
+            const collectionToMove = await Collection.findByPk(id)
+            if (!collectionToMove) return []
+
+            collectionToMove.update({parent: newParentId})
+
+            const collections = (await Collection.findAll({
+                where: {
+                    parent: newParentId
+                }
+            })).map(collection => collection.get())
+
+            const collectionsReorder = reorderCollections(collections, {
+                id: id,
+                index: collectionToMove.get("index") as number,
+                parent: collectionToMove.get("parent") as string
+            }, newIndex)
+
+            for (const collection of collectionsReorder) {
+                Collection.update({
+                    index: collection.index
+                }, {
+                    where: {
+                        id: collection.id
+                    }
+                })
+            }
+
+            return collectionsReorder
         },
         "removeCollection": async (event, id, removeAction) => {
             await Collection.destroy({

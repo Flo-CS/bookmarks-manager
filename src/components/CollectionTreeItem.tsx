@@ -44,7 +44,7 @@ const Container = styled.div<{ isDragging: boolean, isDropping: boolean }>`
     opacity: ${props.isDragging ? 0.2 : 1};
 
     ${props.isDropping &&
-    css`border: dashed 1px ${props.theme.colors.lightGrey}`
+    css`border: dashed 2px ${props.theme.colors.lightGrey};`
     };
   `
   }
@@ -132,11 +132,11 @@ export default function CollectionTreeItem({
         accept: [DndTypes.COLLECTION_ITEM, DndTypes.BOOKMARK_CARD],
         drop: (item, monitor) => {
             if (!monitor.getItemType()) return;
-            onDrop && onDrop(collectionId, {id: item.id, type: monitor.getItemType() as DndTypes})
+            onDrop && onDrop(collectionId, {id: item.id, type: monitor.getItemType() as DndTypes, index: -1})
         },
         canDrop: (item, monitor) => {
             if (!canDrop || !monitor.getItemType()) return false
-            return canDrop(collectionId, {id: item.id, type: monitor.getItemType() as DndTypes})
+            return canDrop(collectionId, {id: item.id, type: monitor.getItemType() as DndTypes, index: -1})
         },
         collect: (monitor) => ({
             isDroppingHover: monitor.isOver({shallow: true}) && monitor.canDrop()

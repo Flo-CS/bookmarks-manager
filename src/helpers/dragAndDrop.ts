@@ -10,5 +10,6 @@ export interface IdDragItem {
 
 export interface IdDroppedItem {
     type: DndTypes,
-    id: string
+    id: string,
+    index: number
 }
