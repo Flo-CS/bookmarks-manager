@@ -1,5 +1,5 @@
 import {BookmarkData, BookmarkMinimum} from "./bookmarks";
-import {CollectionData, CollectionMinimum, ReorderedCollection} from "./collections";
+import {CollectionData, CollectionMinimum, CollectionRemoveAction, ReorderedCollection} from "./collections";
 import {WebsiteData} from "./websiteData";
 
 export type APIRequestMessage = {
@@ -12,7 +12,7 @@ export type APIRequestMessage = {
     "addCollection": { params: [CollectionMinimum | CollectionData], result: CollectionData },
     "updateCollection": { params: [string, Partial<CollectionData>], result: CollectionData };
     "reorderCollections": { params: [string, string, number], result: ReorderedCollection[] }
-    "removeCollection": { params: [string, "removeChildren" | "moveChildren"], result: void },
+    "removeCollection": { params: [string, CollectionRemoveAction], result: void },
     "fetchWebsiteData": { params: [string, boolean], result: WebsiteData }
 }
 type APIRequest<T extends keyof APIRequestMessage> = (...params: APIRequestMessage[T]["params"]) => Promise<APIRequestMessage[T]["result"]>
@@ -58,7 +58,7 @@ export class ElectronAPI implements APIRequests {
         return await window.bridge.sendMessage("reorderCollections", id, newParentId, newIndex)
     }
 
-    async removeCollection(id: string, removeAction: "removeChildren" | "moveChildren" = "removeChildren") {
+    async removeCollection(id: string, removeAction: CollectionRemoveAction = "removeChildren") {
         return await window.bridge.sendMessage("removeCollection", id, removeAction)
     }
 

@@ -51,9 +51,12 @@ export interface ReorderedCollection {
     parent: string
 }
 
+export type CollectionRemoveAction = "removeChildren" | "moveChildren"
+
 export function getParentCollectionId(selectedCollectionPath: { id: string }[]): string {
-    const topCollectionId = selectedCollectionPath[0].id
-    if (selectedCollectionPath.length <= 0 || Object.values(VirtualCollections).includes(topCollectionId) || topCollectionId === TopCollections.TRASH) {
+    const topCollectionId = selectedCollectionPath[0]?.id
+
+    if (!topCollectionId || Object.values(VirtualCollections).includes(topCollectionId) || topCollectionId === TopCollections.TRASH) {
         return TopCollections.MAIN
     }
     return last(selectedCollectionPath)?.id || TopCollections.MAIN
