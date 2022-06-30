@@ -5,15 +5,14 @@ import {DndTypes, IdDragItem, IdDroppedItem} from "../helpers/dragAndDrop";
 
 
 const Separator = styled.div<{ isDropping: boolean }>`
-  height: 15px;
-  margin-top: -10px;
+  height: 5px;
   padding: 0;
   width: 100%;
-  position: sticky;
 
   ${props => css`
     ${props.isDropping &&
-    css`border-bottom: dashed 2px ${props.theme.colors.lightGrey}`
+    css`border: dashed 2px ${props.theme.colors.lightGrey};
+      border-top: 0;`
     };
   `}
 `

@@ -6,13 +6,14 @@ import Menu from "./Menu";
 import useMenu from "../hooks/useMenu";
 import {useDrag, useDrop} from "react-dnd";
 import {DndTypes, IdDragItem, IdDroppedItem} from "../helpers/dragAndDrop";
+import CollectionTreeSeparatorItem from "./CollectionTreeSeparatorItem";
 
 
 const Wrapper = styled.div<{ isSelected: boolean }>`
   position: relative;
 
   & & {
-    padding-left: ${props => props.theme.spacing.large};
+    margin-left: ${props => props.theme.spacing.large};
   }
 
   ${props => css`
@@ -50,7 +51,6 @@ const Container = styled.div<{ isDragging: boolean, isDropping: boolean }>`
   }
   & > * {
     z-index: 99;
-
   }
 `
 
@@ -77,6 +77,8 @@ const Count = styled.p`
 
 export type Props = {
     collectionId: string,
+    parentCollectionId: string,
+    index: number,
     isDefaultFolded?: boolean,
     count?: number,
     name: string
@@ -103,6 +105,8 @@ interface DropCollectedProps {
 
 export default function CollectionTreeItem({
                                                collectionId,
+                                               parentCollectionId,
+                                               index,
                                                isDefaultFolded,
                                                count,
                                                name,
@@ -132,11 +136,11 @@ export default function CollectionTreeItem({
         accept: [DndTypes.COLLECTION_ITEM, DndTypes.BOOKMARK_CARD],
         drop: (item, monitor) => {
             if (!monitor.getItemType()) return;
-            onDrop && onDrop(collectionId, {id: item.id, type: monitor.getItemType() as DndTypes, index: -1})
+            onDrop && onDrop(collectionId, {id: item.id, type: monitor.getItemType() as DndTypes, index: 0})
         },
         canDrop: (item, monitor) => {
             if (!canDrop || !monitor.getItemType()) return false
-            return canDrop(collectionId, {id: item.id, type: monitor.getItemType() as DndTypes, index: -1})
+            return canDrop(collectionId, {id: item.id, type: monitor.getItemType() as DndTypes, index: 0})
         },
         collect: (monitor) => ({
             isDroppingHover: monitor.isOver({shallow: true}) && monitor.canDrop()
@@ -189,6 +193,15 @@ export default function CollectionTreeItem({
                 }
             </Menu>}
         </Container>
-        {!isFolded && children}
+        {!isFolded &&
+            <>
+                {children}
+                <CollectionTreeSeparatorItem
+                    parentCollectionId={parentCollectionId}
+                    index={index}
+                    onDrop={onDrop}
+                    canDrop={canDrop}/>
+            </>}
+
     </Wrapper>
 }

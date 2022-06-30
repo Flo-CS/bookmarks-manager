@@ -1,4 +1,4 @@
-import {last} from "lodash";
+import {last, orderBy} from "lodash";
 import React from "react";
 import {v4 as uuidv4} from 'uuid';
 import {arrayMoveImmutable} from "array-move"
@@ -69,12 +69,12 @@ export function createDefaultCollection(name: string, selectedCollectionPath: Tr
     }
 }
 
-export function reorderCollections(collections: ReorderedCollection[], collectionToMove: ReorderedCollection, newIndex: number): ReorderedCollection[] {
-    return arrayMoveImmutable(collections, collectionToMove.index, newIndex).map((collection, index) => {
+export function reorderCollectionsWithMovement<T extends ReorderedCollection>(collections: T[], currentIndex: number, newIndex: number): T[] {
+    const indexOrderedCollections = orderBy(collections, "index");
+    return arrayMoveImmutable(indexOrderedCollections, currentIndex, newIndex).map((collection, index) => {
         return {
-            id: collection.id,
+            ...collection,
             index: index,
-            parent: collection.parent
         }
     })
 }

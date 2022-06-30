@@ -2,7 +2,8 @@ import {ipcMain} from "electron";
 import {Bookmark, Collection, Website} from "./models";
 import {APIRequestMessage} from "../src/helpers/api";
 import {fetchWebsiteMetadata} from "./websiteDataFetcher";
-import {reorderCollections} from "../src/helpers/collections";
+import {reorderCollectionsWithMovement} from "../src/helpers/collections";
+import {Op} from "sequelize";
 
 
 type BridgeHandler<T extends keyof APIRequestMessage> = (event: Electron.IpcMainInvokeEvent, ...params: APIRequestMessage[T]["params"]) => Promise<APIRequestMessage[T]["result"]>
@@ -56,30 +57,38 @@ export async function registerBridgeHandlers() {
             const updatedCollection = await Collection.findByPk(id);
             return updatedCollection?.get();
         },
-        "reorderCollections": async (event, id, newParentId, newIndex) => {
-            const collectionToMove = await Collection.findByPk(id)
-            if (!collectionToMove) return []
+        "reorderCollections": async (event, movingCollectionId, newParentId, newMovingCollectionIndex) => {
+            const movingCollection = await Collection.findByPk(movingCollectionId)
+            if (!movingCollection) return []
 
-            collectionToMove.update({parent: newParentId})
+            await movingCollection.update({parent: newParentId})
 
-            const collections = (await Collection.findAll({
+            const siblingCollections = await Collection.findAll({
                 where: {
-                    parent: newParentId
+                    [Op.and]: [
+                        {parent: newParentId},
+                        {
+                            [Op.not]: {
+                                id: movingCollectionId
+                            }
+                        }
+                    ]
                 }
-            })).map(collection => collection.get())
+            })
 
-            const collectionsReorder = reorderCollections(collections, {
-                id: id,
-                index: collectionToMove.get("index") as number,
-                parent: collectionToMove.get("parent") as string
-            }, newIndex)
+            siblingCollections.push(movingCollection)
 
-            for (const collection of collectionsReorder) {
+            const collections = siblingCollections.map(collection => collection.get())
+            const movingCollectionIndex = collections.length - 1
+
+            const collectionsReorder = reorderCollectionsWithMovement(collections, movingCollectionIndex, newMovingCollectionIndex)
+
+            for (const reorderedCollection of collectionsReorder) {
                 Collection.update({
-                    index: collection.index
+                    index: reorderedCollection.index,
                 }, {
                     where: {
-                        id: collection.id
+                        id: reorderedCollection.id
                     }
                 })
             }

@@ -1,8 +1,7 @@
 import React from "react";
 import CollectionTreeItem from "./CollectionTreeItem";
-import {TreeOutputCollection} from "../helpers/collections";
+import {TopCollections, TreeOutputCollection} from "../helpers/collections";
 import {IdDroppedItem} from "../helpers/dragAndDrop";
-import CollectionTreeSeparatorItem from "./CollectionTreeSeparatorItem";
 
 
 type Props = {
@@ -34,6 +33,8 @@ export default function CollectionsTree({
         return collections.map((collection) => {
             return <React.Fragment key={collection.id}>
                 <CollectionTreeItem collectionId={collection.id}
+                                    parentCollectionId={collection.parent?.id || TopCollections.MAIN}
+                                    index={collection.index + 1}
                                     icon={collection.icon}
                                     name={collection.name}
                                     isDefaultFolded={collection.isFolded}
@@ -46,15 +47,7 @@ export default function CollectionsTree({
                                     onDrop={onDrop}
                                     canDrop={canDrop}>
                     {collection.children && collectionsToComponent(collection.children)}
-                    <CollectionTreeSeparatorItem
-                        parentCollectionId={collection.id}
-                        index={collection.index + 1}
-                        onDrop={onDrop} canDrop={canDrop} key={collection.index}/>
                 </CollectionTreeItem>
-                <CollectionTreeSeparatorItem
-                    parentCollectionId={collection.parent?.id || collection.id}
-                    index={(collection.parent?.index || collection.index) + 1}
-                    onDrop={onDrop} canDrop={canDrop} key={collection.index}/>
             </React.Fragment>
         })
 
