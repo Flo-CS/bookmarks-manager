@@ -99,56 +99,53 @@ export function App(): JSX.Element {
     }, [bookmarks, selectedBookmarks]);
 
     useEffect(() => {
-        API.getBookmarks().then(fetchedBookmarks => {
-            setBookmarks(fetchedBookmarks)
-        })
-        API.getCollections().then(fetchedCollections => {
+        (async () => {
+            const fetchedCollections = await API.getCollections()
             insertCollections(fetchedCollections)
-        })
+            const fetchedBookmarks = await API.getBookmarks()
+            setBookmarks(fetchedBookmarks)
+        })()
     }, [])
 
-    function handleAddCollection(name: string) {
+    async function handleAddCollection(name: string) {
         const collectionIndex = getCollectionChildren(selectedCollectionId).length
         const newCollection = createDefaultCollection(name, selectedCollectionPath, collectionIndex)
-        API.addCollection(newCollection).then(createdCollection => {
-            insertCollection(createdCollection)
-        })
+
+        const createdCollection = await API.addCollection(newCollection)
+        insertCollection(createdCollection)
     }
 
-    function handleRemoveCollection(id: string, isDefinitiveDelete: boolean) {
+    async function handleRemoveCollection(id: string, isDefinitiveDelete: boolean) {
         if (isDefinitiveDelete) {
-            API.removeCollection(id).then(() => {
-                removeCollection(id)
-            })
+            await API.removeCollection(id)
+            removeCollection(id)
         } else {
-            API.updateCollection(id, {parent: TopCollections.TRASH}).then((updatedCollection) => {
-                updateCollection(id, updatedCollection)
-            })
+            const updatedCollection = await API.updateCollection(id, {parent: TopCollections.TRASH})
+            updateCollection(id, updatedCollection)
+
         }
     }
 
-    function handleRemoveTrashCollection(id: string) {
-        API.removeCollection(id).then(() => {
-            removeCollection(id)
-        })
+    async function handleRemoveTrashCollection(id: string) {
+        await API.removeCollection(id)
+        removeCollection(id)
     }
 
     function handleCollectionSelection(collectionId: string) {
         setSelectedCollectionId(collectionId)
     }
 
-    function handleDropOnCollection(parentCollectionId: string, droppedItem: IdDroppedItem) {
+    async function handleDropOnCollection(parentCollectionId: string, droppedItem: IdDroppedItem) {
         if (droppedItem.type === DndTypes.COLLECTION_ITEM) {
-            API.reorderCollections(droppedItem.id, parentCollectionId, droppedItem.index).then(collectionReorder => {
-                collectionReorder.forEach(reorderedCollection => updateCollection(reorderedCollection.id, {
-                    index: reorderedCollection.index,
-                    parent: reorderedCollection.parent
-                }))
-            })
+            const collectionReorder = await API.reorderCollections(droppedItem.id, parentCollectionId, droppedItem.index)
+            collectionReorder.forEach(reorderedCollection => updateCollection(reorderedCollection.id, {
+                index: reorderedCollection.index,
+                parent: reorderedCollection.parent
+            }))
+
         } else if (droppedItem.type === DndTypes.BOOKMARK_CARD) {
-            API.updateBookmark(droppedItem.id, {collection: parentCollectionId}).then(updatedBookmark => {
-                updateBookmark(droppedItem.id, updatedBookmark)
-            })
+            const updatedBookmark = await API.updateBookmark(droppedItem.id, {collection: parentCollectionId})
+            updateBookmark(droppedItem.id, updatedBookmark)
         }
     }
 
@@ -173,52 +170,47 @@ export function App(): JSX.Element {
         openEditModal(id)
     }
 
-    function handleEditModalSave(data: SavedModalBookmark | undefined) {
+    async function handleEditModalSave(data: SavedModalBookmark | undefined) {
         if (!editModalBookmarkId || !data) return
 
-        API.updateBookmark(editModalBookmarkId, data).then((updatedBookmark) => {
-            updateBookmark(editModalBookmarkId, updatedBookmark)
-        })
+        const updatedBookmark = await API.updateBookmark(editModalBookmarkId, data)
+        updateBookmark(editModalBookmarkId, updatedBookmark)
+
         closeEditModal()
     }
 
-    function handleNewModalSave(data: BookmarkMinimum & SavedModalBookmark | undefined) {
+    async function handleNewModalSave(data: BookmarkMinimum & SavedModalBookmark | undefined) {
         if (!data) return
 
-        API.addBookmark(data).then((createdBookmark) => {
-            addBookmark(createdBookmark)
-            closeNewModal()
-        })
+        const createdBookmark = await API.addBookmark(data)
+        addBookmark(createdBookmark)
+        closeNewModal()
     }
 
-    function handleBookmarkTagRemove(id: string, tag: string) {
+    async function handleBookmarkTagRemove(id: string, tag: string) {
         const bookmark = getBookmark(id);
         if (!bookmark) return;
 
         const newTags = bookmark.tags.filter(t => t !== tag);
-        API.updateBookmark(bookmark.id, {tags: newTags}).then((updatedBookmark) => {
-            updateBookmark(bookmark.id, updatedBookmark)
-        })
-
+        const updatedBookmark = await API.updateBookmark(bookmark.id, {tags: newTags})
+        updateBookmark(bookmark.id, updatedBookmark)
     }
 
-    function handleBookmarkDelete(id: string) {
+    async function handleBookmarkDelete(id: string) {
         const bookmark = getBookmark(id)
         if (!bookmark) return;
 
         if (bookmark.collection === TopCollections.TRASH) {
-            API.removeBookmark(id).then(() => {
-                removeBookmark(id)
-            })
+            await API.removeBookmark(id)
+            removeBookmark(id)
         } else {
-            API.updateBookmark(id, {collection: TopCollections.TRASH}).then((updatedBookmark) => {
-                updateBookmark(id, updatedBookmark)
-            })
+            const updatedBookmark = await API.updateBookmark(id, {collection: TopCollections.TRASH})
+            updateBookmark(id, updatedBookmark)
         }
     }
 
-    function handleCollectionFolding(id: string, isFolded: boolean) {
-        API.updateCollection(id, {isFolded: isFolded})
+    async function handleCollectionFolding(id: string, isFolded: boolean) {
+        await API.updateCollection(id, {isFolded: isFolded})
     }
 
     async function handleModalFetch(URL: string, forceDataRefresh: boolean): Promise<ModalFetchedWebsiteMetadata> {
@@ -230,7 +222,6 @@ export function App(): JSX.Element {
             previewPath: metadata.pictures.preview?.url
         }
     }
-
 
     return (
         <DndProvider backend={HTML5Backend}>
