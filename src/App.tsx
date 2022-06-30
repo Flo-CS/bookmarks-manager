@@ -15,6 +15,7 @@ import {BookmarkData, BookmarkMinimum, createDefaultBookmark} from "./helpers/bo
 import {
     COLLECTIONS_SEPARATOR,
     createDefaultCollection,
+    getNewCollectionParentId,
     TopCollections,
     TreeInputCollection,
     VirtualCollections
@@ -108,8 +109,9 @@ export function App(): JSX.Element {
     }, [])
 
     async function handleAddCollection(name: string) {
-        const collectionIndex = getCollectionChildren(selectedCollectionId).length
-        const newCollection = createDefaultCollection(name, selectedCollectionPath, collectionIndex)
+        const collectionParentId = getNewCollectionParentId(selectedCollectionPath)
+        const collectionIndex = getCollectionChildren(collectionParentId).length
+        const newCollection = createDefaultCollection(name, collectionParentId, collectionIndex)
 
         const createdCollection = await API.addCollection(newCollection)
         insertCollection(createdCollection)

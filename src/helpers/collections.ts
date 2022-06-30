@@ -2,22 +2,26 @@ import {last, orderBy} from "lodash";
 import React from "react";
 import {v4 as uuidv4} from 'uuid';
 import {arrayMoveImmutable} from "array-move"
+import {Id} from "./types";
 
 export const COLLECTIONS_SEPARATOR = "/"
-export const TopCollections = {
-    TRASH: "%TRASH%",
-    MAIN: "%MAIN%"
+
+export enum TopCollections {
+    TRASH = "%TRASH%",
+    MAIN = "%MAIN%"
 }
 
-export const VirtualCollections = {
-    ALL: "%ALL%",
-    WITHOUT_COLLECTION: "%WITHOUT_COLLECTION%"
+export enum VirtualCollections {
+    ALL = "%ALL%",
+    WITHOUT_COLLECTION = "%WITHOUT_COLLECTION%"
 }
+
+export type SpecialCollection = VirtualCollections | TopCollections
 
 export interface CollectionMinimum {
-    id: string,
+    id: Id,
     name: string,
-    parent: string,
+    parent: Id,
     index: number
 }
 
@@ -38,41 +42,48 @@ export interface TreeOutputCollection extends Omit<CollectionDataExtended, "pare
 }
 
 export interface TreeInputCollection extends Omit<CollectionDataExtended, "parent"> {
-    parent?: string
+    parent?: Id
 }
 
 export interface TreeCollectionItem {
-    collection: string
+    collection: Id
 }
 
-export interface ReorderedCollection {
-    id: string,
+export interface OrderedCollection {
+    id: Id,
     index: number,
-    parent: string
+    parent: Id
 }
 
 export type CollectionRemoveAction = "removeChildren" | "moveChildren"
 
-export function getParentCollectionId(selectedCollectionPath: { id: string }[]): string {
-    const topCollectionId = selectedCollectionPath[0]?.id
-
-    if (!topCollectionId || Object.values(VirtualCollections).includes(topCollectionId) || topCollectionId === TopCollections.TRASH) {
-        return TopCollections.MAIN
+export function getUserCreatedDeepestCollection<T extends TreeOutputCollection>(collectionPath: T[]): T | undefined {
+    if (!isInSpecialCollection(collectionPath, TopCollections.MAIN)) {
+        return undefined
     }
-    return last(selectedCollectionPath)?.id || TopCollections.MAIN
+    return last(collectionPath)
 }
 
-export function createDefaultCollection(name: string, selectedCollectionPath: TreeOutputCollection[], index: number) {
+export function isInSpecialCollection<T extends TreeOutputCollection>(collectionPath: T[], specialCollection: SpecialCollection): boolean {
+    const topCollectionId = collectionPath[0]?.id
+
+    return topCollectionId === specialCollection
+}
+
+export function getNewCollectionParentId(selectedCollectionPath: TreeOutputCollection[]): Id {
+    return getUserCreatedDeepestCollection(selectedCollectionPath)?.id || TopCollections.MAIN
+}
+
+export function createDefaultCollection(name: string, parent: Id, index: number) {
     return {
         name: name,
         id: uuidv4(),
-        parent: getParentCollectionId(selectedCollectionPath),
-        isFolded: false,
+        parent: parent,
         index: index
     }
 }
 
-export function reorderCollectionsWithMovement<T extends ReorderedCollection>(collections: T[], currentIndex: number, newIndex: number): T[] {
+export function reorderCollectionsWithMovement<T extends OrderedCollection>(collections: T[], currentIndex: number, newIndex: number): T[] {
     const indexOrderedCollections = orderBy(collections, "index");
     return arrayMoveImmutable(indexOrderedCollections, currentIndex, newIndex).map((collection, index) => {
         return {

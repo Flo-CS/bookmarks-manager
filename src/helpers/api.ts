@@ -1,5 +1,5 @@
 import {BookmarkData, BookmarkMinimum} from "./bookmarks";
-import {CollectionData, CollectionMinimum, CollectionRemoveAction, ReorderedCollection} from "./collections";
+import {CollectionData, CollectionMinimum, CollectionRemoveAction, OrderedCollection} from "./collections";
 import {WebsiteData} from "./websiteData";
 
 export type APIRequestMessage = {
@@ -11,7 +11,7 @@ export type APIRequestMessage = {
     "getCollections": { params: [], result: CollectionData[] },
     "addCollection": { params: [CollectionMinimum | CollectionData], result: CollectionData },
     "updateCollection": { params: [string, Partial<CollectionData>], result: CollectionData };
-    "reorderCollections": { params: [string, string, number], result: ReorderedCollection[] }
+    "reorderCollections": { params: [string, string, number], result: OrderedCollection[] }
     "removeCollection": { params: [string, CollectionRemoveAction], result: void },
     "fetchWebsiteData": { params: [string, boolean], result: WebsiteData }
 }

@@ -1,5 +1,5 @@
 import {groupBy, toPairs} from "lodash";
-import {getParentCollectionId, TreeOutputCollection} from "./collections";
+import {getUserCreatedDeepestCollection, TopCollections, TreeOutputCollection} from "./collections";
 import {v4 as uuidv4} from 'uuid';
 
 
@@ -39,7 +39,7 @@ export function getKeySeparatedBookmarks<B>(bookmarks: B[], groupFunc: (b: B) =>
 export function createDefaultBookmark(selectedCollectionPath: TreeOutputCollection[]): BookmarkMinimum {
     return {
         url: "https://",
-        collection: getParentCollectionId(selectedCollectionPath),
+        collection: getUserCreatedDeepestCollection(selectedCollectionPath)?.id || TopCollections.MAIN,
         variant: BookmarkVariant.PREVIEW,
         id: uuidv4()
     }

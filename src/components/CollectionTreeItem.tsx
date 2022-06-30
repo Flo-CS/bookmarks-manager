@@ -77,8 +77,8 @@ const Count = styled.p`
 
 export type Props = {
     collectionId: string,
-    parentCollectionId: string,
-    index: number,
+    parentCollectionId?: string,
+    index?: number,
     isDefaultFolded?: boolean,
     count?: number,
     name: string
@@ -193,15 +193,13 @@ export default function CollectionTreeItem({
                 }
             </Menu>}
         </Container>
-        {!isFolded &&
-            <>
-                {children}
-                <CollectionTreeSeparatorItem
-                    parentCollectionId={parentCollectionId}
-                    index={index}
-                    onDrop={onDrop}
-                    canDrop={canDrop}/>
-            </>}
-
+        {!isFolded && children}
+        {(parentCollectionId && index) &&
+            <CollectionTreeSeparatorItem
+                parentCollectionId={parentCollectionId}
+                index={index}
+                onDrop={onDrop}
+                canDrop={canDrop}/>
+        }
     </Wrapper>
 }
