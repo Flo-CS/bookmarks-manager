@@ -14,7 +14,7 @@
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
-    "downlevelIteration": true,
-    "noUncheckedIndexedAccess": true
+    "downlevelIteration": true
+    /*"noUncheckedIndexedAccess": true*/
   }
 }
