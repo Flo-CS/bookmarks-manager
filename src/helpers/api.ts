@@ -2,7 +2,7 @@ import {BookmarkData, BookmarkMinimum} from "./bookmarks";
 import {CollectionData, CollectionMinimum, CollectionRemoveAction, OrderedCollection} from "./collections";
 import {WebsiteData} from "./websiteData";
 
-export type APIRequestMessage = {
+export type APIRequestMessages = {
     "removeBookmark": { params: [string], result: void }
     "addBookmark": { params: [BookmarkMinimum | BookmarkData], result: BookmarkData },
     "getBookmarks": { params: [], result: BookmarkData[] }
@@ -15,9 +15,9 @@ export type APIRequestMessage = {
     "removeCollection": { params: [string, CollectionRemoveAction], result: void },
     "fetchWebsiteData": { params: [string, boolean], result: WebsiteData }
 }
-type APIRequest<T extends keyof APIRequestMessage> = (...params: APIRequestMessage[T]["params"]) => Promise<APIRequestMessage[T]["result"]>
+type APIRequest<T extends keyof APIRequestMessages> = (...params: APIRequestMessages[T]["params"]) => Promise<APIRequestMessages[T]["result"]>
 type APIRequests = {
-    [T in keyof APIRequestMessage]: APIRequest<T>;
+    [T in keyof APIRequestMessages]: APIRequest<T>;
 };
 
 export class ElectronAPI implements APIRequests {

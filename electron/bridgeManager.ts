@@ -1,14 +1,14 @@
 import {ipcMain} from "electron";
 import {Bookmark, Collection, Website} from "./models";
-import {APIRequestMessage} from "../src/helpers/api";
+import {APIRequestMessages} from "../src/helpers/api";
 import {fetchWebsiteMetadata} from "./websiteDataFetcher";
 import {reorderCollectionsWithMovement} from "../src/helpers/collections";
 import {Op} from "sequelize";
 
 
-type BridgeHandler<T extends keyof APIRequestMessage> = (event: Electron.IpcMainInvokeEvent, ...params: APIRequestMessage[T]["params"]) => Promise<APIRequestMessage[T]["result"]>
+type BridgeHandler<T extends keyof APIRequestMessages> = (event: Electron.IpcMainInvokeEvent, ...params: APIRequestMessages[T]["params"]) => Promise<APIRequestMessages[T]["result"]>
 type BridgeHandlers = {
-    [T in keyof APIRequestMessage]?: BridgeHandler<T>;
+    [T in keyof APIRequestMessages]?: BridgeHandler<T>;
 };
 
 export async function registerBridgeHandlers() {
