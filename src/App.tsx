@@ -10,7 +10,6 @@ import CollectionName from "./components/CollectionName";
 import CollectionsBreadCrumb from "./components/CollectionsBreadCrumb";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
-import {ElectronAPI} from "./helpers/api";
 import {BookmarkData, BookmarkMinimum, createDefaultBookmark} from "./helpers/bookmarks";
 import {
     COLLECTIONS_SEPARATOR,
@@ -29,6 +28,7 @@ import {flatten, slice, uniq} from "lodash";
 import {DndProvider} from "react-dnd";
 import {HTML5Backend} from "react-dnd-html5-backend";
 import {DndTypes, IdDroppedItem} from "./helpers/dragAndDrop";
+import {ElectronApi} from "./helpers/api/ElectronApi";
 
 
 const Layout = styled.div`
@@ -46,7 +46,7 @@ const Main = styled.main`
 
 export const TagsContext = React.createContext<string[]>([]);
 
-const API = new ElectronAPI();
+const API = new ElectronApi();
 
 
 const COLLECTIONS_TREE_ROOTS = [{

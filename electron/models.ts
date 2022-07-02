@@ -1,4 +1,4 @@
-import {DataTypes, Sequelize} from "sequelize"
+import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize} from "sequelize"
 import {TopCollections} from '../src/helpers/collections';
 import * as path from "path"
 import {app} from 'electron';
@@ -146,7 +146,19 @@ export const Bookmark = sequelize.define('Bookmark', {
     updatedAt: 'modificationDate'
 });
 
-export const Collection = sequelize.define('Collection', {
+export class Collection extends Model<InferAttributes<Collection>, InferCreationAttributes<Collection>> {
+    declare id: CreationOptional<string>
+    declare parent: CreationOptional<string>
+    declare name: string
+    declare isFolded: CreationOptional<boolean>
+    declare iconPath: CreationOptional<string>
+    declare index: number
+
+    declare creationDate: CreationOptional<Date>;
+    declare modificationDate: CreationOptional<Date>;
+}
+
+Collection.init({
         id: {
             type: DataTypes.UUID,
             primaryKey: true,
@@ -173,12 +185,15 @@ export const Collection = sequelize.define('Collection', {
         index: {
             type: DataTypes.INTEGER,
             allowNull: false,
-        }
+        },
+        creationDate: DataTypes.DATE,
+        modificationDate: DataTypes.DATE
     },
     {
-        timestamps: true,
+        sequelize,
+        tableName: "Collection",
         createdAt: "creationDate",
-        updatedAt: 'modificationDate'
+        updatedAt: 'modificationDate',
     });
 
 (async () => {

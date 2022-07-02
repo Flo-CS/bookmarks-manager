@@ -1,7 +1,7 @@
 import {app, BrowserWindow, shell} from 'electron'
 import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
-import {registerBridgeHandlers} from './bridgeManager';
 import * as path from "path";
+import {setupBridgeHandlers} from "./bridgeManager";
 
 let mainWindow: BrowserWindow | null
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string
@@ -41,14 +41,12 @@ function createWindow() {
     mainWindow.on('closed', () => {
         mainWindow = null
     })
-
-
 }
 
 app.on('ready', createWindow)
     .whenReady()
     .then(async () => {
-        await registerBridgeHandlers()
+        await setupBridgeHandlers()
         await installExtension(REACT_DEVELOPER_TOOLS)
     })
     .catch(e => console.error(e))

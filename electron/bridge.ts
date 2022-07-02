@@ -1,12 +1,14 @@
 import {contextBridge, ipcRenderer} from 'electron'
-import {APIRequestMessages} from "../src/helpers/api";
-
+import {ApiRequests} from "../src/helpers/api/Api";
 
 export const bridge = {
-    sendMessage: <T extends keyof APIRequestMessages>(channel: T, ...params: APIRequestMessages[T]["params"]): Promise<APIRequestMessages[T]["result"]> => {
-        return ipcRenderer.invoke(channel, ...params)
-    },
+    async sendAPIRequest<T extends keyof ApiRequests>(channel: T, ...params: ApiRequests[T]["params"]): Promise<ApiRequests[T]["result"]> {
+        const result = await ipcRenderer.invoke(channel, ...params)
+        if (result && result.error) {
+            throw new Error(result.error.message)
+        }
+        return result
+    }
 }
 
 contextBridge.exposeInMainWorld('bridge', bridge)
-
