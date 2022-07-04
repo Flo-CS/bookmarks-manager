@@ -1,4 +1,4 @@
-import {render} from "../../tests/utilities";
+import {render} from "../../../tests/utilities";
 import {AutoSuggestTextInput} from "./AutoSuggestTextInput";
 import {fireEvent, screen} from "@testing-library/react";
 

@@ -1,4 +1,4 @@
-import {render} from "../../tests/utilities";
+import {render} from "../../../tests/utilities";
 import {TagsInput} from "./TagsInput";
 import {fireEvent, screen, within} from "@testing-library/react";
 

@@ -5,7 +5,7 @@ import {BookmarkVariant, getKeySeparatedBookmarks} from "../../utils/bookmarks"
 import BookmarkCard from "./BookmarkCard"
 import TitleGridContainer from "./TitleGridContainer"
 
-import noPicture from "./../../assets/no_picture.png"
+import noPicture from "../../assets/no_picture.png"
 import {LayoutBookmarkData} from "../../types/bookmarks";
 
 

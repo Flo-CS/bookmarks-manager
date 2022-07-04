@@ -1,5 +1,5 @@
+import {app} from "electron";
 import path from "path";
-import {app} from "electron"
 import {PicturesVariant, WebsitePicture} from "../types/website";
 
 export const ARRAY_SEPARATOR = ";";

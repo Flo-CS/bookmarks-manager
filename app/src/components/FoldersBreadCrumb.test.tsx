@@ -1,4 +1,4 @@
-import {render} from "../../tests/utilities";
+import {render} from "../../../tests/utilities";
 import CollectionName from "./CollectionName";
 import CollectionsBreadCrumb from "./CollectionsBreadCrumb"
 import {screen} from "@testing-library/react";

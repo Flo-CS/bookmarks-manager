@@ -1,4 +1,4 @@
-import {render} from "../../tests/utilities";
+import {render} from "../../../tests/utilities";
 import {cleanup, fireEvent, screen} from "@testing-library/react";
 import CollectionName from "./CollectionName";
 

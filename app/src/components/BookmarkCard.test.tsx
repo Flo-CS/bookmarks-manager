@@ -1,4 +1,4 @@
-import {render} from "../../tests/utilities"
+import {render} from "../../../tests/utilities"
 import BookmarkCard from "./BookmarkCard";
 import {fireEvent, screen, within} from "@testing-library/react";
 import {formatDistanceToNow} from "date-fns";

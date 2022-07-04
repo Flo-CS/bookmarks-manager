@@ -1,7 +1,7 @@
-import {render} from "../../tests/utilities";
+import {render} from "../../../tests/utilities";
 import {fireEvent, screen} from "@testing-library/react";
 import React from "react";
-import {collections} from "../../tests/mockData";
+import {collections} from "../../../tests/mockData";
 import Sidebar from "./Sidebar";
 import {TopCollections, VirtualCollections} from "../../utils/collections";
 

@@ -1,13 +1,16 @@
 import React, {ComponentType, ReactElement} from 'react'
 import {render, RenderOptions} from '@testing-library/react'
 import {ThemeProvider} from 'styled-components'
-import {theme} from "../src/styles/Theme";
+import {theme} from "../app/src/styles/Theme";
 
+type Props = {
+    children: React.ReactNode
+}
 
-function ThemeProviderWrapper(props: any) {
+function ThemeProviderWrapper({children}: Props) {
     return (
         <ThemeProvider theme={theme}>
-            {props.children}
+            {children}
         </ThemeProvider>
     )
 }

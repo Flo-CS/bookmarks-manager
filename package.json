@@ -90,9 +90,9 @@
       "packagerConfig": {
         "name": "Bookmarks manager",
         "executableName": "bookmarks-manager",
-        "icon": "assets/icon",
+        "icon": "app/assets/icon",
         "extraResource": [
-          "assets"
+          "app/assets"
         ]
       },
       "plugins": [
@@ -104,11 +104,11 @@
               "config": "./webpack/renderer.webpack.js",
               "entryPoints": [
                 {
-                  "html": "./public/index.html",
-                  "js": "./src/index.tsx",
+                  "html": "./app/public/index.html",
+                  "js": "./app/src/index.tsx",
                   "name": "main_window",
                   "preload": {
-                    "js": "./electron/bridge.ts"
+                    "js": "./app/electron/bridge.ts"
                   }
                 }
               ]

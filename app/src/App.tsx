@@ -29,6 +29,7 @@ import {DndTypes} from "../utils/dragAndDrop";
 import {createDefaultBookmark} from "../utils/bookmarks";
 import BookmarkModal from "./components/BookmarkModal";
 import {CollectionDataExtended} from "../types/collections";
+import {Copy} from "../types/helpersTypes";
 
 
 const Layout = styled.div`
@@ -69,7 +70,7 @@ export function App(): JSX.Element {
         removeNode: removeCollection,
         updateNode: updateCollection,
         insertNodes: insertCollections,
-    } = useTree<CollectionDataExtended>({
+    } = useTree<Copy<CollectionDataExtended>>({
         rootNodes: COLLECTIONS_TREE_ROOTS,
         leafChildren: bookmarks,
         getKey: (collection) => collection.id,

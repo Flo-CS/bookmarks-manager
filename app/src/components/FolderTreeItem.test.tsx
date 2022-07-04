@@ -1,4 +1,4 @@
-import {render} from "../../tests/utilities";
+import {render} from "../../../tests/utilities";
 import {fireEvent, screen} from "@testing-library/react";
 import CollectionTreeItem from "./CollectionTreeItem";
 import {theme} from "../styles/Theme";

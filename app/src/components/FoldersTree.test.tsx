@@ -1,10 +1,10 @@
 import React from "react";
 import CollectionsTree, {TreeCollection} from "./CollectionsTree"
 import CollectionTreeItem from "./CollectionTreeItem";
-import {render} from "../../tests/utilities";
+import {render} from "../../../tests/utilities";
 import {cleanup, fireEvent, screen, within} from "@testing-library/react";
 import {theme} from "../styles/Theme";
-import {collections} from "../../tests/mockData";
+import {collections} from "../../../tests/mockData";
 
 
 describe("CollectionsTreeView component", () => {

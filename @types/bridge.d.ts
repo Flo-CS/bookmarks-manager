@@ -1,4 +1,4 @@
-import {bridge} from '../electron/bridge'
+import {bridge} from '../app/electron/bridge'
 
 declare global {
     // eslint-disable-next-line

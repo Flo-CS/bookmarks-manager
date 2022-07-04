@@ -1,4 +1,4 @@
-import {render} from "../../tests/utilities";
+import {render} from "../../../tests/utilities";
 import {fireEvent, screen} from "@testing-library/react";
 import BookmarkModal from "./BookmarkModal";
 

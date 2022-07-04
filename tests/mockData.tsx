@@ -1,6 +1,6 @@
 import React from "react";
-import {BookmarkVariant} from "../utils/bookmarks";
-import {TreeCollection} from "../src/components/CollectionsTree";
+import {BookmarkVariant} from "../app/utils/bookmarks";
+import {TreeCollection} from "../app/src/components/CollectionsTree";
 
 export const collections: TreeCollection[] = [
     {

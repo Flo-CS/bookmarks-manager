@@ -1,5 +1,5 @@
 import {fireEvent, screen} from "@testing-library/react"
-import {render} from "../../tests/utilities"
+import {render} from "../../../tests/utilities"
 import Tag from "./Tag";
 
 describe("Tag component", () => {
@@ -12,8 +12,7 @@ describe("Tag component", () => {
         expect(screen.queryByText(/close/)).toBeNull()
     })
     it("have close button if close function is in props", () => {
-        render(<Tag onClose={() => {
-        }}>Hello</Tag>)
+        render(<Tag onClose={() => ""}>Hello</Tag>)
         expect(screen.queryByRole("button", {name: /close/})).toBeInTheDocument()
     })
     it("call close function on close button clicked", () => {
