@@ -1,6 +1,5 @@
-import {FetchedWebsiteMetadata} from "../src/helpers/websiteMetadata"
+import {FetchedWebsiteMetadata} from "../types/website";
 import {unfurl} from 'unfurl.js'
-
 
 export async function fetchWebsiteMetadata(URL: string): Promise<FetchedWebsiteMetadata> {
     const result = await unfurl(URL)

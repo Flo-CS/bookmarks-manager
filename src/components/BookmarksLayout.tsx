@@ -1,23 +1,13 @@
 import {format, startOfMonth} from "date-fns"
 import {orderBy} from "lodash"
 import {useMemo} from "react"
-import {BookmarkVariant, getKeySeparatedBookmarks} from "../helpers/bookmarks"
+import {BookmarkVariant, getKeySeparatedBookmarks} from "../../utils/bookmarks"
 import BookmarkCard from "./BookmarkCard"
 import TitleGridContainer from "./TitleGridContainer"
 
 import noPicture from "./../../assets/no_picture.png"
+import {LayoutBookmarkData} from "../../types/bookmarks";
 
-interface LayoutBookmarkData {
-    id: string,
-    url: string
-    variant: BookmarkVariant,
-    modificationDate: Date,
-    linkTitle?: string,
-    faviconPath?: string,
-    previewPath?: string,
-    description?: string,
-    tags?: string[],
-}
 
 type Props = {
     bookmarks: LayoutBookmarkData[],
@@ -29,7 +19,7 @@ export default function BookmarksLayout({bookmarks, onEdit, onDelete, onTagRemov
 
     const monthSeparatedBookmarks = useMemo(() => {
         const separatedBookmarks = getKeySeparatedBookmarks(bookmarks, (b => startOfMonth(b.modificationDate)))
-        return orderBy(separatedBookmarks, ([date, _]) => new Date(date), "desc")
+        return orderBy(separatedBookmarks, ([date]) => new Date(date), "desc")
     }, [bookmarks])
 
 

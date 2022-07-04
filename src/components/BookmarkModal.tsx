@@ -5,11 +5,11 @@ import MultilineTextInput from './MultilineTextInput'
 import TagsInput from './TagsInput'
 import styled, {css, useTheme} from 'styled-components'
 import {IoMdClose, IoMdRefresh} from 'react-icons/io'
-import {hexToRgba} from '../helpers/colors'
+import {hexToRgba} from '../../utils/colors'
 import {TagsContext} from '../App'
 import {buttonReset} from "../styles/utils";
 import useObjectModifications from "../hooks/useObjectModifications";
-import {AtMost} from "../helpers/types";
+import {AtMost, Nullable} from "../../types/helpersTypes";
 
 const iconButton = css`
   width: 25px;
@@ -96,23 +96,22 @@ const BottomButton = styled.button<{ isImportant: boolean }>`
   border-radius: ${props => props.theme.radius.small};
 `
 
-
-export interface InitialModalBookmark {
-    url?: string,
-    description?: string,
-    tags?: string[],
-    linkTitle?: string,
-    faviconPath?: string,
-    previewPath?: string
+interface InitialModalBookmark {
+    url: string,
+    description?: Nullable<string>,
+    tags?: Nullable<string[]>,
+    linkTitle?: Nullable<string>,
+    faviconPath?: Nullable<string>,
+    previewPath?: Nullable<string>
 }
 
-export type SavedModalBookmark = AtMost<InitialModalBookmark, "faviconPath" | "previewPath">
+type SavedModalBookmark = AtMost<InitialModalBookmark, "faviconPath" | "previewPath">
 
-export interface ModalFetchedWebsiteMetadata {
-    linkTitle?: string,
-    description?: string,
-    faviconPath?: string,
-    previewPath?: string
+interface ModalFetchedWebsiteMetadata {
+    linkTitle?: Nullable<string>,
+    description?: Nullable<string>,
+    faviconPath?: Nullable<string>,
+    previewPath?: Nullable<string>
 }
 
 type Props<T extends InitialModalBookmark> = {
@@ -121,7 +120,7 @@ type Props<T extends InitialModalBookmark> = {
     initialBookmark?: T
     onClose: () => void
     fetchWebsiteMetadata: (url: string, forceDataRefresh: boolean) => Promise<ModalFetchedWebsiteMetadata>
-    onBookmarkSave: (data: T & SavedModalBookmark | undefined) => void
+    onBookmarkSave: (data: T | undefined) => void
 }
 
 const defaultBookmark = {
@@ -233,7 +232,7 @@ export default function BookmarkModal<T extends InitialModalBookmark>({
                 </CloseButton>
             </TitleContainer>
             <LinkContainer>
-                <IconPicture src={bookmarkFields.faviconPath}/>
+                {bookmarkFields.faviconPath && <IconPicture src={bookmarkFields.faviconPath}/>}
                 <TextInput
                     label="URL"
                     onBlur={handleAutomaticFetchWebsiteMetadata}
@@ -250,7 +249,7 @@ export default function BookmarkModal<T extends InitialModalBookmark>({
             </LinkContainer>
             <Separator/>
             <BodyContainer>
-                <PreviewPicture src={bookmarkFields.previewPath}/>
+                {bookmarkFields.previewPath && <PreviewPicture src={bookmarkFields.previewPath}/>}
                 <BasicFieldsContainer>
                     <TextInput
                         label="Name"
@@ -267,7 +266,7 @@ export default function BookmarkModal<T extends InitialModalBookmark>({
                     <TagsInput
                         label="Tags"
                         onChange={handleTagsChange}
-                        tags={bookmarkFields.tags}
+                        tags={bookmarkFields.tags || []}
                         tagsSuggestions={allTags}
                     />
                 </BasicFieldsContainer>

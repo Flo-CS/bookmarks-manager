@@ -3,7 +3,7 @@ import {fireEvent, screen} from "@testing-library/react";
 import React from "react";
 import {collections} from "../../tests/mockData";
 import Sidebar from "./Sidebar";
-import {TopCollections, VirtualCollections} from "../helpers/collections";
+import {TopCollections, VirtualCollections} from "../../utils/collections";
 
 describe("Sidebar component", () => {
     it("calls onCollectionAdded with collection name", () => {

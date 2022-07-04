@@ -2,7 +2,7 @@ import styled from "styled-components";
 import {TextInput} from "./TextInput";
 import React, {useEffect, useMemo, useState} from "react";
 import Fuse from "fuse.js"
-import {loopNext, loopPrevious} from "../helpers/arrays";
+import {loopNext, loopPrevious} from "../../utils/arrays";
 import WithLabel from "./WithLabel";
 
 const Container = styled.div`

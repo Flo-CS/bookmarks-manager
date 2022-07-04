@@ -1,19 +1,27 @@
-import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize} from "sequelize"
-import {TopCollections} from '../src/helpers/collections';
+import {DataTypes, Model, ModelDefined, Sequelize} from "sequelize"
 import * as path from "path"
 import {app} from 'electron';
-import {BookmarkVariant} from "../src/helpers/bookmarks";
-import {WebsiteMetadata, WebsitePicture} from "../src/helpers/websiteMetadata";
-import {getWebsitePicture} from "./dataFiles";
 
-const ARRAY_SEPARATOR = ";";
+import {Nullable} from "../types/helpersTypes";
+import {
+    InternalWebsiteAttributes,
+    WebsiteAttributes,
+    WebsiteCreationAttributes,
+    WebsiteMetadata,
+    WebsitePicture
+} from "../types/website";
+import {BookmarkAttributes, BookmarkCreationAttributes, InternalBookmarkAttributes} from "../types/bookmarks";
+import {CollectionAttributes, CollectionCreationAttributes} from "../types/collections";
+import {TopCollections} from "../utils/collections";
+import {BookmarkVariant} from "../utils/bookmarks";
+import {ARRAY_SEPARATOR, getWebsitePicture} from "../utils/electron";
+
 
 export const databasePath = path.join(app.getPath("userData"), "main.db");
 
-
 export const sequelize: Sequelize = new Sequelize({dialect: "sqlite", storage: databasePath});
 
-export const Website = sequelize.define<any, any>("Website", {
+export const Website = sequelize.define<Model<InternalWebsiteAttributes>>("Website", {
     id: {
         type: DataTypes.UUID,
         primaryKey: true,
@@ -39,11 +47,11 @@ export const Website = sequelize.define<any, any>("Website", {
         validate: {
             isUrl: true
         },
-        get(): WebsitePicture | undefined {
+        get(): Nullable<WebsitePicture> {
             if (!this.getDataValue("faviconPicture")) {
-                return undefined
+                return null
             }
-            return getWebsitePicture("favicon", this.getDataValue("faviconPicture"), this.id)
+            return getWebsitePicture("favicon", this.getDataValue("faviconPicture") as string, this.getDataValue("id"))
         }
     },
     previewPicture: {
@@ -51,29 +59,36 @@ export const Website = sequelize.define<any, any>("Website", {
         validate: {
             isUrl: true
         },
-        get(): WebsitePicture | undefined {
+        get(): Nullable<WebsitePicture> {
             if (!this.getDataValue("previewPicture")) {
-                return undefined
+                return null
             }
-            return getWebsitePicture("preview", this.getDataValue("previewPicture"), this.id)
+            return getWebsitePicture("preview", this.getDataValue("previewPicture") as string, this.getDataValue("id"))
         }
     },
     metadata: {
         type: DataTypes.VIRTUAL,
         get(): WebsiteMetadata {
             return {
-                description: this.description,
-                title: this.title,
+                description: this.getDataValue("description"),
+                title: this.getDataValue("title"),
                 pictures: {
-                    preview: this.previewPicture,
-                    favicon: this.faviconPicture
+                    preview: this.get("previewPicture") as Nullable<WebsitePicture>,
+                    favicon: this.get("faviconPicture") as Nullable<WebsitePicture>
                 }
             };
         },
     },
-}, {timestamps: true, createdAt: "creationDate", updatedAt: "modificationDate"})
+    creationDate: DataTypes.DATE,
+    modificationDate: DataTypes.DATE
+}, {
+    timestamps: true,
+    createdAt: "creationDate",
+    updatedAt: "modificationDate"
+}) as unknown as ModelDefined<WebsiteAttributes, WebsiteCreationAttributes>
 
-export const Bookmark = sequelize.define('Bookmark', {
+
+export const Bookmark = sequelize.define<Model<InternalBookmarkAttributes>>("Bookmark", {
     id: {
         type: DataTypes.UUID,
         primaryKey: true,
@@ -97,12 +112,13 @@ export const Bookmark = sequelize.define('Bookmark', {
     },
     tags: {
         type: DataTypes.TEXT,
-        set(tags: string[]) {
-            this.setDataValue("tags", tags.join(ARRAY_SEPARATOR))
-        },
-        get() {
+        get(): Nullable<string[]> {
             const tags = this.getDataValue('tags');
             return tags ? tags.split(ARRAY_SEPARATOR) : [];
+        },
+        set(tags: Nullable<string[]>) {
+            const tagsString = tags ? tags.join(ARRAY_SEPARATOR) : null
+            this.setDataValue("tags", tagsString);
         }
     },
     description: {
@@ -122,43 +138,35 @@ export const Bookmark = sequelize.define('Bookmark', {
     },
     openHistory: {
         type: DataTypes.TEXT,
-        set(dates: Date[]) {
-            this.setDataValue("openHistory", dates.map(date => date.toUTCString()).join(ARRAY_SEPARATOR))
+        set(dates: Nullable<Date[]>) {
+            const datesString = dates ? dates.map(date => date.toUTCString()).join(ARRAY_SEPARATOR) : null
+            this.setDataValue("openHistory", datesString);
         },
-        get() {
+        get(): Nullable<Date[]> {
             const dates = this.getDataValue('openHistory');
             return dates ? dates.split(ARRAY_SEPARATOR).map((date: string) => new Date(date)) : [];
         }
     },
     copyHistory: {
         type: DataTypes.TEXT,
-        set(dates: Date[]) {
-            this.setDataValue("copyHistory", dates.map(date => date.toUTCString()).join(ARRAY_SEPARATOR))
+        set(dates: Nullable<Date[]>) {
+            const datesString = dates ? dates.map(date => date.toUTCString()).join(ARRAY_SEPARATOR) : null
+            this.setDataValue("copyHistory", datesString);
         },
-        get() {
+        get(): Nullable<Date[]> {
             const dates = this.getDataValue('copyHistory');
             return dates ? dates.split(ARRAY_SEPARATOR).map((date: string) => new Date(date)) : [];
         }
     },
+    creationDate: DataTypes.DATE,
+    modificationDate: DataTypes.DATE
 }, {
     timestamps: true,
     createdAt: "creationDate",
     updatedAt: 'modificationDate'
-});
+}) as unknown as ModelDefined<BookmarkAttributes, BookmarkCreationAttributes>
 
-export class Collection extends Model<InferAttributes<Collection>, InferCreationAttributes<Collection>> {
-    declare id: CreationOptional<string>
-    declare parent: CreationOptional<string>
-    declare name: string
-    declare isFolded: CreationOptional<boolean>
-    declare iconPath: CreationOptional<string>
-    declare index: number
-
-    declare creationDate: CreationOptional<Date>;
-    declare modificationDate: CreationOptional<Date>;
-}
-
-Collection.init({
+export const Collection: ModelDefined<CollectionAttributes, CollectionCreationAttributes> = sequelize.define("Collection", {
         id: {
             type: DataTypes.UUID,
             primaryKey: true,
@@ -190,11 +198,11 @@ Collection.init({
         modificationDate: DataTypes.DATE
     },
     {
-        sequelize,
-        tableName: "Collection",
+        timestamps: true,
         createdAt: "creationDate",
         updatedAt: 'modificationDate',
     });
+
 
 (async () => {
     await sequelize.sync();

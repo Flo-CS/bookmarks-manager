@@ -1,10 +1,9 @@
 import {ipcMain} from "electron";
-import {ApiRequestHandler, ApiRequestsHandlers, ApiRequestsWithError} from "../src/helpers/api/Api";
-import {ApiHandlers} from "./ApiHandlers";
+import {ApiErrorResult, ApiRequestHandler, ApiRequestsHandlers} from "../types/api";
+import {ApiHandlers} from "./apiHandlers";
+import {APIHandlerBridgeWrapper} from "../types/electron";
 
-export type APIHandlerBridgeWrapper<T extends keyof ApiRequestsWithError> = (event: Electron.IpcMainInvokeEvent, ...params: ApiRequestsWithError[T]["params"]) => Promise<ApiRequestsWithError[T]["result"]>
-
-function wrapAPIHandler<T extends keyof ApiRequestsHandlers>(handler: ApiRequestHandler<T>): APIHandlerBridgeWrapper<T> {
+function wrapAPIRequestHandler<T extends keyof ApiRequestsHandlers>(handler: ApiRequestHandler<T>): APIHandlerBridgeWrapper<T> {
     const wrapper = async (event: Electron.IpcMainInvokeEvent, ...args: Parameters<ApiRequestHandler<T>>) => {
         try {
             return await handler(...args)
@@ -13,7 +12,7 @@ function wrapAPIHandler<T extends keyof ApiRequestsHandlers>(handler: ApiRequest
                 "error": {
                     "message": e.message
                 }
-            }
+            } as ApiErrorResult
         }
     }
     return wrapper
@@ -21,6 +20,6 @@ function wrapAPIHandler<T extends keyof ApiRequestsHandlers>(handler: ApiRequest
 
 export async function setupBridgeHandlers() {
     for (const [channel, handler] of Object.entries<ApiRequestHandler<any>>(ApiHandlers)) {
-        ipcMain.handle(channel, wrapAPIHandler(handler))
+        ipcMain.handle(channel, wrapAPIRequestHandler(handler))
     }
 }

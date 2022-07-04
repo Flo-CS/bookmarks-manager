@@ -1,34 +1,34 @@
 import React, {useEffect, useMemo, useState} from "react";
 import styled, {ThemeProvider} from "styled-components";
-import BookmarkModal, {
-    InitialModalBookmark,
-    ModalFetchedWebsiteMetadata,
-    SavedModalBookmark
-} from "./components/BookmarkModal";
+
 import BookmarksLayout from "./components/BookmarksLayout";
 import CollectionName from "./components/CollectionName";
 import CollectionsBreadCrumb from "./components/CollectionsBreadCrumb";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
-import {BookmarkData, BookmarkMinimum, createDefaultBookmark} from "./helpers/bookmarks";
 import {
     COLLECTIONS_SEPARATOR,
+    COLLECTIONS_TREE_ROOTS,
     createDefaultCollection,
     getNewCollectionParentId,
     TopCollections,
-    TreeInputCollection,
-    VirtualCollections
-} from "./helpers/collections";
+    VirtualCollections,
+} from "../utils/collections";
 import useModal from "./hooks/useModal";
-import useCollectionsItems from "./hooks/useCollectionsItems";
+import useClassifiableItems from "./hooks/useClassifiableItems";
 import useTree from "./hooks/useTree";
 import {GlobalStyle} from "./styles/GlobalStyle";
 import {theme} from "./styles/Theme";
 import {flatten, slice, uniq} from "lodash";
 import {DndProvider} from "react-dnd";
 import {HTML5Backend} from "react-dnd-html5-backend";
-import {DndTypes, IdDroppedItem} from "./helpers/dragAndDrop";
-import {ElectronApi} from "./helpers/api/ElectronApi";
+import {IdDroppedItem} from "../types/dragAndDrop";
+import {ElectronApi} from "./api/ElectronApi";
+import {AddBookmarkData, BookmarkData, UpdateBookmarkData} from "../types/bookmarks";
+import {DndTypes} from "../utils/dragAndDrop";
+import {createDefaultBookmark} from "../utils/bookmarks";
+import BookmarkModal from "./components/BookmarkModal";
+import {CollectionDataExtended} from "../types/collections";
 
 
 const Layout = styled.div`
@@ -49,16 +49,6 @@ export const TagsContext = React.createContext<string[]>([]);
 const API = new ElectronApi();
 
 
-const COLLECTIONS_TREE_ROOTS = [{
-    name: TopCollections.TRASH,
-    id: TopCollections.TRASH,
-    index: -1
-}, {
-    name: TopCollections.MAIN,
-    id: TopCollections.MAIN,
-    index: -1
-}]
-
 export function App(): JSX.Element {
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(VirtualCollections.ALL);
 
@@ -70,7 +60,7 @@ export function App(): JSX.Element {
         getItem: getBookmark,
         addItem: addBookmark,
         setItems: setBookmarks
-    } = useCollectionsItems<BookmarkData>([], selectedCollectionId);
+    } = useClassifiableItems<BookmarkData>([], selectedCollectionId);
 
     const {
         getTreeNodeChildren: getCollectionChildren,
@@ -79,7 +69,7 @@ export function App(): JSX.Element {
         removeNode: removeCollection,
         updateNode: updateCollection,
         insertNodes: insertCollections,
-    } = useTree<TreeInputCollection>({
+    } = useTree<CollectionDataExtended>({
         rootNodes: COLLECTIONS_TREE_ROOTS,
         leafChildren: bookmarks,
         getKey: (collection) => collection.id,
@@ -88,9 +78,11 @@ export function App(): JSX.Element {
     })
 
     const [isEditModalOpen, editModalBookmarkId, openEditModal, closeEditModal] = useModal<string>();
-    const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useModal<BookmarkMinimum & InitialModalBookmark>();
+    const editModalBookmark = editModalBookmarkId ? getBookmark(editModalBookmarkId) : undefined
 
-    const allTags = useMemo(() => uniq(flatten(bookmarks.map(bookmark => bookmark.tags))), [bookmarks])
+    const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useModal<AddBookmarkData>();
+
+    const allTags = useMemo(() => uniq(flatten(bookmarks.map(bookmark => bookmark.tags || []))), [bookmarks])
     const selectedCollectionPath = useMemo(() => getPathToCollection(selectedCollectionId), [selectedCollectionId])
     const bookmarksToShow = useMemo(() => {
         if (selectedCollectionId === VirtualCollections.ALL) {
@@ -139,7 +131,11 @@ export function App(): JSX.Element {
 
     async function handleDropOnCollection(parentCollectionId: string, droppedItem: IdDroppedItem) {
         if (droppedItem.type === DndTypes.COLLECTION_ITEM) {
-            const collectionReorder = await API.reorderCollections(droppedItem.id, parentCollectionId, droppedItem.index)
+            const collectionReorder = await API.reorderCollections({
+                movingCollectionId: droppedItem.id,
+                newParent: parentCollectionId,
+                newIndex: droppedItem.index
+            })
             collectionReorder.forEach(reorderedCollection => updateCollection(reorderedCollection.id, {
                 index: reorderedCollection.index,
                 parent: reorderedCollection.parent
@@ -172,7 +168,7 @@ export function App(): JSX.Element {
         openEditModal(id)
     }
 
-    async function handleEditModalSave(data: SavedModalBookmark | undefined) {
+    async function handleEditModalSave(data: UpdateBookmarkData | undefined) {
         if (!editModalBookmarkId || !data) return
 
         const updatedBookmark = await API.updateBookmark(editModalBookmarkId, data)
@@ -181,7 +177,7 @@ export function App(): JSX.Element {
         closeEditModal()
     }
 
-    async function handleNewModalSave(data: BookmarkMinimum & SavedModalBookmark | undefined) {
+    async function handleNewModalSave(data: AddBookmarkData | undefined) {
         if (!data) return
 
         const createdBookmark = await API.addBookmark(data)
@@ -193,7 +189,7 @@ export function App(): JSX.Element {
         const bookmark = getBookmark(id);
         if (!bookmark) return;
 
-        const newTags = bookmark.tags.filter(t => t !== tag);
+        const newTags = bookmark.tags?.filter(t => t !== tag);
         const updatedBookmark = await API.updateBookmark(bookmark.id, {tags: newTags})
         updateBookmark(bookmark.id, updatedBookmark)
     }
@@ -215,7 +211,7 @@ export function App(): JSX.Element {
         await API.updateCollection(id, {isFolded: isFolded})
     }
 
-    async function handleModalFetch(URL: string, forceDataRefresh: boolean): Promise<ModalFetchedWebsiteMetadata> {
+    async function handleModalFetch(URL: string, forceDataRefresh: boolean) {
         const {metadata} = await API.fetchWebsiteData(URL, forceDataRefresh)
         return {
             linkTitle: metadata.title,
@@ -258,7 +254,7 @@ export function App(): JSX.Element {
                             onClose={closeEditModal}
                             onBookmarkSave={handleEditModalSave}
                             modalTitle="Edit bookmark"
-                            initialBookmark={getBookmark(editModalBookmarkId)}
+                            initialBookmark={editModalBookmark}
                             fetchWebsiteMetadata={handleModalFetch}/>
                         <BookmarkModal
                             isOpen={isNewModalOpen}

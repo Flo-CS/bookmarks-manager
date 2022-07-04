@@ -1,5 +1,5 @@
 import {contextBridge, ipcRenderer} from 'electron'
-import {ApiRequests} from "../src/helpers/api/Api";
+import {ApiRequests} from "../types/api";
 
 export const bridge = {
     async sendAPIRequest<T extends keyof ApiRequests>(channel: T, ...params: ApiRequests[T]["params"]): Promise<ApiRequests[T]["result"]> {

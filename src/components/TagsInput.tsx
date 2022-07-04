@@ -4,7 +4,7 @@ import React, {useMemo, useState} from "react";
 import styled from "styled-components";
 import Tag from "./Tag";
 import {last} from "lodash";
-import {isValidTag} from "../helpers/tags";
+import {isValidTag} from "../../utils/tags";
 
 const Container = styled.div`
   display: flex;

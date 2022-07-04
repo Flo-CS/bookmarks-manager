@@ -1,12 +1,12 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from "react"
 import styled from "styled-components";
-import CollectionsTree from "./CollectionsTree";
+import CollectionsTree, {TreeCollection} from "./CollectionsTree";
 import CollectionTreeItem from "./CollectionTreeItem";
-import {TopCollections, TreeCollectionItem, TreeOutputCollection, VirtualCollections} from "../helpers/collections";
+import {TopCollections, VirtualCollections} from "../../utils/collections";
 
 import {MdAllInbox} from "react-icons/md";
 import {IoAlbums, IoTrash} from "react-icons/io5"
-import {IdDroppedItem} from "../helpers/dragAndDrop";
+import {IdDroppedItem} from "../../types/dragAndDrop";
 
 const Container = styled.section`
   display: flex;
@@ -39,9 +39,13 @@ const Separator = styled.hr`
   margin: ${props => props.theme.spacing.medium};
 `
 
+export interface TreeCollectionItem {
+    collection: string
+}
+
 type Props = {
-    mainCollections: TreeOutputCollection[]
-    trashCollections?: TreeOutputCollection[],
+    mainCollections: TreeCollection[]
+    trashCollections?: TreeCollection[],
     collectionsItems?: TreeCollectionItem[],
     onCollectionAdd?: (collectionName: string) => void,
     onCollectionRemove?: (collectionId: string, isDefinitiveDelete: boolean) => void,

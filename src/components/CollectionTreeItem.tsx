@@ -5,8 +5,9 @@ import styled, {css} from "styled-components";
 import Menu from "./Menu";
 import useMenu from "../hooks/useMenu";
 import {useDrag, useDrop} from "react-dnd";
-import {DndTypes, IdDragItem, IdDroppedItem} from "../helpers/dragAndDrop";
+import {IdDragItem, IdDroppedItem} from "../../types/dragAndDrop";
 import CollectionTreeSeparatorItem from "./CollectionTreeSeparatorItem";
+import {DndTypes} from "../../utils/dragAndDrop";
 
 
 const Wrapper = styled.div<{ isSelected: boolean }>`

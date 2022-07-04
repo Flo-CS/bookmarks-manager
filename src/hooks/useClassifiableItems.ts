@@ -5,14 +5,14 @@ interface Classifiable {
     collection: string
 }
 
-export default function useCollectionsItems<T extends Classifiable>(initItems: T[], selectedCollectionId: string) {
+export default function useClassifiableItems<T extends Classifiable>(initItems: T[], selectedClassifiableId: string) {
     const [items, setItems] = useState<T[]>(initItems);
 
-    function getItem(id?: string) {
+    function getItem(id: string): T | undefined {
         return items.find(b => b.id === id);
     }
 
-    function updateItem(id?: string, newData?: Partial<T>) {
+    function updateItem(id: string, newData: Partial<T>): void {
         const item = getItem(id);
         if (item) {
             const newItems = items.map(b => b.id === id ? {...b, ...newData} : b);
@@ -20,20 +20,19 @@ export default function useCollectionsItems<T extends Classifiable>(initItems: T
         }
     }
 
-    function removeItem(id?: string) {
+    function removeItem(id: string): void {
         const newItems = items.filter(b => b.id !== id);
         setItems(newItems);
     }
 
-    function addItem(newItem: T) {
+    function addItem(newItem: T): void {
         const newItems = [...items, newItem];
         setItems(newItems);
     }
 
     const selectedItems = useMemo(() => items.filter(item => {
-        return item.collection === selectedCollectionId
-    }), [items, selectedCollectionId])
-
+        return item.collection === selectedClassifiableId
+    }), [items, selectedClassifiableId])
 
     return {items, selectedItems, getItem, updateItem, removeItem, addItem, setItems};
 }

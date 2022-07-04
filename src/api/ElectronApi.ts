@@ -1,6 +1,11 @@
-import {BookmarkData, BookmarkMinimum} from "../bookmarks";
-import {CollectionData, CollectionMinimum, CollectionRemoveAction} from "../collections";
-import {ApiRequestsSenders} from "./Api";
+import {ApiRequestsSenders} from "../../types/api";
+import {AddBookmarkData, UpdateBookmarkData} from "../../types/bookmarks";
+import {
+    AddCollectionData,
+    RemoveCollectionActionType,
+    ReorderCollectionData,
+    UpdateCollectionData
+} from "../../types/collections";
 
 export class ElectronApi implements ApiRequestsSenders {
 
@@ -8,7 +13,7 @@ export class ElectronApi implements ApiRequestsSenders {
         return await window.bridge.sendAPIRequest("removeBookmark", id);
     }
 
-    async addBookmark(bookmark: BookmarkMinimum | BookmarkData) {
+    async addBookmark(bookmark: AddBookmarkData) {
         return await window.bridge.sendAPIRequest("addBookmark", bookmark);
     }
 
@@ -16,7 +21,7 @@ export class ElectronApi implements ApiRequestsSenders {
         return await window.bridge.sendAPIRequest("getBookmarks");
     }
 
-    async updateBookmark(id: string, bookmark: Partial<BookmarkData>) {
+    async updateBookmark(id: string, bookmark: UpdateBookmarkData) {
         return await window.bridge.sendAPIRequest("updateBookmark", id, bookmark);
     }
 
@@ -24,19 +29,19 @@ export class ElectronApi implements ApiRequestsSenders {
         return await window.bridge.sendAPIRequest("getCollections")
     }
 
-    async addCollection(collection: CollectionMinimum | CollectionData) {
+    async addCollection(collection: AddCollectionData) {
         return await window.bridge.sendAPIRequest("addCollection", collection)
     }
 
-    async updateCollection(id: string, collection: Partial<CollectionData>) {
+    async updateCollection(id: string, collection: UpdateCollectionData) {
         return await window.bridge.sendAPIRequest("updateCollection", id, collection)
     }
 
-    async reorderCollections(id: string, newParentId: string, newIndex: number) {
-        return await window.bridge.sendAPIRequest("reorderCollections", id, newParentId, newIndex)
+    async reorderCollections(reorderCollection: ReorderCollectionData) {
+        return await window.bridge.sendAPIRequest("reorderCollections", reorderCollection)
     }
 
-    async removeCollection(id: string, removeAction: CollectionRemoveAction = "removeChildren") {
+    async removeCollection(id: string, removeAction: RemoveCollectionActionType = "removeChildren") {
         return await window.bridge.sendAPIRequest("removeCollection", id, removeAction)
     }
 

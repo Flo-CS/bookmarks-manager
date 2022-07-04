@@ -2,7 +2,7 @@ import {render} from "../../tests/utilities"
 import BookmarkCard from "./BookmarkCard";
 import {fireEvent, screen, within} from "@testing-library/react";
 import {formatDistanceToNow} from "date-fns";
-import {BookmarkVariant} from "../helpers/bookmarks";
+import {BookmarkVariant} from "../../utils/bookmarks";
 
 describe('BookmarkCard component', () => {
 
@@ -10,8 +10,7 @@ describe('BookmarkCard component', () => {
 
     Object.assign(navigator, {
         clipboard: {
-            writeText: () => {
-            },
+            writeText: () => "",
         },
     });
 

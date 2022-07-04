@@ -1,25 +1,29 @@
 import React from "react";
-import {BookmarkVariant} from "../src/helpers/bookmarks";
+import {BookmarkVariant} from "../utils/bookmarks";
+import {TreeCollection} from "../src/components/CollectionsTree";
 
-
-export const collections = [
+export const collections: TreeCollection[] = [
     {
         id: "1",
         name: "1",
+        index: 0,
         icon: () => <svg>1-svg</svg>,
         children: [
             {
                 id: "11",
                 name: "11",
-                icon: () => <svg>12-svg</svg>
+                index: 0,
+                icon: () => <svg>12-svg</svg>,
             },
             {
                 id: "12",
                 name: "12",
+                index: 1,
                 children: [
                     {
                         id: "121",
-                        name: "121"
+                        name: "121",
+                        index: 0
                     },
                 ]
             },
@@ -28,11 +32,13 @@ export const collections = [
     {
         id: "2",
         name: "2",
+        index: 1,
         icon: () => <svg>2-svg</svg>,
         children: [
             {
                 id: "21",
-                name: "21"
+                name: "21",
+                index: 0
             },
         ]
     }]

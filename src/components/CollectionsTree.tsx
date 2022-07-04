@@ -1,11 +1,21 @@
 import React from "react";
 import CollectionTreeItem from "./CollectionTreeItem";
-import {TopCollections, TreeOutputCollection} from "../helpers/collections";
-import {IdDroppedItem} from "../helpers/dragAndDrop";
+import {TopCollections} from "../../utils/collections";
+import {IdDroppedItem} from "../../types/dragAndDrop";
 
+export interface TreeCollection {
+    isFolded?: boolean;
+    name: string;
+    icon?: React.ComponentType;
+    index: number;
+    id: string;
+    children?: TreeCollection[],
+    parent?: TreeCollection
+    count?: number
+}
 
 type Props = {
-    collections?: TreeOutputCollection[],
+    collections?: TreeCollection[],
     children?: React.ReactNode,
     selectedCollectionId?: string,
     onCollectionClick?: (collectionId: string) => void,
@@ -29,7 +39,7 @@ export default function CollectionsTree({
                                         }: Props) {
 
 
-    function collectionsToComponent(collections: TreeOutputCollection[]) {
+    function collectionsToComponent(collections: TreeCollection[]) {
         return collections.map((collection) => {
             return <React.Fragment key={collection.id}>
                 <CollectionTreeItem collectionId={collection.id}

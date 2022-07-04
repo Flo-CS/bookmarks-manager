@@ -5,9 +5,11 @@ import {formatDistanceToNow} from "date-fns";
 import {MdContentCopy, MdDelete, MdEdit} from "react-icons/md";
 import useHover from "../hooks/useHover";
 import {useRef} from "react";
-import {BookmarkVariant} from "../helpers/bookmarks";
-import {DndTypes, IdDragItem} from "../helpers/dragAndDrop";
+import {BookmarkVariant} from "../../utils/bookmarks";
+import {IdDragItem} from "../../types/dragAndDrop";
 import {useDrag} from "react-dnd";
+import {Nullable} from "../../types/helpersTypes";
+import {DndTypes} from "../../utils/dragAndDrop";
 
 const ICON_HEIGHT = 40;
 
@@ -135,11 +137,11 @@ type Props = {
     variant: BookmarkVariant,
     id: string,
     link: string,
-    title?: string,
-    picturePath?: string;
-    description?: string,
-    tags?: string[],
-    datetime?: Date,
+    title?: Nullable<string>,
+    picturePath?: Nullable<string>;
+    description?: Nullable<string>,
+    tags?: Nullable<string[]>,
+    datetime?: Nullable<Date>,
     onEdit?: (id: string) => void,
     onDelete?: (id: string) => void
     onTagRemove?: (id: string) => void
@@ -192,14 +194,16 @@ export default function BookmarkCard({
         onTagRemove && onTagRemove(tag)
     }
 
-    const isVariantIcon = variant === BookmarkVariant.ICON && picturePath;
-    const isVariantPreview = variant === BookmarkVariant.PREVIEW && picturePath;
+    const isVariantIcon = variant === BookmarkVariant.ICON;
+    const isVariantPreview = variant === BookmarkVariant.PREVIEW;
+
     return <Card ref={ref} isDragging={isDragging}>
         <CardInside ref={drag}>
-            {isVariantPreview && <Picture src={picturePath} alt="Preview or website icon picture"/>}
+            {(isVariantPreview && picturePath) && <Picture src={picturePath} alt="Preview or website icon picture"/>}
             <CardFlow>
                 <CardHead>
-                    {isVariantIcon && <Picture src={picturePath} alt="Preview or website icon picture" isIcon/>}
+                    {(isVariantIcon && picturePath) &&
+                        <Picture src={picturePath} alt="Preview or website icon picture" isIcon/>}
                     <TitleContainer>
                         <Title>{title}</Title>
                         <Link href={link} target="_blank" rel="noopener noreferrer">{link}</Link>

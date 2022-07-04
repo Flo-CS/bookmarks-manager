@@ -1,7 +1,8 @@
 import React from "react";
 import styled, {css} from "styled-components";
 import {useDrop} from "react-dnd";
-import {DndTypes, IdDragItem, IdDroppedItem} from "../helpers/dragAndDrop";
+import {IdDragItem, IdDroppedItem} from "../../types/dragAndDrop";
+import {DndTypes} from "../../utils/dragAndDrop";
 
 
 const Separator = styled.div<{ isDropping: boolean }>`
