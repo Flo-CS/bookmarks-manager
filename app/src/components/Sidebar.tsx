@@ -1,7 +1,7 @@
-import React, {ChangeEvent, KeyboardEvent, useState} from "react"
+import React, {ChangeEvent, KeyboardEvent, useMemo, useState} from "react"
 import styled from "styled-components";
 import CollectionsTree, {TreeCollection} from "./CollectionsTree";
-import CollectionTreeItem from "./CollectionTreeItem";
+import CollectionTreeItem, {MenuItem} from "./CollectionTreeItem";
 import {TopCollections, VirtualCollections} from "../../utils/collections";
 
 import {MdAllInbox} from "react-icons/md";
@@ -50,6 +50,7 @@ interface Props {
     onCollectionAdd?: (collectionName: string) => void
     onCollectionRemove?: (collectionId: string, isDefinitiveDelete: boolean) => void
     onCollectionRename?: (newName: string, collectionId: string) => void
+    onCollectionRestore?: (collectionId: string) => void
     onTrashCollectionRemove?: (collectionId: string) => void
     selectedCollectionId?: string
     onSelectedCollectionChange?: (collectionId: string) => void
@@ -65,6 +66,7 @@ export default function Sidebar({
                                     onCollectionAdd = () => undefined,
                                     onCollectionRemove = () => undefined,
                                     onCollectionRename = () => undefined,
+                                    onCollectionRestore = () => undefined,
                                     selectedCollectionId,
                                     onSelectedCollectionChange = () => undefined,
                                     afterCollectionFoldingChange = () => undefined,
@@ -85,20 +87,6 @@ export default function Sidebar({
         }
     }
 
-    function handleMenuItemClick(menuItemId: string, collectionId: string) {
-        if (menuItemId === "Remove") {
-            onCollectionRemove(collectionId, false)
-        } else if (menuItemId === "Rename") {
-            setNameEditedCollectionId(collectionId)
-        }
-    }
-
-    function handleTrashMenuItemClick(menuItemId: string, collectionId: string) {
-        if (menuItemId === "Delete") {
-            onCollectionRemove(collectionId, true)
-        }
-    }
-
     function handleAfterCollectionNameChange(newName: string, collectionId?: string) {
         if (collectionId) {
             onCollectionRename(newName, collectionId)
@@ -106,8 +94,26 @@ export default function Sidebar({
         }
     }
 
-    const trashMenuItems = ["Delete"]
-    const menuItems = ["Remove", "Rename"]
+    const trashMenuItems: MenuItem[] = useMemo(() => [{
+        name: "Delete",
+        clickAction: (collectionId) => {
+            onSelectedCollectionChange(TopCollections.TRASH)
+            onCollectionRemove(collectionId, true)
+        }
+    }, {
+        name: "Restore",
+        clickAction: (collectionId) => onCollectionRestore(collectionId)
+    }], [onCollectionRemove, onSelectedCollectionChange, onCollectionRestore])
+
+    const menuItems: MenuItem[] = useMemo(() => [{
+        name: "Remove",
+        clickAction: (collectionId) => {
+            onCollectionRemove(collectionId, false)
+        }
+    }, {
+        name: "Rename",
+        clickAction: (collectionId) => setNameEditedCollectionId(collectionId)
+    }], [onCollectionRemove, onSelectedCollectionChange, setNameEditedCollectionId])
 
     const allCollectionsItemsCount = collectionsItems?.filter(item => item.collection !== TopCollections.TRASH).length
     const withoutCollectionsItemsCount = collectionsItems?.filter(item => item.collection === TopCollections.MAIN).length
@@ -126,7 +132,6 @@ export default function Sidebar({
                 <CollectionsTree collections={trashCollections} selectedCollectionId={selectedCollectionId}
                                  onCollectionClick={onSelectedCollectionChange}
                                  menuItems={trashMenuItems}
-                                 onMenuItemClick={handleTrashMenuItemClick}
                                  afterCollectionFoldingChange={afterCollectionFoldingChange}
                 />
             </CollectionTreeItem>
@@ -137,7 +142,6 @@ export default function Sidebar({
                          onCollectionClick={onSelectedCollectionChange}
                          afterCollectionFoldingChange={afterCollectionFoldingChange}
                          menuItems={menuItems}
-                         onMenuItemClick={handleMenuItemClick}
                          onDrop={onDropOnCollection}
                          canDrop={canDropOnCollection}
                          nameEditedCollectionId={nameEditedCollectionId}

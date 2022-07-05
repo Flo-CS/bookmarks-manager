@@ -76,6 +76,11 @@ const Count = styled.p`
   margin-left: auto;
 `
 
+export interface MenuItem {
+    name: string
+    clickAction: (collectionId: string) => void
+}
+
 export interface CollectionTreeItemProps {
     collectionId: string
     parentCollectionId?: string
@@ -88,8 +93,7 @@ export interface CollectionTreeItemProps {
     isSelected?: boolean
     afterFoldingChange?: (collectionId: string, isFolded: boolean) => void
     children?: React.ReactNode
-    menuItems?: string[]
-    onMenuItemClick?: (menuItemId: string, collectionId: string) => void
+    menuItems?: MenuItem[]
     onDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void
     canDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => boolean
     isCollectionNameEdited?: boolean
@@ -100,11 +104,9 @@ interface DragCollectedProps {
     isDragging: boolean
 }
 
-
 interface DropCollectedProps {
     isDroppingHover: boolean
 }
-
 
 export default function CollectionTreeItem({
                                                collectionId,
@@ -116,7 +118,6 @@ export default function CollectionTreeItem({
                                                icon,
                                                onClick,
                                                menuItems,
-                                               onMenuItemClick,
                                                isSelected,
                                                afterFoldingChange,
                                                children,
@@ -169,8 +170,8 @@ export default function CollectionTreeItem({
         openMenu(e.clientX, e.clientY)
     }
 
-    function handleMenuItemClick(menuItemId: string) {
-        onMenuItemClick && onMenuItemClick(menuItemId, collectionId)
+    function handleMenuItemClick(menuItem: MenuItem) {
+        menuItem.clickAction(collectionId)
         closeMenu()
     }
 
@@ -179,8 +180,11 @@ export default function CollectionTreeItem({
     const hasToShowTreeSeparatorItem = parentCollectionId !== undefined && index !== undefined
 
     const menuItemsComponents = useMemo(() => menuItems?.map((item) => {
-        return <Menu.Item key={item} id={item}
-                          onClick={() => handleMenuItemClick(item)}>{item}</Menu.Item>
+        return <Menu.Item key={item.name}
+                          id={item.name}
+                          onClick={() => handleMenuItemClick(item)}>
+            {item.name}
+        </Menu.Item>
     }), [menuItems])
 
     return <Wrapper isSelected={!!isSelected}

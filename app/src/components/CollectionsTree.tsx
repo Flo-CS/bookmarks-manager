@@ -1,5 +1,5 @@
 import React from "react";
-import CollectionTreeItem from "./CollectionTreeItem";
+import CollectionTreeItem, {MenuItem} from "./CollectionTreeItem";
 import {TopCollections} from "../../utils/collections";
 import {IdDroppedItem} from "../../types/dragAndDrop";
 
@@ -20,8 +20,7 @@ interface Props {
     selectedCollectionId?: string
     onCollectionClick?: (collectionId: string) => void
     afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void
-    menuItems?: string[]
-    onMenuItemClick?: (menuItemId: string, collectionId: string) => void
+    menuItems?: MenuItem[]
     onDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void
     canDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => boolean
     afterCollectionNameChange?: (newName: string, collectionId?: string) => void
@@ -35,7 +34,6 @@ export default function CollectionsTree({
                                             onCollectionClick,
                                             afterCollectionFoldingChange,
                                             menuItems,
-                                            onMenuItemClick,
                                             onDrop,
                                             canDrop,
                                             afterCollectionNameChange,
@@ -56,7 +54,6 @@ export default function CollectionsTree({
                                     isSelected={collection.id === selectedCollectionId}
                                     afterFoldingChange={afterCollectionFoldingChange}
                                     menuItems={menuItems}
-                                    onMenuItemClick={onMenuItemClick}
                                     count={collection.count}
                                     onDrop={onDrop}
                                     canDrop={canDrop}

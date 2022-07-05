@@ -126,6 +126,11 @@ export function App(): JSX.Element {
         removeCollection(id)
     }
 
+    async function handleRestoreCollection(id: string) {
+        const updatedCollection = await API.updateCollection(id, {parent: TopCollections.MAIN})
+        updateCollection(id, updatedCollection)
+    }
+
     async function handleCollectionRename(newName: string, id: string) {
         const updatedCollection = await API.updateCollection(id, {name: newName})
         updateCollection(id, updatedCollection)
@@ -238,6 +243,7 @@ export function App(): JSX.Element {
                                  collectionsItems={bookmarks}
                                  onCollectionAdd={handleAddCollection}
                                  onCollectionRemove={handleRemoveCollection}
+                                 onCollectionRestore={handleRestoreCollection}
                                  onTrashCollectionRemove={handleRemoveTrashCollection}
                                  afterCollectionFoldingChange={handleCollectionFolding}
                                  onSelectedCollectionChange={handleCollectionSelection}

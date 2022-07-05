@@ -78,9 +78,10 @@ interface MenuItemProps {
     id: string | number | symbol
 }
 
-export function MenuItem({onClick, id, children}: MenuItemProps): JSX.Element {
-    function handleClick() {
-        onClick && onClick(id)
+export function MenuItem({onClick = () => undefined, id, children}: MenuItemProps): JSX.Element {
+    function handleClick(e: React.MouseEvent) {
+        e.stopPropagation()
+        onClick(id)
     }
 
     return <MenuItemButton onClick={handleClick}>
