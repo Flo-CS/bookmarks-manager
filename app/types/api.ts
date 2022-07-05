@@ -3,7 +3,6 @@ import {
     AddCollectionData,
     CollectionData,
     OrderedCollectionData,
-    RemoveCollectionActionType,
     ReorderCollectionData,
     UpdateCollectionData
 } from "./collections";
@@ -18,7 +17,7 @@ export type ApiRequests = {
     addCollection: { params: [AddCollectionData], result: CollectionData },
     updateCollection: { params: [string, UpdateCollectionData], result: CollectionData };
     reorderCollections: { params: [ReorderCollectionData], result: OrderedCollectionData[] }
-    removeCollection: { params: [string, RemoveCollectionActionType], result: true },
+    removeCollection: { params: [string], result: true },
     fetchWebsiteData: { params: [string, boolean], result: WebsiteData }
 }
 

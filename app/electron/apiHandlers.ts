@@ -136,9 +136,32 @@ export const ApiHandlers: ApiRequestsHandlers = {
 
         return collectionsReorder
     },
-    async removeCollection(id, removeAction) {
+    async removeCollection(id) {
+        const childrenCollectionsIds: string[] = []
+        const childrenBookmarksIds: string[] = []
+
+        let currentCollectionsIds = [id]
+        while (currentCollectionsIds.length > 0) {
+            const childrenCollections = await Collection.findAll({
+                where: {parent: currentCollectionsIds},
+                attributes: ["id"]
+            })
+            const childrenBookmarks = await Bookmark.findAll({
+                where: {collection: currentCollectionsIds},
+                attributes: ["id"]
+            })
+            currentCollectionsIds = childrenCollections.map(collection => collection.get().id)
+            const currentBookmarksIds = childrenBookmarks.map(bookmark => bookmark.get().id)
+
+            childrenCollectionsIds.push(...currentCollectionsIds)
+            childrenBookmarksIds.push(...currentBookmarksIds)
+        }
+
         await Collection.destroy({
-            where: {id: id}
+            where: {id: [...childrenCollectionsIds, id]}
+        })
+        await Bookmark.destroy({
+            where: {id: [...childrenBookmarksIds]}
         })
         return true
     },

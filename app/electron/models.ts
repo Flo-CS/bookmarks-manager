@@ -205,5 +205,5 @@ export const Collection: ModelDefined<CollectionAttributes, CollectionCreationAt
 
 
 (async () => {
-    await sequelize.sync();
+    await sequelize.sync({force: true});
 })();

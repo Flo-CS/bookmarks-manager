@@ -1,11 +1,6 @@
 import {ApiRequestsSenders} from "../../types/api";
 import {AddBookmarkData, UpdateBookmarkData} from "../../types/bookmarks";
-import {
-    AddCollectionData,
-    RemoveCollectionActionType,
-    ReorderCollectionData,
-    UpdateCollectionData
-} from "../../types/collections";
+import {AddCollectionData, ReorderCollectionData, UpdateCollectionData} from "../../types/collections";
 
 export class ElectronApi implements ApiRequestsSenders {
 
@@ -41,8 +36,8 @@ export class ElectronApi implements ApiRequestsSenders {
         return await window.bridge.sendAPIRequest("reorderCollections", reorderCollection)
     }
 
-    async removeCollection(id: string, removeAction: RemoveCollectionActionType = "removeChildren") {
-        return await window.bridge.sendAPIRequest("removeCollection", id, removeAction)
+    async removeCollection(id: string) {
+        return await window.bridge.sendAPIRequest("removeCollection", id)
     }
 
     async fetchWebsiteData(url: string, forceDataRefresh = false) {

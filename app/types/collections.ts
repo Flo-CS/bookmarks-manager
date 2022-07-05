@@ -33,8 +33,6 @@ export interface OrderedCollectionData {
     parent: string
 }
 
-export type RemoveCollectionActionType = "removeChildren" | "moveChildren"
-
 export interface AddCollectionData {
     parent?: string
     name: string
