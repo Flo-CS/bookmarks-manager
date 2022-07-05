@@ -165,7 +165,7 @@ export const ApiHandlers: ApiRequestsHandlers = {
         })
         return true
     },
-    async fetchWebsiteData(URL: string, forceDataRefresh: boolean) {
+    async getWebsite(URL: string, forceDataRefresh: boolean) {
         if (forceDataRefresh) {
             Website.destroy({
                 where: {url: URL}

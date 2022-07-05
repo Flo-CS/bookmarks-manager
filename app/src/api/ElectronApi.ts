@@ -40,7 +40,7 @@ export class ElectronApi implements ApiRequestsSenders {
         return await window.bridge.sendAPIRequest("removeCollection", id)
     }
 
-    async fetchWebsiteData(url: string, forceDataRefresh = false) {
-        return await window.bridge.sendAPIRequest("fetchWebsiteData", url, forceDataRefresh)
+    async getWebsite(url: string, forceDataRefresh = false) {
+        return await window.bridge.sendAPIRequest("getWebsite", url, forceDataRefresh)
     }
 }

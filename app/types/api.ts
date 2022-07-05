@@ -18,7 +18,7 @@ export type ApiRequests = {
     updateCollection: { params: [string, UpdateCollectionData], result: CollectionData };
     reorderCollections: { params: [ReorderCollectionData], result: OrderedCollectionData[] }
     removeCollection: { params: [string], result: true },
-    fetchWebsiteData: { params: [string, boolean], result: WebsiteData }
+    getWebsite: { params: [string, boolean], result: WebsiteData }
 }
 
 export interface ApiErrorResult {

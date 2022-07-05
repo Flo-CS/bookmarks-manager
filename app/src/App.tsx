@@ -223,12 +223,12 @@ export function App(): JSX.Element {
     }
 
     async function handleModalFetch(URL: string, forceDataRefresh: boolean) {
-        const {metadata} = await API.fetchWebsiteData(URL, forceDataRefresh)
+        const {metadata: {title, description, pictures}} = await API.getWebsite(URL, forceDataRefresh)
         return {
-            linkTitle: metadata.title,
-            description: metadata.description,
-            faviconPath: metadata.pictures.favicon?.url,
-            previewPath: metadata.pictures.preview?.url
+            linkTitle: title,
+            description: description,
+            faviconPath: pictures.favicon?.url,
+            previewPath: pictures.preview?.url
         }
     }
 
