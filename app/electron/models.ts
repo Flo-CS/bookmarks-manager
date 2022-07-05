@@ -201,6 +201,12 @@ export const Collection: ModelDefined<CollectionAttributes, CollectionCreationAt
         timestamps: true,
         createdAt: "creationDate",
         updatedAt: 'modificationDate',
+        indexes: [
+            {
+                unique: true,
+                fields: ["parent", "index"]
+            }
+        ]
     });
 
 
