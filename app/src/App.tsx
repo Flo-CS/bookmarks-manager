@@ -126,6 +126,11 @@ export function App(): JSX.Element {
         removeCollection(id)
     }
 
+    async function handleCollectionRename(newName: string, id: string) {
+        const updatedCollection = await API.updateCollection(id, {name: newName})
+        updateCollection(id, updatedCollection)
+    }
+
     function handleCollectionSelection(collectionId: string) {
         setSelectedCollectionId(collectionId)
     }
@@ -238,7 +243,8 @@ export function App(): JSX.Element {
                                  onSelectedCollectionChange={handleCollectionSelection}
                                  selectedCollectionId={selectedCollectionId}
                                  onDropOnCollection={handleDropOnCollection}
-                                 canDropOnCollection={canDropOnCollection}/>
+                                 canDropOnCollection={canDropOnCollection}
+                                 onCollectionRename={handleCollectionRename}/>
                         <Main>
                             <TopBar onAdd={handleBookmarkCreation}/>
                             <CollectionsBreadCrumb>

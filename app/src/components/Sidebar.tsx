@@ -43,17 +43,18 @@ export interface TreeCollectionItem {
     collection: string
 }
 
-type Props = {
+interface Props {
     mainCollections: TreeCollection[]
-    trashCollections?: TreeCollection[],
-    collectionsItems?: TreeCollectionItem[],
-    onCollectionAdd?: (collectionName: string) => void,
-    onCollectionRemove?: (collectionId: string, isDefinitiveDelete: boolean) => void,
+    trashCollections?: TreeCollection[]
+    collectionsItems?: TreeCollectionItem[]
+    onCollectionAdd?: (collectionName: string) => void
+    onCollectionRemove?: (collectionId: string, isDefinitiveDelete: boolean) => void
+    onCollectionRename?: (newName: string, collectionId: string) => void
     onTrashCollectionRemove?: (collectionId: string) => void
-    selectedCollectionId?: string,
-    onSelectedCollectionChange?: (collectionId: string) => void,
-    afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void,
-    onDropOnCollection?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void,
+    selectedCollectionId?: string
+    onSelectedCollectionChange?: (collectionId: string) => void
+    afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void
+    onDropOnCollection?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void
     canDropOnCollection?: (parentCollectionId: string, droppedItem: IdDroppedItem) => boolean
 }
 
@@ -61,15 +62,17 @@ export default function Sidebar({
                                     mainCollections,
                                     trashCollections,
                                     collectionsItems,
-                                    onCollectionAdd,
-                                    onCollectionRemove,
+                                    onCollectionAdd = () => undefined,
+                                    onCollectionRemove = () => undefined,
+                                    onCollectionRename = () => undefined,
                                     selectedCollectionId,
-                                    onSelectedCollectionChange,
-                                    afterCollectionFoldingChange,
-                                    onDropOnCollection,
+                                    onSelectedCollectionChange = () => undefined,
+                                    afterCollectionFoldingChange = () => undefined,
+                                    onDropOnCollection = () => undefined,
                                     canDropOnCollection
                                 }: Props) {
     const [newCollectionName, setNewCollectionName] = useState<string>("");
+    const [nameEditedCollectionId, setNameEditedCollectionId] = useState<string | undefined>(undefined);
 
     function handleNewCollectionInputChange(e: ChangeEvent<HTMLInputElement>) {
         setNewCollectionName(e.target.value)
@@ -77,25 +80,34 @@ export default function Sidebar({
 
     function handleNewCollectionInputKeyPress(e: KeyboardEvent) {
         if (e.key === 'Enter') {
-            onCollectionAdd && onCollectionAdd(newCollectionName)
+            onCollectionAdd(newCollectionName)
             setNewCollectionName("")
         }
     }
 
     function handleMenuItemClick(menuItemId: string, collectionId: string) {
         if (menuItemId === "Remove") {
-            onCollectionRemove && onCollectionRemove(collectionId, false)
+            onCollectionRemove(collectionId, false)
+        } else if (menuItemId === "Rename") {
+            setNameEditedCollectionId(collectionId)
         }
     }
 
     function handleTrashMenuItemClick(menuItemId: string, collectionId: string) {
         if (menuItemId === "Delete") {
-            onCollectionRemove && onCollectionRemove(collectionId, true)
+            onCollectionRemove(collectionId, true)
+        }
+    }
+
+    function handleAfterCollectionNameChange(newName: string, collectionId?: string) {
+        if (collectionId) {
+            onCollectionRename(newName, collectionId)
+            setNameEditedCollectionId(undefined)
         }
     }
 
     const trashMenuItems = ["Delete"]
-    const menuItems = ["Remove"]
+    const menuItems = ["Remove", "Rename"]
 
     const allCollectionsItemsCount = collectionsItems?.filter(item => item.collection !== TopCollections.TRASH).length
     const withoutCollectionsItemsCount = collectionsItems?.filter(item => item.collection === TopCollections.MAIN).length
@@ -128,6 +140,8 @@ export default function Sidebar({
                          onMenuItemClick={handleMenuItemClick}
                          onDrop={onDropOnCollection}
                          canDrop={canDropOnCollection}
+                         nameEditedCollectionId={nameEditedCollectionId}
+                         afterCollectionNameChange={handleAfterCollectionNameChange}
         />
         <AddCollectionInputLabel htmlFor="add-collection-input">New collection...</AddCollectionInputLabel>
         <AddCollectionInput id="add-collection-input" onChange={handleNewCollectionInputChange}

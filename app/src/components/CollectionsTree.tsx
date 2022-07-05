@@ -14,16 +14,18 @@ export interface TreeCollection {
     count?: number
 }
 
-type Props = {
-    collections?: TreeCollection[],
-    children?: React.ReactNode,
-    selectedCollectionId?: string,
-    onCollectionClick?: (collectionId: string) => void,
-    afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void,
-    menuItems?: string[],
-    onMenuItemClick?: (menuItemId: string, collectionId: string) => void,
-    onDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void,
+interface Props {
+    collections?: TreeCollection[]
+    children?: React.ReactNode
+    selectedCollectionId?: string
+    onCollectionClick?: (collectionId: string) => void
+    afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void
+    menuItems?: string[]
+    onMenuItemClick?: (menuItemId: string, collectionId: string) => void
+    onDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void
     canDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => boolean
+    afterCollectionNameChange?: (newName: string, collectionId?: string) => void
+    nameEditedCollectionId?: string
 }
 
 export default function CollectionsTree({
@@ -35,7 +37,9 @@ export default function CollectionsTree({
                                             menuItems,
                                             onMenuItemClick,
                                             onDrop,
-                                            canDrop
+                                            canDrop,
+                                            afterCollectionNameChange,
+                                            nameEditedCollectionId
                                         }: Props) {
 
 
@@ -55,7 +59,10 @@ export default function CollectionsTree({
                                     onMenuItemClick={onMenuItemClick}
                                     count={collection.count}
                                     onDrop={onDrop}
-                                    canDrop={canDrop}>
+                                    canDrop={canDrop}
+                                    isCollectionNameEdited={nameEditedCollectionId === collection.id}
+                                    afterCollectionNameChange={afterCollectionNameChange}
+                >
                     {collection.children && collectionsToComponent(collection.children)}
                 </CollectionTreeItem>
             </React.Fragment>

@@ -76,22 +76,24 @@ const Count = styled.p`
   margin-left: auto;
 `
 
-export type Props = {
-    collectionId: string,
-    parentCollectionId?: string,
-    index?: number,
-    isDefaultFolded?: boolean,
-    count?: number,
+export interface CollectionTreeItemProps {
+    collectionId: string
+    parentCollectionId?: string
+    index?: number
+    isDefaultFolded?: boolean
+    count?: number
     name: string
     icon?: React.ComponentType
-    onClick?: (collectionId: string) => void,
-    isSelected?: boolean,
-    afterFoldingChange?: (collectionId: string, isFolded: boolean) => void,
-    children?: React.ReactNode,
-    menuItems?: string[],
-    onMenuItemClick?: (menuItemId: string, collectionId: string) => void,
-    onDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void,
+    onClick?: (collectionId: string) => void
+    isSelected?: boolean
+    afterFoldingChange?: (collectionId: string, isFolded: boolean) => void
+    children?: React.ReactNode
+    menuItems?: string[]
+    onMenuItemClick?: (menuItemId: string, collectionId: string) => void
+    onDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void
     canDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => boolean
+    isCollectionNameEdited?: boolean
+    afterCollectionNameChange?: (newName: string, collectionId?: string) => void
 }
 
 interface DragCollectedProps {
@@ -120,7 +122,9 @@ export default function CollectionTreeItem({
                                                children,
                                                onDrop,
                                                canDrop,
-                                           }: Props): JSX.Element {
+                                               isCollectionNameEdited,
+                                               afterCollectionNameChange
+                                           }: CollectionTreeItemProps): JSX.Element {
     const [isFolded, setIsFolded] = useState<boolean>(!!isDefaultFolded);
     const [menuStatus, openMenu, closeMenu] = useMenu();
 
@@ -165,12 +169,9 @@ export default function CollectionTreeItem({
         openMenu(e.clientX, e.clientY)
     }
 
-    function handleMenuClose() {
-        closeMenu()
-    }
-
     function handleMenuItemClick(menuItemId: string) {
         onMenuItemClick && onMenuItemClick(menuItemId, collectionId)
+        closeMenu()
     }
 
     const hasToShowFoldButton = React.Children.count(children) !== 0
@@ -196,13 +197,18 @@ export default function CollectionTreeItem({
                     {isFolded ? <MdArrowRight/> : <MdArrowDropDown/>}
                 </FoldButton>
             }
-            <CollectionName name={name} icon={icon}/>
+            <CollectionName
+                name={name}
+                icon={icon}
+                afterNameChange={afterCollectionNameChange}
+                collectionId={collectionId}
+                isInEditMode={isCollectionNameEdited}/>
             {hasToShowCount &&
                 <Count>
                     {count}
                 </Count>
             }
-            <Menu position={menuStatus.position} onClose={handleMenuClose} isShow={menuStatus.isOpened}>
+            <Menu position={menuStatus.position} onClose={closeMenu} isShow={menuStatus.isOpened}>
                 {menuItemsComponents}
             </Menu>
         </Container>
