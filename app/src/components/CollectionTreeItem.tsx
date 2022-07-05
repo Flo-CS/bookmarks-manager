@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
 import CollectionName from "./CollectionName";
 import {MdArrowDropDown, MdArrowRight} from "react-icons/md";
 import styled, {css} from "styled-components";
@@ -173,34 +173,45 @@ export default function CollectionTreeItem({
         onMenuItemClick && onMenuItemClick(menuItemId, collectionId)
     }
 
+    const hasToShowFoldButton = React.Children.count(children) !== 0
+    const hasToShowCount = count !== undefined
+    const hasToShowTreeSeparatorItem = parentCollectionId !== undefined && index !== undefined
 
-    return <Wrapper isSelected={!!isSelected} data-testid={`collection-wrapper-${collectionId}`}
+    const menuItemsComponents = useMemo(() => menuItems?.map((item) => {
+        return <Menu.Item key={item} id={item}
+                          onClick={() => handleMenuItemClick(item)}>{item}</Menu.Item>
+    }), [menuItems])
+
+    return <Wrapper isSelected={!!isSelected}
+                    data-testid={`collection-wrapper-${collectionId}`}
                     onContextMenu={handleRightItemClick}>
-        <Container onClick={handleItemClick} role="button" aria-label="click collection tree item"
-                   ref={(ref) => drag(drop(ref))} isDragging={isDragging}
+        <Container onClick={handleItemClick}
+                   role="button"
+                   aria-label="click collection tree item"
+                   ref={(ref) => drag(drop(ref))}
+                   isDragging={isDragging}
                    isDropping={isDroppingHover}>
-            {React.Children.count(children) !== 0 &&
+            {hasToShowFoldButton &&
                 <FoldButton onClick={handleFoldButtonClick} aria-label="toggle children folding">
                     {isFolded ? <MdArrowRight/> : <MdArrowDropDown/>}
-                </FoldButton>}
+                </FoldButton>
+            }
             <CollectionName name={name} icon={icon}/>
-            {count !== undefined && <Count>
-                {count}
-            </Count>}
-            {menuItems && <Menu position={menuStatus.position} onClose={handleMenuClose} isShow={menuStatus.isOpened}>
-                {menuItems.map((item) => {
-                    return <Menu.Item key={item} id={item} onClick={() => handleMenuItemClick(item)}>{item}</Menu.Item>
-                })
-                }
-            </Menu>}
+            {hasToShowCount &&
+                <Count>
+                    {count}
+                </Count>
+            }
+            <Menu position={menuStatus.position} onClose={handleMenuClose} isShow={menuStatus.isOpened}>
+                {menuItemsComponents}
+            </Menu>
         </Container>
         {!isFolded && children}
-        {(parentCollectionId && index) &&
-            <CollectionTreeSeparatorItem
-                parentCollectionId={parentCollectionId}
-                index={index}
-                onDrop={onDrop}
-                canDrop={canDrop}/>
+        {hasToShowTreeSeparatorItem &&
+            <CollectionTreeSeparatorItem parentCollectionId={parentCollectionId!}
+                                         index={index!}
+                                         onDrop={onDrop}
+                                         canDrop={canDrop}/>
         }
     </Wrapper>
 }
