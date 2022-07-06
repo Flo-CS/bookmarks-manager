@@ -69,6 +69,7 @@ export function App(): JSX.Element {
         getPathToTreeNode: getPathToCollection,
         removeNode: removeCollection,
         updateNode: updateCollection,
+        updateNodes: updateCollections,
         insertNodes: insertCollections,
     } = useTree<Copy<CollectionDataExtended>>({
         rootNodes: COLLECTIONS_TREE_ROOTS,
@@ -108,9 +109,7 @@ export function App(): JSX.Element {
 
         const [createdCollection, updatedCollections] = await API.addCollection(newCollection)
         insertCollection(createdCollection)
-        for (const updatedCollection of updatedCollections) {
-            updateCollection(updatedCollection.id, updatedCollection)
-        }
+        updateCollections(updatedCollections)
     }
 
     async function handleRemoveCollection(id: string, isDefinitiveDelete: boolean) {
@@ -148,10 +147,7 @@ export function App(): JSX.Element {
 
     async function moveCollection(moveCollectionData: MoveCollectionData) {
         const reorderedCollections = await API.moveCollection(moveCollectionData)
-        reorderedCollections.forEach(reorderedCollection => updateCollection(reorderedCollection.id, {
-            index: reorderedCollection.index,
-            parent: reorderedCollection.parent
-        }))
+        updateCollections(reorderedCollections)
     }
 
     async function handleDropOnCollection(parentCollectionId: string, droppedItem: IdDroppedItem) {

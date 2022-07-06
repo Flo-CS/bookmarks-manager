@@ -32,8 +32,12 @@ export default function useTree<Node extends Record<string, unknown>>({
 
 
     const [unlinkedNodesByKey, setNodesByKey] = useState<Record<NodeKey, Node>>(
-        keyBy(rootNodes, (node) => getKey(node))
+        groupByKey(rootNodes)
     );
+
+    function groupByKey(nodes: Node[]): Record<NodeKey, Node> {
+        return keyBy(nodes, (node) => getKey(node))
+    }
 
     const treeNodesByKey = useMemo<Record<NodeKey, TreeNode<Node>>>(() => {
         return buildTree();
@@ -91,7 +95,7 @@ export default function useTree<Node extends Record<string, unknown>>({
 
     function insertNodes(newNodes: Node[]): void {
         setNodesByKey((nodes) => {
-            return {...nodes, ...keyBy(newNodes, (node) => getKey(node))}
+            return {...nodes, ...groupByKey(newNodes)}
         })
     }
 
@@ -101,9 +105,21 @@ export default function useTree<Node extends Record<string, unknown>>({
         })
     }
 
-    function updateNode(nodeKey: NodeKey, data: Partial<Node>): void {
+    function updateNode(nodeKey: NodeKey, nodeData: Partial<Node>): void {
         setNodesByKey((nodes) => {
-            return {...nodes, [nodeKey]: {...nodes[nodeKey], ...data}}
+            return {...nodes, [nodeKey]: {...nodes[nodeKey], ...nodeData}}
+        })
+    }
+
+    function updateNodes(nodesData: Partial<Node>[]) {
+        setNodesByKey((nodes) => {
+            const updatedNodes = {...nodes}
+            for (const nodeData of nodesData) {
+                // We suppose that key is passed with nodesData (this is why we cast to Node)
+                const currentNodeKey = getKey(nodeData as Node)
+                updatedNodes[currentNodeKey] = {...updatedNodes[currentNodeKey], ...nodeData}
+            }
+            return updatedNodes
         })
     }
 
@@ -121,6 +137,7 @@ export default function useTree<Node extends Record<string, unknown>>({
     return {
         insertNode,
         updateNode,
+        updateNodes,
         removeNode,
         getPathToTreeNode,
         insertNodes,
