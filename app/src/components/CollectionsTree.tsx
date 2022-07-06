@@ -46,7 +46,7 @@ export default function CollectionsTree({
             return <React.Fragment key={collection.id}>
                 <CollectionTreeItem collectionId={collection.id}
                                     parentCollectionId={collection.parent?.id || TopCollections.MAIN}
-                                    index={collection.index + 1}
+                                    index={collection.index}
                                     icon={collection.icon}
                                     name={collection.name}
                                     isDefaultFolded={collection.isFolded}

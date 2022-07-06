@@ -28,7 +28,7 @@ import {AddBookmarkData, BookmarkData, UpdateBookmarkData} from "../types/bookma
 import {DndTypes} from "../utils/dragAndDrop";
 import {createDefaultBookmark} from "../utils/bookmarks";
 import BookmarkModal from "./components/BookmarkModal";
-import {CollectionDataExtended} from "../types/collections";
+import {CollectionDataExtended, MoveCollectionData} from "../types/collections";
 import {Copy} from "../types/helpersTypes";
 
 
@@ -84,7 +84,7 @@ export function App(): JSX.Element {
     const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useModal<AddBookmarkData>();
 
     const allTags = useMemo(() => uniq(flatten(bookmarks.map(bookmark => bookmark.tags || []))), [bookmarks])
-    const selectedCollectionPath = useMemo(() => getPathToCollection(selectedCollectionId), [selectedCollectionId])
+    const selectedCollectionPath = getPathToCollection(selectedCollectionId)
     const bookmarksToShow = useMemo(() => {
         if (selectedCollectionId === VirtualCollections.ALL) {
             return bookmarks.filter(bookmark => bookmark.collection !== TopCollections.TRASH);
@@ -106,8 +106,11 @@ export function App(): JSX.Element {
         const collectionIndex = getCollectionChildren(collectionParentId).length
         const newCollection = createDefaultCollection(name, collectionParentId, collectionIndex)
 
-        const createdCollection = await API.addCollection(newCollection)
+        const [createdCollection, updatedCollections] = await API.addCollection(newCollection)
         insertCollection(createdCollection)
+        for (const updatedCollection of updatedCollections) {
+            updateCollection(updatedCollection.id, updatedCollection)
+        }
     }
 
     async function handleRemoveCollection(id: string, isDefinitiveDelete: boolean) {
@@ -115,9 +118,10 @@ export function App(): JSX.Element {
             await API.removeCollection(id)
             removeCollection(id)
         } else {
-            const updatedCollection = await API.updateCollection(id, {parent: TopCollections.TRASH})
-            updateCollection(id, updatedCollection)
-
+            await moveCollection({
+                movingCollectionId: id,
+                newParent: TopCollections.TRASH,
+            })
         }
     }
 
@@ -127,8 +131,10 @@ export function App(): JSX.Element {
     }
 
     async function handleRestoreCollection(id: string) {
-        const updatedCollection = await API.updateCollection(id, {parent: TopCollections.MAIN})
-        updateCollection(id, updatedCollection)
+        await moveCollection({
+            movingCollectionId: id,
+            newParent: TopCollections.MAIN,
+        })
     }
 
     async function handleCollectionRename(newName: string, id: string) {
@@ -140,18 +146,21 @@ export function App(): JSX.Element {
         setSelectedCollectionId(collectionId)
     }
 
+    async function moveCollection(moveCollectionData: MoveCollectionData) {
+        const reorderedCollections = await API.moveCollection(moveCollectionData)
+        reorderedCollections.forEach(reorderedCollection => updateCollection(reorderedCollection.id, {
+            index: reorderedCollection.index,
+            parent: reorderedCollection.parent
+        }))
+    }
+
     async function handleDropOnCollection(parentCollectionId: string, droppedItem: IdDroppedItem) {
         if (droppedItem.type === DndTypes.COLLECTION_ITEM) {
-            const collectionReorder = await API.reorderCollections({
+            await moveCollection({
                 movingCollectionId: droppedItem.id,
                 newParent: parentCollectionId,
                 newIndex: droppedItem.index
             })
-            collectionReorder.forEach(reorderedCollection => updateCollection(reorderedCollection.id, {
-                index: reorderedCollection.index,
-                parent: reorderedCollection.parent
-            }))
-
         } else if (droppedItem.type === DndTypes.BOOKMARK_CARD) {
             const updatedBookmark = await API.updateBookmark(droppedItem.id, {collection: parentCollectionId})
             updateBookmark(droppedItem.id, updatedBookmark)

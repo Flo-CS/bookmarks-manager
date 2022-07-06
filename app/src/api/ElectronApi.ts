@@ -1,6 +1,6 @@
 import {ApiRequestsSenders} from "../../types/api";
 import {AddBookmarkData, UpdateBookmarkData} from "../../types/bookmarks";
-import {AddCollectionData, ReorderCollectionData, UpdateCollectionData} from "../../types/collections";
+import {AddCollectionData, MoveCollectionData, UpdateCollectionData} from "../../types/collections";
 
 export class ElectronApi implements ApiRequestsSenders {
 
@@ -32,8 +32,8 @@ export class ElectronApi implements ApiRequestsSenders {
         return await window.bridge.sendAPIRequest("updateCollection", id, collection)
     }
 
-    async reorderCollections(reorderCollection: ReorderCollectionData) {
-        return await window.bridge.sendAPIRequest("reorderCollections", reorderCollection)
+    async moveCollection(moveCollection: MoveCollectionData) {
+        return await window.bridge.sendAPIRequest("moveCollection", moveCollection)
     }
 
     async removeCollection(id: string) {

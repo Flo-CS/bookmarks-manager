@@ -1,7 +1,7 @@
+import {arrayMoveImmutable} from "array-move";
 import {last, orderBy} from "lodash";
-import {arrayMoveImmutable} from "array-move"
-import {CollectionDataExtended, OrderedCollectionData, SpecialCollection,} from "../types/collections";
-import {WithId} from "../types/helpersTypes";
+import {CollectionDataExtended, SpecialCollection,} from "../types/collections";
+import {WithId, WithIndex} from "../types/helpersTypes";
 
 export enum TopCollections {
     TRASH = "%TRASH%",
@@ -58,12 +58,20 @@ export function createDefaultCollection(name: string, parent: string, index: num
     }
 }
 
-export function reorderCollectionsWithMovement<T extends OrderedCollectionData>(collections: T[], currentIndex: number, newIndex: number): T[] {
-    const indexOrderedCollections = orderBy(collections, "index");
-    return arrayMoveImmutable(indexOrderedCollections, currentIndex, newIndex).map((collection, index) => {
+export function reorderItemsWithIndexMovement<T extends WithIndex & WithId>(items: T[], movingItemId: string, newIndex: number): T[] {
+    const itemsOrderedByIndex = orderBy(items, "index");
+
+    const movingItemIndex = itemsOrderedByIndex.findIndex(item => item.id === movingItemId)
+    if (movingItemIndex === undefined) return items;
+
+    return arrayMoveImmutable(itemsOrderedByIndex, movingItemIndex, newIndex).map((item, index) => {
         return {
-            ...collection,
+            ...item,
             index: index,
         }
     })
+}
+
+export function reorderItemsByIndex<T extends WithIndex>(items: T[]): T[] {
+    return orderBy(items, "index").map((item, index) => ({...item, index: index}))
 }

@@ -27,12 +27,6 @@ export interface CollectionDataExtended extends Omit<CollectionData, "parent"> {
     parent?: string
 }
 
-export interface OrderedCollectionData {
-    id: string,
-    index: number,
-    parent: string
-}
-
 export interface AddCollectionData {
     parent?: string
     name: string
@@ -42,14 +36,13 @@ export interface AddCollectionData {
 }
 
 export interface UpdateCollectionData {
-    parent?: string
     name?: string
     isFolded?: boolean
     iconPath?: Nullable<string>
 }
 
-export interface ReorderCollectionData {
+export interface MoveCollectionData {
     movingCollectionId: string,
     newParent: string,
-    newIndex: number
+    newIndex?: number
 }

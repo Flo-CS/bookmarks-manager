@@ -18,3 +18,7 @@ export type Nullable<T> = T | null
 export interface WithId {
     id: string
 }
+
+export interface WithIndex {
+    index: number
+}

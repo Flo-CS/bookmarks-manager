@@ -1,11 +1,8 @@
 import {DndTypes} from "../utils/dragAndDrop";
+import {WithId, WithIndex} from "./helpersTypes";
 
-export interface IdDragItem {
-    id: string
-}
+export type IdDragItem = WithId
 
-export interface IdDroppedItem {
-    type: DndTypes,
-    id: string,
-    index: number
+export interface IdDroppedItem extends WithId, WithIndex {
+    type: DndTypes
 }

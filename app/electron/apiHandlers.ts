@@ -1,9 +1,9 @@
 import {Bookmark, Collection, Website} from "./models";
 import {ApiErrors} from "../utils/apiErrors";
-import {reorderCollectionsWithMovement} from "../utils/collections";
+import {reorderItemsByIndex, reorderItemsWithIndexMovement} from "../utils/collections";
 import {fetchWebsiteMetadata} from "./websiteDataFetcher";
-import {Op} from "sequelize";
 import {ApiRequestsHandlers} from "../types/api";
+import {CollectionAttributes} from "../types/collections";
 
 
 export const ApiHandlers: ApiRequestsHandlers = {
@@ -80,12 +80,11 @@ export const ApiHandlers: ApiRequestsHandlers = {
         return collections.map(collection => collection.get())
     },
     async addCollection({parent, name, isFolded, iconPath, index}) {
-        const collection = await Collection.create({parent, name, isFolded, iconPath, index})
-        return collection.get()
+        const collection = await Collection.create({parent, name, isFolded, iconPath, index: index})
+        return [collection.get(), await reorderCollections(collection.get().parent)]
     },
-    async updateCollection(id, {parent, name, isFolded, iconPath}) {
+    async updateCollection(id, {name, isFolded, iconPath}) {
         await Collection.update({
-            parent,
             name,
             isFolded,
             iconPath
@@ -96,47 +95,23 @@ export const ApiHandlers: ApiRequestsHandlers = {
         const updatedCollection = await Collection.findByPk(id);
         if (!updatedCollection) throw new Error(ApiErrors.COLLECTION_NOT_FOUND)
 
-        return updatedCollection?.get();
+        return updatedCollection.get();
     },
-    async reorderCollections({movingCollectionId, newParent, newIndex}) {
+    async moveCollection({movingCollectionId, newParent, newIndex}) {
         const movingCollection = await Collection.findByPk(movingCollectionId)
-        if (!movingCollection) return []
+        if (!movingCollection) throw new Error(ApiErrors.COLLECTION_NOT_FOUND)
 
         await movingCollection.update({parent: newParent})
 
-        const siblingCollections = await Collection.findAll({
-            where: {
-                [Op.and]: [
-                    {parent: newParent},
-                    {
-                        [Op.not]: {
-                            id: movingCollectionId
-                        }
-                    }
-                ]
-            }
-        })
-
-        siblingCollections.push(movingCollection)
-
-        const collections = siblingCollections.map(collection => collection.get())
-        const movingCollectionIndex = collections.length - 1
-
-        const collectionsReorder = reorderCollectionsWithMovement(collections, movingCollectionIndex, newIndex)
-
-        for (const reorderedCollection of collectionsReorder) {
-            Collection.update({
-                index: reorderedCollection.index,
-            }, {
-                where: {
-                    id: reorderedCollection.id
-                }
-            })
+        if (newIndex !== undefined) {
+            return await reorderCollectionsWithIndexMovement(newParent, movingCollectionId, newIndex)
         }
-
-        return collectionsReorder
+        return await reorderCollections(newParent)
     },
     async removeCollection(id) {
+        const collectionToRemove = await Collection.findByPk(id)
+        if (!collectionToRemove) throw new Error(ApiErrors.COLLECTION_NOT_FOUND);
+
         const childrenCollectionsIds: string[] = []
         const childrenBookmarksIds: string[] = []
 
@@ -163,7 +138,8 @@ export const ApiHandlers: ApiRequestsHandlers = {
         await Bookmark.destroy({
             where: {id: [...childrenBookmarksIds]}
         })
-        return true
+
+        return await reorderCollections(collectionToRemove.get().parent)
     },
     async getWebsite(URL: string, forceDataRefresh: boolean) {
         if (forceDataRefresh) {
@@ -192,4 +168,26 @@ export const ApiHandlers: ApiRequestsHandlers = {
             metadata: websiteData.metadata,
         }
     }
+}
+
+async function getCollectionChildren(parentCollectionId: string): Promise<CollectionAttributes[]> {
+    const childrenCollectionsModels = await Collection.findAll({where: {parent: parentCollectionId}})
+    return childrenCollectionsModels.map(childCollection => childCollection.get())
+}
+
+async function reorderCollections(parentCollectionId: string): Promise<CollectionAttributes[]> {
+    const childrenCollections = await getCollectionChildren(parentCollectionId)
+    const reorderedCollections = reorderItemsByIndex(childrenCollections);
+    return await applyCollectionsReorder(reorderedCollections)
+}
+
+async function reorderCollectionsWithIndexMovement(parentCollectionId: string, movingCollectionId: string, newIndex: number): Promise<CollectionAttributes[]> {
+    const siblingCollections = await getCollectionChildren(parentCollectionId)
+    const reorderedCollections = reorderItemsWithIndexMovement(siblingCollections, movingCollectionId, newIndex)
+    return await applyCollectionsReorder(reorderedCollections)
+}
+
+async function applyCollectionsReorder(reorderedCollections: CollectionAttributes[]): Promise<CollectionAttributes[]> {
+    Collection.bulkCreate(reorderedCollections, {updateOnDuplicate: ["index"]})
+    return reorderedCollections
 }
