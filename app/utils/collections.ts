@@ -1,7 +1,7 @@
-import {arrayMoveImmutable} from "array-move";
-import {last, orderBy} from "lodash";
-import {CollectionDataExtended, SpecialCollection,} from "../types/collections";
-import {WithId, WithIndex} from "../types/helpersTypes";
+import { arrayMoveImmutable } from "array-move";
+import { last, orderBy } from "lodash";
+import { CollectionDataExtended, SpecialCollection, } from "../types/collections";
+import { WithId, WithIndex } from "../types/helpersTypes";
 
 export enum TopCollections {
     TRASH = "%TRASH%",
@@ -9,8 +9,7 @@ export enum TopCollections {
 }
 
 export enum VirtualCollections {
-    ALL = "%ALL%",
-    WITHOUT_COLLECTION = "%WITHOUT_COLLECTION%"
+    ALL = "%ALL%"
 }
 
 export const COLLECTIONS_TREE_ROOTS: CollectionDataExtended[] = [{
@@ -73,5 +72,5 @@ export function reorderItemsWithIndexMovement<T extends WithIndex & WithId>(item
 }
 
 export function reorderItemsByIndex<T extends WithIndex>(items: T[]): T[] {
-    return orderBy(items, "index").map((item, index) => ({...item, index: index}))
+    return orderBy(items, "index").map((item, index) => ({ ...item, index: index }))
 }

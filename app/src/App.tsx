@@ -112,7 +112,13 @@ export function App() {
     }
 
     function handleSelectCollection(id: string) {
-        setSelectedCollectionId(id)
+        console.log(id, selectedCollectionId);
+
+        if (id === selectedCollectionId) {
+            setSelectedCollectionId(VirtualCollections.ALL)
+        } else {
+            setSelectedCollectionId(id)
+        }
     }
 
     async function handleDropOnCollection(newParentId: string, droppedItem: IdDroppedItem) {
