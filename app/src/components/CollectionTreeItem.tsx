@@ -1,12 +1,10 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import CollectionName from "./CollectionName";
 import { MdArrowDropDown, MdArrowRight } from "react-icons/md";
 import styled, { css } from "styled-components";
-import Menu from "./Menu";
 import useMenu from "../hooks/useMenu";
 import { useDrag, useDrop } from "react-dnd";
 import { IdDragItem, IdDroppedItem } from "../../types/dragAndDrop";
-import CollectionTreeSeparatorItem from "./CollectionTreeSeparatorItem";
 import { DndItems } from "../../utils/dragAndDrop";
 
 
@@ -76,15 +74,19 @@ const Count = styled.p`
   margin-left: auto;
 `
 
-export interface MenuItem {
-    name: string
-    clickAction: (collectionId: string) => void
+
+export interface CollectionsTreeRightMenuRenderProps {
+    position: {
+        x: number
+        y: number
+    },
+    isOpened: boolean,
+    closeMenu: () => void,
+    collectionId: string,
 }
 
 export interface CollectionTreeItemProps {
     collectionId: string
-    parentCollectionId?: string
-    index?: number
     isDefaultFolded?: boolean
     count?: number
     name: string
@@ -92,13 +94,15 @@ export interface CollectionTreeItemProps {
     onClick?: (collectionId: string) => void
     isSelected?: boolean
     afterFoldingChange?: (collectionId: string, isFolded: boolean) => void
-    children?: React.ReactNode
-    menuItems?: MenuItem[]
     onDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void
     canDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => boolean
     isCollectionNameEdited?: boolean
-    afterCollectionNameChange?: (newName: string, collectionId?: string) => void
+    afterCollectionNameChange?: (newName: string, collectionId?: string) => void,
+    dropSeparator?: React.ReactNode,
+    rightMenu?: (props: CollectionsTreeRightMenuRenderProps) => React.ReactNode,
+    children?: React.ReactNode
 }
+
 
 interface DragCollectedProps {
     isDragging: boolean
@@ -110,21 +114,20 @@ interface DropCollectedProps {
 
 export default function CollectionTreeItem({
     collectionId,
-    parentCollectionId,
-    index,
     isDefaultFolded,
     count,
     name,
     icon,
-    onClick,
-    menuItems,
+    onClick = () => undefined,
     isSelected,
-    afterFoldingChange,
-    children,
-    onDrop,
-    canDrop,
+    afterFoldingChange = () => undefined,
+    onDrop = () => undefined,
+    canDrop = () => false,
     isCollectionNameEdited,
-    afterCollectionNameChange
+    afterCollectionNameChange = () => undefined,
+    dropSeparator,
+    rightMenu = () => undefined,
+    children,
 }: CollectionTreeItemProps): JSX.Element {
     const [isFolded, setIsFolded] = useState<boolean>(!!isDefaultFolded);
     const [menuStatus, openMenu, closeMenu] = useMenu();
@@ -142,10 +145,10 @@ export default function CollectionTreeItem({
         accept: [DndItems.COLLECTION, DndItems.BOOKMARK],
         drop: (item, monitor) => {
             if (!monitor.getItemType()) return;
-            onDrop && onDrop(collectionId, { id: item.id, type: monitor.getItemType() as DndItems, index: 0 })
+            onDrop(collectionId, { id: item.id, type: monitor.getItemType() as DndItems, index: 0 })
         },
         canDrop: (item, monitor) => {
-            if (!canDrop || !monitor.getItemType()) return false
+            if (!monitor.getItemType()) return false
             return canDrop(collectionId, { id: item.id, type: monitor.getItemType() as DndItems, index: 0 })
         },
         collect: (monitor) => ({
@@ -157,35 +160,21 @@ export default function CollectionTreeItem({
     function handleFoldButtonClick(e: React.SyntheticEvent) {
         e.stopPropagation();
         setIsFolded((isFolded) => {
-            afterFoldingChange && afterFoldingChange(collectionId, !isFolded)
+            afterFoldingChange(collectionId, !isFolded)
             return !isFolded
         })
     }
 
     function handleItemClick() {
-        onClick && onClick(collectionId);
+        onClick(collectionId);
     }
 
     function handleRightItemClick(e: React.MouseEvent) {
         openMenu(e.clientX, e.clientY)
     }
 
-    function handleMenuItemClick(menuItem: MenuItem) {
-        menuItem.clickAction(collectionId)
-        closeMenu()
-    }
-
     const hasToShowFoldButton = React.Children.count(children) !== 0
     const hasToShowCount = count !== undefined
-    const hasToShowTreeSeparatorItem = parentCollectionId !== undefined && index !== undefined
-
-    const menuItemsComponents = useMemo(() => menuItems?.map((item) => {
-        return <Menu.Item key={item.name}
-            id={item.name}
-            onClick={() => handleMenuItemClick(item)}>
-            {item.name}
-        </Menu.Item>
-    }), [menuItems])
 
     return <Wrapper isSelected={!!isSelected}
         data-testid={`collection-wrapper-${collectionId}`}
@@ -207,22 +196,10 @@ export default function CollectionTreeItem({
                 afterNameChange={afterCollectionNameChange}
                 collectionId={collectionId}
                 isInEditMode={isCollectionNameEdited} />
-            {hasToShowCount &&
-                <Count>
-                    {count}
-                </Count>
-            }
-            <Menu position={menuStatus.position} onClose={closeMenu} isShow={menuStatus.isOpened}>
-                {menuItemsComponents}
-            </Menu>
+            {hasToShowCount && <Count>{count}</Count>}
+            {rightMenu({ ...menuStatus, closeMenu, collectionId })}
         </Container>
         {!isFolded && children}
-        {hasToShowTreeSeparatorItem &&
-            <CollectionTreeSeparatorItem
-                parentCollectionId={parentCollectionId}
-                index={index}
-                onDrop={onDrop}
-                canDrop={canDrop} />
-        }
+        {dropSeparator}
     </Wrapper>
 }

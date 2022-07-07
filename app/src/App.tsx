@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 
 import { flatten, isEqual, slice, uniq } from "lodash";
@@ -22,13 +22,14 @@ import BookmarksLayout from "./components/BookmarksLayout";
 import CollectionName from "./components/CollectionName";
 import CollectionsBreadCrumb from "./components/CollectionsBreadCrumb";
 import CollectionsTree from "./components/CollectionsTree";
-import CollectionTreeItem, { MenuItem } from "./components/CollectionTreeItem";
+import CollectionTreeItem, { CollectionsTreeRightMenuRenderProps } from "./components/CollectionTreeItem";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import { useMyApi } from "./hooks/useMyApi";
 import useModal from "./hooks/useModal";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import { theme } from "./styles/Theme";
+import Menu from "./components/Menu";
 
 
 const Layout = styled.div`
@@ -203,30 +204,32 @@ export function App() {
         setNameEditedCollectionId(undefined)
     }
 
-    const trashCollectionsMenuItems: MenuItem[] = useMemo(() => [{
-        name: "Delete",
-        clickAction: (collectionId) => {
-            handleSelectCollection(TopCollections.TRASH)
-            handleRemoveCollectionFromTrash(collectionId)
-        }
-    }, {
-        name: "Restore",
-        clickAction: handleRestoreCollectionFromTrash
-    }], [handleSelectCollection, handleRemoveCollectionFromTrash, handleRestoreCollectionFromTrash])
+    const trashCollectionsTreeMenu = useCallback(({ position, isOpened, closeMenu, collectionId }: CollectionsTreeRightMenuRenderProps) => {
+        return <Menu position={position} onClose={closeMenu} isShow={isOpened}>
+            <Menu.Item
+                onClick={() => {
+                    handleSelectCollection(TopCollections.TRASH)
+                    handleRemoveCollectionFromTrash(collectionId)
+                }}>
+                Delete
+            </Menu.Item>
+            <Menu.Item onClick={() => handleRestoreCollectionFromTrash(collectionId)}>Restore</Menu.Item>
+        </Menu>
+    }, [handleSelectCollection, handleRemoveCollectionFromTrash, handleRestoreCollectionFromTrash])
 
-    const collectionsMenuItems: MenuItem[] = useMemo(() => [{
-        name: "Remove",
-        clickAction: handleRemoveCollection
-    }, {
-        name: "Rename",
-        clickAction: setNameEditedCollectionId
-    }], [handleRemoveCollection, setNameEditedCollectionId])
+    const mainCollectionsMenuItems = useCallback(({ position, isOpened, closeMenu, collectionId }: CollectionsTreeRightMenuRenderProps) => {
+        return <Menu position={position} onClose={closeMenu} isShow={isOpened}>
+            <Menu.Item onClick={() => handleRemoveCollection(collectionId)}>Remove</Menu.Item>
+            <Menu.Item onClick={() => setNameEditedCollectionId(collectionId)}>Rename</Menu.Item>
+        </Menu>
+    }, [handleRemoveCollection, setNameEditedCollectionId])
 
     const collectionNames = useMemo(() => {
         return slice(selectedCollectionPath, 1).map(collection => {
             return <CollectionName key={collection.id} name={collection.name} icon={collection.icon} />
         })
     }, [selectedCollectionPath])
+
 
     return (
         <DndProvider backend={HTML5Backend}>
@@ -261,7 +264,7 @@ export function App() {
                                             collections={getCollectionChildren(TopCollections.TRASH)}
                                             selectedCollectionId={selectedCollectionId}
                                             onCollectionClick={handleSelectCollection}
-                                            menuItems={trashCollectionsMenuItems}
+                                            rightMenu={trashCollectionsTreeMenu}
                                             afterCollectionFoldingChange={handleAfterFoldCollection}
                                         />
                                     </CollectionTreeItem>
@@ -273,7 +276,7 @@ export function App() {
                                     selectedCollectionId={selectedCollectionId}
                                     onCollectionClick={handleSelectCollection}
                                     afterCollectionFoldingChange={handleAfterFoldCollection}
-                                    menuItems={collectionsMenuItems}
+                                    rightMenu={mainCollectionsMenuItems}
                                     onDrop={handleDropOnCollection}
                                     canDrop={canDropOnCollection}
                                     nameEditedCollectionId={nameEditedCollectionId}

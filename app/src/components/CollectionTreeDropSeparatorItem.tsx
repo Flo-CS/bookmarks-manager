@@ -30,7 +30,7 @@ interface DropCollectedProps {
 }
 
 
-export default function CollectionTreeSeparatorItem({
+export default function CollectionTreeDropSeparatorItem({
     parentCollectionId,
     index,
     onDrop,

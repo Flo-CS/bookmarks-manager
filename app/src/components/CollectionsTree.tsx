@@ -1,7 +1,8 @@
 import React from "react";
-import CollectionTreeItem, {MenuItem} from "./CollectionTreeItem";
-import {TopCollections} from "../../utils/collections";
-import {IdDroppedItem} from "../../types/dragAndDrop";
+import CollectionTreeItem, { CollectionsTreeRightMenuRenderProps as CollectionsTreeRightMenuRenderProps } from "./CollectionTreeItem";
+import { TopCollections } from "../../utils/collections";
+import { IdDroppedItem } from "../../types/dragAndDrop";
+import CollectionTreeDropSeparatorItem from "./CollectionTreeDropSeparatorItem";
 
 export interface TreeCollection {
     isFolded?: boolean;
@@ -16,11 +17,11 @@ export interface TreeCollection {
 
 interface Props {
     collections?: TreeCollection[]
-    children?: React.ReactNode
+    children?: React.ReactElement[] | React.ReactElement
     selectedCollectionId?: string
     onCollectionClick?: (collectionId: string) => void
     afterCollectionFoldingChange?: (collectionId: string, isFolded: boolean) => void
-    menuItems?: MenuItem[]
+    rightMenu?: (props: CollectionsTreeRightMenuRenderProps) => React.ReactNode
     onDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void
     canDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => boolean
     afterCollectionNameChange?: (newName: string, collectionId?: string) => void
@@ -28,58 +29,56 @@ interface Props {
 }
 
 export default function CollectionsTree({
-                                            collections,
-                                            children,
-                                            selectedCollectionId,
-                                            onCollectionClick,
-                                            afterCollectionFoldingChange,
-                                            menuItems,
-                                            onDrop,
-                                            canDrop,
-                                            afterCollectionNameChange,
-                                            nameEditedCollectionId
-                                        }: Props) {
+    collections = [],
+    children,
+    selectedCollectionId,
+    onCollectionClick,
+    afterCollectionFoldingChange,
+    rightMenu,
+    onDrop,
+    canDrop,
+    afterCollectionNameChange,
+    nameEditedCollectionId
+}: Props) {
 
+    function collectionsToComponents(collections: TreeCollection[]) {
 
-    function collectionsToComponent(collections: TreeCollection[]) {
         return collections.map((collection) => {
             return <React.Fragment key={collection.id}>
                 <CollectionTreeItem collectionId={collection.id}
-                                    parentCollectionId={collection.parent?.id || TopCollections.MAIN}
-                                    index={collection.index}
-                                    icon={collection.icon}
-                                    name={collection.name}
-                                    isDefaultFolded={collection.isFolded}
-                                    onClick={onCollectionClick}
-                                    isSelected={collection.id === selectedCollectionId}
-                                    afterFoldingChange={afterCollectionFoldingChange}
-                                    menuItems={menuItems}
-                                    count={collection.count}
-                                    onDrop={onDrop}
-                                    canDrop={canDrop}
-                                    isCollectionNameEdited={nameEditedCollectionId === collection.id}
-                                    afterCollectionNameChange={afterCollectionNameChange}
-                >
-                    {collection.children && collectionsToComponent(collection.children)}
-                </CollectionTreeItem>
+                    icon={collection.icon}
+                    name={collection.name}
+                    isDefaultFolded={collection.isFolded}
+                    onClick={onCollectionClick}
+                    isSelected={collection.id === selectedCollectionId}
+                    afterFoldingChange={afterCollectionFoldingChange}
+                    count={collection.count}
+                    onDrop={onDrop}
+                    canDrop={canDrop}
+                    isCollectionNameEdited={nameEditedCollectionId === collection.id}
+                    afterCollectionNameChange={afterCollectionNameChange}
+                    dropSeparator={
+                        <CollectionTreeDropSeparatorItem
+                            parentCollectionId={collection.parent?.id || TopCollections.MAIN}
+                            index={collection.index}
+                            onDrop={onDrop}
+                            canDrop={canDrop} />
+                    }
+                    rightMenu={rightMenu}
+                >{collection.children && collectionsToComponents(collection.children)}</CollectionTreeItem>
             </React.Fragment>
         })
 
     }
 
-    // Add onClick handler and isSelected prop to children CollectionTreeItem
-    // TODO: Improve this ?
-    const childrenWithSelectionHandlers = React.Children.map(children, (child) => {
-        if (React.isValidElement(child)) {
-            return React.cloneElement(child, {
-                ...child.props,
-                onClick: onCollectionClick,
-                isSelected: child.props.collectionId === selectedCollectionId,
-            } as Props)
-        }
+    const childrenWithSelectionHandling = React.Children.map(children, (child) => {
+        return child && React.cloneElement(child, {
+            onClick: onCollectionClick,
+            isSelected: child.props.collectionId === selectedCollectionId
+        })
     })
 
     return <section>
-        {childrenWithSelectionHandlers || collections && collectionsToComponent(collections)}
+        {childrenWithSelectionHandling || collectionsToComponents(collections)}
     </section>
 }
