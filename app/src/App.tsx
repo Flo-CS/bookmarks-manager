@@ -30,6 +30,10 @@ import { createDefaultBookmark } from "../utils/bookmarks";
 import BookmarkModal from "./components/BookmarkModal";
 import { CollectionDataExtended, MoveCollectionData } from "../types/collections";
 import { Copy } from "../types/helpersTypes";
+import CollectionsTree from "./components/CollectionsTree";
+import CollectionTreeItem, { MenuItem } from "./components/CollectionTreeItem";
+import { MdAllInbox } from "react-icons/md";
+import { IoAlbums, IoTrash } from "react-icons/io5"
 
 
 const Layout = styled.div`
@@ -78,6 +82,8 @@ export function App(): JSX.Element {
         getParent: (collection) => collection.parent,
         getLeafChildParent: (bookmark) => bookmark.collection
     })
+
+    const [nameEditedCollectionId, setNameEditedCollectionId] = useState<string | undefined>(undefined);
 
     const [isEditModalOpen, editModalBookmarkId, openEditModal, closeEditModal] = useModal<string>();
     const editModalBookmark = editModalBookmarkId ? getBookmark(editModalBookmarkId) : undefined
@@ -232,25 +238,86 @@ export function App(): JSX.Element {
         }
     }
 
+    // TODO: TEMPORARY
+    function handleAfterCollectionNameChange(newName: string, collectionId?: string) {
+        if (collectionId) {
+            handleCollectionRename(newName, collectionId)
+            setNameEditedCollectionId(undefined)
+        }
+    }
+
+    const trashCollectionsMenuItems: MenuItem[] = useMemo(() => [{
+        name: "Delete",
+        clickAction: (collectionId) => {
+            handleCollectionSelection(TopCollections.TRASH)
+            handleRemoveTrashCollection(collectionId)
+        }
+    }, {
+        name: "Restore",
+        clickAction: handleRestoreCollection
+    }], [handleCollectionSelection, handleRemoveTrashCollection, handleRestoreCollection])
+
+    const collectionsMenuItems: MenuItem[] = useMemo(() => [{
+        name: "Remove",
+        clickAction: handleRemoveCollection
+    }, {
+        name: "Rename",
+        clickAction: setNameEditedCollectionId
+    }], [handleRemoveCollection, setNameEditedCollectionId])
+
     return (
         <DndProvider backend={HTML5Backend}>
             <ThemeProvider theme={theme}>
                 <GlobalStyle />
                 <TagsContext.Provider value={allTags}>
                     <Layout className="app">
-                        <Sidebar mainCollections={getCollectionChildren(TopCollections.MAIN)}
-                            trashCollections={getCollectionChildren(TopCollections.TRASH)}
-                            collectionsItems={bookmarks}
+                        <Sidebar
                             onCollectionAdd={handleAddCollection}
-                            onCollectionRemove={handleRemoveCollection}
-                            onCollectionRestore={handleRestoreCollection}
-                            onTrashCollectionRemove={handleRemoveTrashCollection}
-                            afterCollectionFoldingChange={handleCollectionFolding}
-                            onSelectedCollectionChange={handleCollectionSelection}
-                            selectedCollectionId={selectedCollectionId}
-                            onDropOnCollection={handleDropOnCollection}
-                            canDropOnCollection={canDropOnCollection}
-                            onCollectionRename={handleCollectionRename} />
+                            topChildren={
+                                <CollectionsTree
+                                    onCollectionClick={handleCollectionSelection}
+                                    selectedCollectionId={selectedCollectionId}>
+                                    <CollectionTreeItem
+                                        collectionId={VirtualCollections.ALL}
+                                        name="All"
+                                        icon={MdAllInbox} />
+                                    <CollectionTreeItem
+                                        collectionId={TopCollections.MAIN}
+                                        name="Without collection"
+                                        icon={IoAlbums}
+                                        onDrop={handleDropOnCollection}
+                                        canDrop={canDropOnCollection} />
+                                    <CollectionTreeItem
+                                        collectionId={TopCollections.TRASH}
+                                        name="Trash"
+                                        icon={IoTrash}
+                                        isDefaultFolded={true}
+                                        canDrop={canDropOnCollection}
+                                        onDrop={handleDropOnCollection}>
+                                        <CollectionsTree
+                                            collections={getCollectionChildren(TopCollections.TRASH)}
+                                            selectedCollectionId={selectedCollectionId}
+                                            onCollectionClick={handleCollectionSelection}
+                                            menuItems={trashCollectionsMenuItems}
+                                            afterCollectionFoldingChange={handleCollectionFolding}
+                                        />
+                                    </CollectionTreeItem>
+                                </CollectionsTree>
+                            }
+                            bottomChildren={
+                                <CollectionsTree
+                                    collections={getCollectionChildren(TopCollections.MAIN)}
+                                    selectedCollectionId={selectedCollectionId}
+                                    onCollectionClick={handleCollectionSelection}
+                                    afterCollectionFoldingChange={handleCollectionFolding}
+                                    menuItems={collectionsMenuItems}
+                                    onDrop={handleDropOnCollection}
+                                    canDrop={canDropOnCollection}
+                                    nameEditedCollectionId={nameEditedCollectionId}
+                                    afterCollectionNameChange={handleAfterCollectionNameChange}
+                                />
+                            }
+                        />
                         <Main>
                             <TopBar onAdd={handleBookmarkCreation} />
                             <CollectionsBreadCrumb>
@@ -259,8 +326,11 @@ export function App(): JSX.Element {
                                         icon={collection.icon} />
                                 })}
                             </CollectionsBreadCrumb>
-                            <BookmarksLayout bookmarks={bookmarksToShow} onTagRemove={handleBookmarkTagRemove}
-                                onDelete={handleBookmarkDelete} onEdit={handleBookmarkEdit} />
+                            <BookmarksLayout
+                                bookmarks={bookmarksToShow}
+                                onTagRemove={handleBookmarkTagRemove}
+                                onDelete={handleBookmarkDelete}
+                                onEdit={handleBookmarkEdit} />
                         </Main>
                         <BookmarkModal
                             isOpen={isEditModalOpen}
