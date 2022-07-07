@@ -1,8 +1,8 @@
-import {ApiRequestsSenders} from "../../types/api";
-import {AddBookmarkData, UpdateBookmarkData} from "../../types/bookmarks";
-import {AddCollectionData, MoveCollectionData, UpdateCollectionData} from "../../types/collections";
+import { Api } from "../../types/api";
+import { AddBookmarkData, UpdateBookmarkData } from "../../types/bookmarks";
+import { AddCollectionData, MoveCollectionData, UpdateCollectionData } from "../../types/collections";
 
-export class ElectronApi implements ApiRequestsSenders {
+export class ElectronApi implements Api {
 
     async removeBookmark(id: string) {
         return await window.bridge.sendAPIRequest("removeBookmark", id);

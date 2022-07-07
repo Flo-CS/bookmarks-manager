@@ -1,11 +1,11 @@
-import {useMemo, useState} from "react";
+import { useState } from "react";
 
 interface Classifiable {
     id: string,
     collection: string
 }
 
-export default function useClassifiableItems<T extends Classifiable>(initItems: T[], selectedClassifiableId: string) {
+export default function useClassifiableItems<T extends Classifiable>(initItems: T[]) {
     const [items, setItems] = useState<T[]>(initItems);
 
     function getItem(id: string): T | undefined {
@@ -15,7 +15,7 @@ export default function useClassifiableItems<T extends Classifiable>(initItems: 
     function updateItem(id: string, newData: Partial<T>): void {
         const item = getItem(id);
         if (item) {
-            const newItems = items.map(b => b.id === id ? {...b, ...newData} : b);
+            const newItems = items.map(b => b.id === id ? { ...b, ...newData } : b);
             setItems(newItems);
         }
     }
@@ -30,9 +30,5 @@ export default function useClassifiableItems<T extends Classifiable>(initItems: 
         setItems(newItems);
     }
 
-    const selectedItems = useMemo(() => items.filter(item => {
-        return item.collection === selectedClassifiableId
-    }), [items, selectedClassifiableId])
-
-    return {items, selectedItems, getItem, updateItem, removeItem, addItem, setItems};
+    return { items, getItem, updateItem, removeItem, addItem, setItems };
 }

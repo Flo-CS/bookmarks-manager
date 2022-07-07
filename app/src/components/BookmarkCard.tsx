@@ -1,15 +1,15 @@
-import styled, {css} from "styled-components";
+import styled, { css } from "styled-components";
 import Tag from "./Tag";
-import {formatDistanceToNow} from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 
-import {MdContentCopy, MdDelete, MdEdit} from "react-icons/md";
+import { MdContentCopy, MdDelete, MdEdit } from "react-icons/md";
 import useHover from "../hooks/useHover";
-import {useRef} from "react";
-import {BookmarkVariant} from "../../utils/bookmarks";
-import {IdDragItem} from "../../types/dragAndDrop";
-import {useDrag} from "react-dnd";
-import {Nullable} from "../../types/helpersTypes";
-import {DndTypes} from "../../utils/dragAndDrop";
+import { useRef } from "react";
+import { BookmarkVariant } from "../../utils/bookmarks";
+import { IdDragItem } from "../../types/dragAndDrop";
+import { useDrag } from "react-dnd";
+import { Nullable } from "../../types/helpersTypes";
+import { DndItems } from "../../utils/dragAndDrop";
 
 const ICON_HEIGHT = 40;
 
@@ -134,101 +134,101 @@ const MenuButton = styled.button`
 `
 
 type Props = {
-    variant: BookmarkVariant,
-    id: string,
-    link: string,
-    title?: Nullable<string>,
-    picturePath?: Nullable<string>;
-    description?: Nullable<string>,
-    tags?: Nullable<string[]>,
-    datetime?: Nullable<Date>,
-    onEdit?: (id: string) => void,
-    onDelete?: (id: string) => void
-    onTagRemove?: (id: string) => void
+  variant: BookmarkVariant,
+  id: string,
+  link: string,
+  title?: Nullable<string>,
+  picturePath?: Nullable<string>;
+  description?: Nullable<string>,
+  tags?: Nullable<string[]>,
+  datetime?: Nullable<Date>,
+  onEdit?: (id: string) => void,
+  onDelete?: (id: string) => void
+  onTagRemove?: (id: string) => void
 }
 
 interface DragCollectedProps {
-    isDragging: boolean
+  isDragging: boolean
 }
 
 export default function BookmarkCard({
-                                         variant,
-                                         title,
-                                         id,
-                                         link,
-                                         picturePath,
-                                         description,
-                                         tags,
-                                         datetime,
-                                         onEdit,
-                                         onDelete,
-                                         onTagRemove,
-                                     }: Props) {
-    const ref = useRef(null);
-    const isHovered = useHover(ref);
-    const [{isDragging}, drag] = useDrag<IdDragItem, void, DragCollectedProps>({
-        type: DndTypes.BOOKMARK_CARD,
-        item: {
-            id: id
-        },
-        collect: (monitor) => {
-            return {
-                isDragging: monitor.isDragging()
-            }
-        }
-    })
-
-    function handleCopyLinkButtonClick() {
-        navigator.clipboard.writeText(link);
+  variant,
+  title,
+  id,
+  link,
+  picturePath,
+  description,
+  tags,
+  datetime,
+  onEdit,
+  onDelete,
+  onTagRemove,
+}: Props) {
+  const ref = useRef(null);
+  const isHovered = useHover(ref);
+  const [{ isDragging }, drag] = useDrag<IdDragItem, void, DragCollectedProps>({
+    type: DndItems.BOOKMARK,
+    item: {
+      id: id
+    },
+    collect: (monitor) => {
+      return {
+        isDragging: monitor.isDragging()
+      }
     }
+  })
 
-    function handleDeleteButtonClick() {
-        onDelete && onDelete(id);
-    }
+  function handleCopyLinkButtonClick() {
+    navigator.clipboard.writeText(link);
+  }
 
-    function handleEditButtonClick() {
-        onEdit && onEdit(id)
-    }
+  function handleDeleteButtonClick() {
+    onDelete && onDelete(id);
+  }
 
-    function handleTagCloseButtonClick(tag: string) {
-        onTagRemove && onTagRemove(tag)
-    }
+  function handleEditButtonClick() {
+    onEdit && onEdit(id)
+  }
 
-    const isVariantIcon = variant === BookmarkVariant.ICON;
-    const isVariantPreview = variant === BookmarkVariant.PREVIEW;
+  function handleTagCloseButtonClick(tag: string) {
+    onTagRemove && onTagRemove(tag)
+  }
 
-    return <Card ref={ref} isDragging={isDragging}>
-        <CardInside ref={drag}>
-            {(isVariantPreview && picturePath) && <Picture src={picturePath} alt="Preview or website icon picture"/>}
-            <CardFlow>
-                <CardHead>
-                    {(isVariantIcon && picturePath) &&
-                        <Picture src={picturePath} alt="Preview or website icon picture" isIcon/>}
-                    <TitleContainer>
-                        <Title>{title}</Title>
-                        <Link href={link} target="_blank" rel="noopener noreferrer">{link}</Link>
-                    </TitleContainer>
-                    {(!isHovered && datetime) && <DateTime data-testid="datetime"
-                                                           dateTime={datetime.toISOString()}>{formatDistanceToNow(datetime, {addSuffix: true})}</DateTime>}
-                </CardHead>
-                <Description>{description}</Description>
-                <TagsContainer>
-                    {tags?.map(tag => {
-                        return <Tag size="little" key={tag} onClose={() => handleTagCloseButtonClick(tag)}>{tag}</Tag>;
-                    })}
-                </TagsContainer>
-            </CardFlow>
-        </CardInside>
-        <CardMenu data-testid="menu" isShown={isHovered}>
-            <MenuButton aria-label="copy" onClick={handleCopyLinkButtonClick}>
-                <MdContentCopy/>
-            </MenuButton>
-            <MenuButton aria-label="edit" onClick={handleEditButtonClick}>
-                <MdEdit/>
-            </MenuButton>
-            <MenuButton aria-label="delete" onClick={handleDeleteButtonClick}>
-                <MdDelete/>
-            </MenuButton>
-        </CardMenu>
-    </Card>
+  const isVariantIcon = variant === BookmarkVariant.ICON;
+  const isVariantPreview = variant === BookmarkVariant.PREVIEW;
+
+  return <Card ref={ref} isDragging={isDragging}>
+    <CardInside ref={drag}>
+      {(isVariantPreview && picturePath) && <Picture src={picturePath} alt="Preview or website icon picture" />}
+      <CardFlow>
+        <CardHead>
+          {(isVariantIcon && picturePath) &&
+            <Picture src={picturePath} alt="Preview or website icon picture" isIcon />}
+          <TitleContainer>
+            <Title>{title}</Title>
+            <Link href={link} target="_blank" rel="noopener noreferrer">{link}</Link>
+          </TitleContainer>
+          {(!isHovered && datetime) && <DateTime data-testid="datetime"
+            dateTime={datetime.toISOString()}>{formatDistanceToNow(datetime, { addSuffix: true })}</DateTime>}
+        </CardHead>
+        <Description>{description}</Description>
+        <TagsContainer>
+          {tags?.map(tag => {
+            return <Tag size="little" key={tag} onClose={() => handleTagCloseButtonClick(tag)}>{tag}</Tag>;
+          })}
+        </TagsContainer>
+      </CardFlow>
+    </CardInside>
+    <CardMenu data-testid="menu" isShown={isHovered}>
+      <MenuButton aria-label="copy" onClick={handleCopyLinkButtonClick}>
+        <MdContentCopy />
+      </MenuButton>
+      <MenuButton aria-label="edit" onClick={handleEditButtonClick}>
+        <MdEdit />
+      </MenuButton>
+      <MenuButton aria-label="delete" onClick={handleDeleteButtonClick}>
+        <MdDelete />
+      </MenuButton>
+    </CardMenu>
+  </Card>
 }

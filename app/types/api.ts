@@ -1,7 +1,7 @@
-import {AddBookmarkData, BookmarkData, UpdateBookmarkData} from "./bookmarks";
-import {AddCollectionData, CollectionData, MoveCollectionData, UpdateCollectionData} from "./collections";
-import {WebsiteData} from "./website";
-import {WithId, WithIndex} from "./helpersTypes";
+import { AddBookmarkData, BookmarkData, UpdateBookmarkData } from "./bookmarks";
+import { AddCollectionData, CollectionData, MoveCollectionData, UpdateCollectionData } from "./collections";
+import { WebsiteData } from "./website";
+import { WithId, WithIndex } from "./helpersTypes";
 
 export type ApiRequests = {
     removeBookmark: { params: [string], result: true }
@@ -32,7 +32,7 @@ export type ApiRequestsWithError = {
 export type ApiRequestSender<T extends keyof ApiRequests> = (...params: ApiRequests[T]["params"]) => Promise<ApiRequests[T]["result"]>
 export type ApiRequestHandler<T extends keyof ApiRequests> = (...params: ApiRequests[T]["params"]) => Promise<ApiRequests[T]["result"]>
 
-export type ApiRequestsSenders = {
+export type Api = {
     [T in keyof ApiRequests]: ApiRequestSender<T>
 }
 export type ApiRequestsHandlers = {
