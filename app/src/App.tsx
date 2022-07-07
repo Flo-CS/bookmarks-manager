@@ -1,5 +1,5 @@
-import React, {useEffect, useMemo, useState} from "react";
-import styled, {ThemeProvider} from "styled-components";
+import React, { useEffect, useMemo, useState } from "react";
+import styled, { ThemeProvider } from "styled-components";
 
 import BookmarksLayout from "./components/BookmarksLayout";
 import CollectionName from "./components/CollectionName";
@@ -17,19 +17,19 @@ import {
 import useModal from "./hooks/useModal";
 import useClassifiableItems from "./hooks/useClassifiableItems";
 import useTree from "./hooks/useTree";
-import {GlobalStyle} from "./styles/GlobalStyle";
-import {theme} from "./styles/Theme";
-import {flatten, slice, uniq} from "lodash";
-import {DndProvider} from "react-dnd";
-import {HTML5Backend} from "react-dnd-html5-backend";
-import {IdDroppedItem} from "../types/dragAndDrop";
-import {ElectronApi} from "./api/ElectronApi";
-import {AddBookmarkData, BookmarkData, UpdateBookmarkData} from "../types/bookmarks";
-import {DndTypes} from "../utils/dragAndDrop";
-import {createDefaultBookmark} from "../utils/bookmarks";
+import { GlobalStyle } from "./styles/GlobalStyle";
+import { theme } from "./styles/Theme";
+import { flatten, slice, uniq } from "lodash";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { IdDroppedItem } from "../types/dragAndDrop";
+import { ElectronApi } from "./api/ElectronApi";
+import { AddBookmarkData, BookmarkData, UpdateBookmarkData } from "../types/bookmarks";
+import { DndTypes } from "../utils/dragAndDrop";
+import { createDefaultBookmark } from "../utils/bookmarks";
 import BookmarkModal from "./components/BookmarkModal";
-import {CollectionDataExtended, MoveCollectionData} from "../types/collections";
-import {Copy} from "../types/helpersTypes";
+import { CollectionDataExtended, MoveCollectionData } from "../types/collections";
+import { Copy } from "../types/helpersTypes";
 
 
 const Layout = styled.div`
@@ -112,16 +112,11 @@ export function App(): JSX.Element {
         updateCollections(updatedCollections)
     }
 
-    async function handleRemoveCollection(id: string, isDefinitiveDelete: boolean) {
-        if (isDefinitiveDelete) {
-            await API.removeCollection(id)
-            removeCollection(id)
-        } else {
-            await moveCollection({
-                movingCollectionId: id,
-                newParent: TopCollections.TRASH,
-            })
-        }
+    async function handleRemoveCollection(id: string) {
+        await moveCollection({
+            movingCollectionId: id,
+            newParent: TopCollections.TRASH,
+        })
     }
 
     async function handleRemoveTrashCollection(id: string) {
@@ -137,7 +132,7 @@ export function App(): JSX.Element {
     }
 
     async function handleCollectionRename(newName: string, id: string) {
-        const updatedCollection = await API.updateCollection(id, {name: newName})
+        const updatedCollection = await API.updateCollection(id, { name: newName })
         updateCollection(id, updatedCollection)
     }
 
@@ -158,7 +153,7 @@ export function App(): JSX.Element {
                 newIndex: droppedItem.index
             })
         } else if (droppedItem.type === DndTypes.BOOKMARK_CARD) {
-            const updatedBookmark = await API.updateBookmark(droppedItem.id, {collection: parentCollectionId})
+            const updatedBookmark = await API.updateBookmark(droppedItem.id, { collection: parentCollectionId })
             updateBookmark(droppedItem.id, updatedBookmark)
         }
     }
@@ -206,7 +201,7 @@ export function App(): JSX.Element {
         if (!bookmark) return;
 
         const newTags = bookmark.tags?.filter(t => t !== tag);
-        const updatedBookmark = await API.updateBookmark(bookmark.id, {tags: newTags})
+        const updatedBookmark = await API.updateBookmark(bookmark.id, { tags: newTags })
         updateBookmark(bookmark.id, updatedBookmark)
     }
 
@@ -218,17 +213,17 @@ export function App(): JSX.Element {
             await API.removeBookmark(id)
             removeBookmark(id)
         } else {
-            const updatedBookmark = await API.updateBookmark(id, {collection: TopCollections.TRASH})
+            const updatedBookmark = await API.updateBookmark(id, { collection: TopCollections.TRASH })
             updateBookmark(id, updatedBookmark)
         }
     }
 
     async function handleCollectionFolding(id: string, isFolded: boolean) {
-        await API.updateCollection(id, {isFolded: isFolded})
+        await API.updateCollection(id, { isFolded: isFolded })
     }
 
     async function handleModalFetch(URL: string, forceDataRefresh: boolean) {
-        const {metadata: {title, description, pictures}} = await API.getWebsite(URL, forceDataRefresh)
+        const { metadata: { title, description, pictures } } = await API.getWebsite(URL, forceDataRefresh)
         return {
             linkTitle: title,
             description: description,
@@ -240,32 +235,32 @@ export function App(): JSX.Element {
     return (
         <DndProvider backend={HTML5Backend}>
             <ThemeProvider theme={theme}>
-                <GlobalStyle/>
+                <GlobalStyle />
                 <TagsContext.Provider value={allTags}>
                     <Layout className="app">
                         <Sidebar mainCollections={getCollectionChildren(TopCollections.MAIN)}
-                                 trashCollections={getCollectionChildren(TopCollections.TRASH)}
-                                 collectionsItems={bookmarks}
-                                 onCollectionAdd={handleAddCollection}
-                                 onCollectionRemove={handleRemoveCollection}
-                                 onCollectionRestore={handleRestoreCollection}
-                                 onTrashCollectionRemove={handleRemoveTrashCollection}
-                                 afterCollectionFoldingChange={handleCollectionFolding}
-                                 onSelectedCollectionChange={handleCollectionSelection}
-                                 selectedCollectionId={selectedCollectionId}
-                                 onDropOnCollection={handleDropOnCollection}
-                                 canDropOnCollection={canDropOnCollection}
-                                 onCollectionRename={handleCollectionRename}/>
+                            trashCollections={getCollectionChildren(TopCollections.TRASH)}
+                            collectionsItems={bookmarks}
+                            onCollectionAdd={handleAddCollection}
+                            onCollectionRemove={handleRemoveCollection}
+                            onCollectionRestore={handleRestoreCollection}
+                            onTrashCollectionRemove={handleRemoveTrashCollection}
+                            afterCollectionFoldingChange={handleCollectionFolding}
+                            onSelectedCollectionChange={handleCollectionSelection}
+                            selectedCollectionId={selectedCollectionId}
+                            onDropOnCollection={handleDropOnCollection}
+                            canDropOnCollection={canDropOnCollection}
+                            onCollectionRename={handleCollectionRename} />
                         <Main>
-                            <TopBar onAdd={handleBookmarkCreation}/>
+                            <TopBar onAdd={handleBookmarkCreation} />
                             <CollectionsBreadCrumb>
                                 {slice(selectedCollectionPath, 1).map(collection => {
                                     return <CollectionName key={collection.id} name={collection.name}
-                                                           icon={collection.icon}/>
+                                        icon={collection.icon} />
                                 })}
                             </CollectionsBreadCrumb>
                             <BookmarksLayout bookmarks={bookmarksToShow} onTagRemove={handleBookmarkTagRemove}
-                                             onDelete={handleBookmarkDelete} onEdit={handleBookmarkEdit}/>
+                                onDelete={handleBookmarkDelete} onEdit={handleBookmarkEdit} />
                         </Main>
                         <BookmarkModal
                             isOpen={isEditModalOpen}
@@ -273,14 +268,14 @@ export function App(): JSX.Element {
                             onBookmarkSave={handleEditModalSave}
                             modalTitle="Edit bookmark"
                             initialBookmark={editModalBookmark}
-                            fetchWebsiteMetadata={handleModalFetch}/>
+                            fetchWebsiteMetadata={handleModalFetch} />
                         <BookmarkModal
                             isOpen={isNewModalOpen}
                             onClose={closeNewModal}
                             onBookmarkSave={handleNewModalSave}
                             modalTitle="Add new bookmark"
                             initialBookmark={newModalBookmark}
-                            fetchWebsiteMetadata={handleModalFetch}/>
+                            fetchWebsiteMetadata={handleModalFetch} />
                     </Layout>
                 </TagsContext.Provider>
             </ThemeProvider>
