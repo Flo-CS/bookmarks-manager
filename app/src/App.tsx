@@ -30,6 +30,7 @@ import useModal from "./hooks/useModal";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import { theme } from "./styles/Theme";
 import Menu from "./components/Menu";
+import { isInSpecialCollection } from "../utils/collections";
 
 
 const Layout = styled.div`
@@ -52,6 +53,7 @@ const API = new ElectronApi();
 export function App() {
     const { data: {
         bookmarks,
+        getCollection,
         getCollectionChildren,
         getBookmark,
         getPathToCollection
@@ -59,25 +61,29 @@ export function App() {
     } = useMyApi(API)
 
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(VirtualCollections.ALL);
-
     const [nameEditedCollectionId, setNameEditedCollectionId] = useState<string | undefined>(undefined);
 
     const [isEditModalOpen, editModalBookmarkId, openEditModal, closeEditModal] = useModal<string>();
     const editModalBookmark = editModalBookmarkId ? getBookmark(editModalBookmarkId) : undefined
     const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useModal<AddBookmarkData>();
 
+    const allTags = useMemo(() => uniq(flatten(bookmarks.map(bookmark => bookmark.tags ?? []))), [bookmarks])
+    const selectedCollectionPath = getPathToCollection(selectedCollectionId)
+
+    const allBookmarks = useMemo(() => {
+        return bookmarks.filter(bookmark => !isInSpecialCollection(getPathToCollection(bookmark.collection), TopCollections.TRASH));
+    }, [bookmarks, isInSpecialCollection, getPathToCollection])
+
     const selectedBookmarks = useMemo(() => {
         return bookmarks.filter(bookmark => bookmark.collection === selectedCollectionId);
-    }, [bookmarks, selectedCollectionId]);
+    }, [bookmarks, selectedCollectionId])
 
-    const allTags = useMemo(() => uniq(flatten(bookmarks.map(bookmark => bookmark.tags || []))), [bookmarks])
-    const selectedCollectionPath = getPathToCollection(selectedCollectionId)
     const bookmarksToShow = useMemo(() => {
         if (selectedCollectionId === VirtualCollections.ALL) {
-            return bookmarks.filter(bookmark => bookmark.collection !== TopCollections.TRASH);
+            return allBookmarks
         }
-        return selectedBookmarks;
-    }, [bookmarks, selectedBookmarks]);
+        return selectedBookmarks
+    }, [allBookmarks, selectedBookmarks, selectedCollectionId]);
 
     async function handleAddCollection(name: string) {
         const collectionParentId = getNewCollectionParentId(selectedCollectionPath)
@@ -111,16 +117,15 @@ export function App() {
 
     async function handleDropOnCollection(newParentId: string, droppedItem: IdDroppedItem) {
         switch (droppedItem.type) {
-            case DndItems.BOOKMARK:
-                await actions.updateBookmark(droppedItem.id, { collection: newParentId })
-                break;
+            case DndItems.BOOKMARK: {
+                return await actions.updateBookmark(droppedItem.id, { collection: newParentId })
+            }
             case DndItems.COLLECTION:
-                await actions.moveCollection({
+                return await actions.moveCollection({
                     movingCollectionId: droppedItem.id,
                     newParent: newParentId,
                     newIndex: droppedItem.index
                 })
-                break;
         }
     }
 
@@ -128,14 +133,11 @@ export function App() {
         const newParentPath = getPathToCollection(newParentId)
         const currentPath = getPathToCollection(droppedItem.id)
 
-        switch (droppedItem.type) {
-            case DndItems.COLLECTION:
-
-                // Can't drop on itself
-                if (isEqual(newParentPath, currentPath)) return false
-                // Can't drop collection inside itself
-                if (currentPath.every(pathItem => newParentPath.includes(pathItem))) return false
-                break;
+        if (droppedItem.type === DndItems.COLLECTION) {
+            // Can't drop on itself
+            if (isEqual(newParentPath, currentPath)) return false
+            // Can't drop collection inside itself
+            if (currentPath.every(pathItem => newParentPath.includes(pathItem))) return false
         }
         return true
 
@@ -197,7 +199,6 @@ export function App() {
         }
     }
 
-    // TODO: TEMPORARY
     async function handleAfterChangeCollectionName(newName: string, id?: string) {
         if (!id) return;
         await actions.updateCollection(id, { name: newName })
@@ -230,7 +231,6 @@ export function App() {
         })
     }, [selectedCollectionPath])
 
-
     return (
         <DndProvider backend={HTML5Backend}>
             <ThemeProvider theme={theme}>
@@ -246,20 +246,25 @@ export function App() {
                                     <CollectionTreeItem
                                         collectionId={VirtualCollections.ALL}
                                         name="All"
-                                        icon={MdAllInbox} />
+                                        icon={MdAllInbox}
+                                        count={allBookmarks.length}
+                                    />
                                     <CollectionTreeItem
                                         collectionId={TopCollections.MAIN}
                                         name="Without collection"
                                         icon={IoAlbums}
                                         onDrop={handleDropOnCollection}
-                                        canDrop={canDropOnCollection} />
+                                        canDrop={canDropOnCollection}
+                                        count={getCollection(TopCollections.MAIN).count}
+                                    />
                                     <CollectionTreeItem
                                         collectionId={TopCollections.TRASH}
                                         name="Trash"
                                         icon={IoTrash}
                                         isDefaultFolded={true}
                                         canDrop={canDropOnCollection}
-                                        onDrop={handleDropOnCollection}>
+                                        onDrop={handleDropOnCollection}
+                                        count={getCollection(TopCollections.TRASH).count}>
                                         <CollectionsTree
                                             collections={getCollectionChildren(TopCollections.TRASH)}
                                             selectedCollectionId={selectedCollectionId}

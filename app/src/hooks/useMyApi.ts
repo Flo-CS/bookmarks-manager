@@ -20,6 +20,7 @@ export function useMyApi(API: Api) {
 
     const {
         getTreeNodeChildren: getCollectionChildren,
+        getTreeNode: getCollection,
         insertNode: _insertCollection,
         getPathToTreeNode: getPathToCollection,
         removeNode: _removeCollection,
@@ -99,6 +100,7 @@ export function useMyApi(API: Api) {
         data: {
             getBookmark,
             bookmarks,
+            getCollection,
             getCollectionChildren,
             getPathToCollection
         }
