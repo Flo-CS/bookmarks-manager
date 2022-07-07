@@ -97,7 +97,7 @@ export interface CollectionTreeItemProps {
     onDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void
     canDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => boolean
     isCollectionNameEdited?: boolean
-    afterCollectionNameChange?: (newName: string, collectionId?: string) => void,
+    afterCollectionNameChange?: (newName: string, collectionId: string) => void,
     dropSeparator?: React.ReactNode,
     rightMenu?: (props: CollectionsTreeRightMenuRenderProps) => React.ReactNode,
     children?: React.ReactNode

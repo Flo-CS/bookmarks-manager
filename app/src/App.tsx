@@ -57,7 +57,7 @@ export function App() {
         getCollectionChildren,
         getBookmark,
         getPathToCollection
-    }, actions
+    }, actions: apiActions
     } = useMyApi(API)
 
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(VirtualCollections.ALL);
@@ -90,44 +90,38 @@ export function App() {
         const collectionIndex = getCollectionChildren(collectionParentId).length
         const newCollection = createDefaultCollection(name, collectionParentId, collectionIndex)
 
-        await actions.addCollection(newCollection)
+        await apiActions.addCollection(newCollection)
     }
 
     async function handleRemoveCollection(id: string) {
-        await actions.moveCollection({
+        await apiActions.moveCollection({
             movingCollectionId: id,
             newParent: TopCollections.TRASH,
         })
     }
 
     async function handleRemoveCollectionFromTrash(id: string) {
-        await actions.removeCollection(id)
+        await apiActions.removeCollection(id)
     }
 
     async function handleRestoreCollectionFromTrash(id: string) {
-        await actions.moveCollection({
+        await apiActions.moveCollection({
             movingCollectionId: id,
             newParent: TopCollections.MAIN,
         })
     }
 
     function handleSelectCollection(id: string) {
-        console.log(id, selectedCollectionId);
-
-        if (id === selectedCollectionId) {
-            setSelectedCollectionId(VirtualCollections.ALL)
-        } else {
-            setSelectedCollectionId(id)
-        }
+        setSelectedCollectionId(id)
     }
 
     async function handleDropOnCollection(newParentId: string, droppedItem: IdDroppedItem) {
         switch (droppedItem.type) {
             case DndItems.BOOKMARK: {
-                return await actions.updateBookmark(droppedItem.id, { collection: newParentId })
+                return await apiActions.updateBookmark(droppedItem.id, { collection: newParentId })
             }
             case DndItems.COLLECTION:
-                return await actions.moveCollection({
+                return await apiActions.moveCollection({
                     movingCollectionId: droppedItem.id,
                     newParent: newParentId,
                     newIndex: droppedItem.index
@@ -160,15 +154,14 @@ export function App() {
     async function handleEditModalSave(data: UpdateBookmarkData | undefined) {
         if (!editModalBookmarkId || !data) return
 
-        await actions.updateBookmark(editModalBookmarkId, data)
-
+        await apiActions.updateBookmark(editModalBookmarkId, data)
         closeEditModal()
     }
 
     async function handleNewModalSave(data: AddBookmarkData | undefined) {
         if (!data) return
-        await actions.addBookmark(data)
 
+        await apiActions.addBookmark(data)
         closeNewModal()
     }
 
@@ -177,7 +170,7 @@ export function App() {
         if (!bookmark) return;
 
         const newTags = bookmark.tags?.filter(t => t !== tag);
-        await actions.updateBookmark(bookmark.id, { tags: newTags })
+        await apiActions.updateBookmark(bookmark.id, { tags: newTags })
     }
 
     async function handleRemoveBookmark(id: string) {
@@ -185,18 +178,17 @@ export function App() {
         if (!bookmark) return;
 
         if (bookmark.collection === TopCollections.TRASH) {
-            await actions.removeBookmark(id)
-        } else {
-            await actions.updateBookmark(id, { collection: TopCollections.TRASH })
+            return await apiActions.removeBookmark(id)
         }
+        return apiActions.updateBookmark(id, { collection: TopCollections.TRASH })
     }
 
     async function handleAfterFoldCollection(id: string, isFolded: boolean) {
-        await actions.updateCollection(id, { isFolded: isFolded })
+        await apiActions.updateCollection(id, { isFolded: isFolded })
     }
 
     async function handleModalFetchWebsiteMetadata(url: string, forceDataRefresh: boolean) {
-        const { metadata: { title, description, pictures } } = await actions.getWebsite(url, forceDataRefresh)
+        const { metadata: { title, description, pictures } } = await apiActions.getWebsite(url, forceDataRefresh)
         return {
             linkTitle: title,
             description: description,
@@ -205,21 +197,17 @@ export function App() {
         }
     }
 
-    async function handleAfterChangeCollectionName(newName: string, id?: string) {
-        if (!id) return;
-        await actions.updateCollection(id, { name: newName })
+    async function handleAfterChangeCollectionName(newName: string, id: string) {
+        await apiActions.updateCollection(id, { name: newName })
         setNameEditedCollectionId(undefined)
     }
 
     const trashCollectionsTreeMenu = useCallback(({ position, isOpened, closeMenu, collectionId }: CollectionsTreeRightMenuRenderProps) => {
         return <Menu position={position} onClose={closeMenu} isShow={isOpened}>
-            <Menu.Item
-                onClick={() => {
-                    handleSelectCollection(TopCollections.TRASH)
-                    handleRemoveCollectionFromTrash(collectionId)
-                }}>
-                Delete
-            </Menu.Item>
+            <Menu.Item onClick={() => {
+                handleSelectCollection(TopCollections.TRASH)
+                handleRemoveCollectionFromTrash(collectionId)
+            }}>Delete</Menu.Item>
             <Menu.Item onClick={() => handleRestoreCollectionFromTrash(collectionId)}>Restore</Menu.Item>
         </Menu>
     }, [handleSelectCollection, handleRemoveCollectionFromTrash, handleRestoreCollectionFromTrash])
@@ -233,7 +221,12 @@ export function App() {
 
     const collectionNames = useMemo(() => {
         return slice(selectedCollectionPath, 1).map(collection => {
-            return <CollectionName key={collection.id} name={collection.name} icon={collection.icon} />
+            return <CollectionName
+                key={collection.id}
+                collectionId={collection.id}
+                name={collection.name}
+                icon={collection.icon}
+                onClick={handleSelectCollection} />
         })
     }, [selectedCollectionPath])
 

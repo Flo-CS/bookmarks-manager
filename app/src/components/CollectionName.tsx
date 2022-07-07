@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import useClickOutside from "../hooks/useClickOutside";
 
@@ -27,21 +27,21 @@ const NameInput = styled.input`
 
 interface Props {
     name: string
-    collectionId?: string
+    collectionId: string
     icon?: React.ComponentType
-    onClick?: (collectionId?: string) => void
+    onClick?: (collectionId: string) => void
     isInEditMode?: boolean
-    afterNameChange?: (newName: string, collectionId?: string) => void
+    afterNameChange?: (newName: string, collectionId: string) => void
 }
 
 export default function CollectionName({
-                                           name,
-                                           icon: Icon,
-                                           collectionId,
-                                           onClick,
-                                           isInEditMode = false,
-                                           afterNameChange = () => undefined
-                                       }: Props) {
+    name,
+    collectionId,
+    icon: Icon,
+    onClick = () => undefined,
+    isInEditMode = false,
+    afterNameChange = () => undefined
+}: Props) {
     const [newName, setNewName] = useState(name);
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -54,7 +54,7 @@ export default function CollectionName({
     }, [inputRef, isInEditMode]);
 
     function handleClick() {
-        onClick && onClick(collectionId)
+        onClick(collectionId)
     }
 
     function handleNameInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -71,11 +71,11 @@ export default function CollectionName({
         afterNameChange(newName, collectionId)
     }
 
-    return <Container onClick={handleClick} role={onClick && "button"}>
-        {Icon && <Icon data-testid="icon"/>}
+    return <Container onClick={handleClick} role="button">
+        {Icon && <Icon data-testid="icon" />}
         {isInEditMode ?
             <NameInput onChange={handleNameInputChange} value={newName} onKeyDown={handleNameInputKeyDown}
-                       ref={inputRef}/> :
+                ref={inputRef} /> :
             <Name>{name}</Name>
         }
     </Container>

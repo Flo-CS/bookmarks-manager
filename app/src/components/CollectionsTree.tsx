@@ -24,7 +24,7 @@ interface Props {
     rightMenu?: (props: CollectionsTreeRightMenuRenderProps) => React.ReactNode
     onDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => void
     canDrop?: (parentCollectionId: string, droppedItem: IdDroppedItem) => boolean
-    afterCollectionNameChange?: (newName: string, collectionId?: string) => void
+    afterCollectionNameChange?: (newName: string, collectionId: string) => void
     nameEditedCollectionId?: string
 }
 
@@ -44,29 +44,29 @@ export default function CollectionsTree({
     function collectionsToComponents(collections: TreeCollection[]) {
 
         return collections.map((collection) => {
-            return <React.Fragment key={collection.id}>
-                <CollectionTreeItem collectionId={collection.id}
-                    icon={collection.icon}
-                    name={collection.name}
-                    isDefaultFolded={collection.isFolded}
-                    onClick={onCollectionClick}
-                    isSelected={collection.id === selectedCollectionId}
-                    afterFoldingChange={afterCollectionFoldingChange}
-                    count={collection.count}
-                    onDrop={onDrop}
-                    canDrop={canDrop}
-                    isCollectionNameEdited={nameEditedCollectionId === collection.id}
-                    afterCollectionNameChange={afterCollectionNameChange}
-                    dropSeparator={
-                        <CollectionTreeDropSeparatorItem
-                            parentCollectionId={collection.parent?.id || TopCollections.MAIN}
-                            index={collection.index}
-                            onDrop={onDrop}
-                            canDrop={canDrop} />
-                    }
-                    rightMenu={rightMenu}
-                >{collection.children && collectionsToComponents(collection.children)}</CollectionTreeItem>
-            </React.Fragment>
+            return <CollectionTreeItem
+                key={collection.id}
+                collectionId={collection.id}
+                icon={collection.icon}
+                name={collection.name}
+                isDefaultFolded={collection.isFolded}
+                onClick={onCollectionClick}
+                isSelected={collection.id === selectedCollectionId}
+                afterFoldingChange={afterCollectionFoldingChange}
+                count={collection.count}
+                onDrop={onDrop}
+                canDrop={canDrop}
+                isCollectionNameEdited={nameEditedCollectionId === collection.id}
+                afterCollectionNameChange={afterCollectionNameChange}
+                dropSeparator={
+                    <CollectionTreeDropSeparatorItem
+                        parentCollectionId={collection.parent?.id || TopCollections.MAIN}
+                        index={collection.index}
+                        onDrop={onDrop}
+                        canDrop={canDrop} />
+                }
+                rightMenu={rightMenu}
+            >{collection.children && collectionsToComponents(collection.children)}</CollectionTreeItem>
         })
 
     }
