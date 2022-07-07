@@ -1,7 +1,6 @@
 import { AddBookmarkData, BookmarkData, UpdateBookmarkData } from "./bookmarks";
-import { AddCollectionData, CollectionData, MoveCollectionData, UpdateCollectionData } from "./collections";
+import { AddCollectionData, CollectionData, MoveCollectionData, MovedCollectionData, UpdateCollectionData } from "./collections";
 import { WebsiteData } from "./website";
-import { WithId, WithIndex } from "./helpersTypes";
 
 export type ApiRequests = {
     removeBookmark: { params: [string], result: true }
@@ -9,10 +8,10 @@ export type ApiRequests = {
     getBookmarks: { params: [], result: BookmarkData[] }
     updateBookmark: { params: [string, UpdateBookmarkData], result: BookmarkData },
     getCollections: { params: [], result: CollectionData[] },
-    addCollection: { params: [AddCollectionData], result: [CollectionData, (WithId & WithIndex)[]] },
+    addCollection: { params: [AddCollectionData], result: [CollectionData, MovedCollectionData[]] },
     updateCollection: { params: [string, UpdateCollectionData], result: CollectionData };
-    moveCollection: { params: [MoveCollectionData], result: CollectionData[] }
-    removeCollection: { params: [string], result: (WithId & WithIndex)[] },
+    moveCollection: { params: [MoveCollectionData], result: MovedCollectionData[] }
+    removeCollection: { params: [string], result: MovedCollectionData[] },
     getWebsite: { params: [string, boolean], result: WebsiteData }
 }
 
