@@ -8,7 +8,7 @@ import { COLLECTIONS_TREE_ROOTS } from "../../utils/collections";
 import useClassifiableItems from "./useClassifiableItems";
 import useTree from "./useTree";
 
-export function useApi(API: Api) {
+export function useMyApi(API: Api) {
     const {
         items: bookmarks,
         removeItem: _removeBookmark,

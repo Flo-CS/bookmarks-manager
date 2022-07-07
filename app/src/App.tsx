@@ -25,7 +25,7 @@ import CollectionsTree from "./components/CollectionsTree";
 import CollectionTreeItem, { MenuItem } from "./components/CollectionTreeItem";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
-import { useApi } from "./hooks/useApi";
+import { useMyApi } from "./hooks/useMyApi";
 import useModal from "./hooks/useModal";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import { theme } from "./styles/Theme";
@@ -55,7 +55,7 @@ export function App() {
         getBookmark,
         getPathToCollection
     }, actions
-    } = useApi(API)
+    } = useMyApi(API)
 
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(VirtualCollections.ALL);
 
