@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import {TextInput} from "./TextInput";
-import React, {useEffect, useMemo, useState} from "react";
+import { TextInput } from "./TextInput";
+import React, { useEffect, useMemo, useState } from "react";
 import Fuse from "fuse.js"
-import {loopNext, loopPrevious} from "../../utils/arrays";
+import { loopNext, loopPrevious } from "../../utils/arrays";
 import WithLabel from "./WithLabel";
 
 const Container = styled.div`
@@ -29,7 +29,7 @@ const SuggestionItem = styled.li<{ isSelected: boolean }>`
 `
 
 type Props = {
-    suggestions: string[],
+    suggestions?: string[],
     onInputChange?: (value: string) => void,
     onSuggestionValidation?: (value: string | null) => void,
     onInputKeyDown?: (key: string) => void,
@@ -38,13 +38,13 @@ type Props = {
 }
 
 export function AutoSuggestTextInput({
-                                         suggestions,
-                                         onInputChange,
-                                         onSuggestionValidation,
-                                         onInputKeyDown,
-                                         inputValue = "",
-                                         id
-                                     }: Props) {
+    suggestions = [],
+    onInputChange = () => undefined,
+    onSuggestionValidation = () => undefined,
+    onInputKeyDown = () => undefined,
+    inputValue = "",
+    id
+}: Props) {
     const fuse = useMemo(() => {
         return new Fuse(suggestions)
     }, [suggestions]);
@@ -53,7 +53,7 @@ export function AutoSuggestTextInput({
     const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null);
 
     useEffect(() => {
-        const results = fuse.search(inputValue, {limit: 5})
+        const results = fuse.search(inputValue, { limit: 5 })
         setFilteredSuggestions(results.map(val => val.item));
     }, [inputValue]);
 
@@ -75,22 +75,17 @@ export function AutoSuggestTextInput({
     }
 
     function handleInputKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-        switch (e.key) {
-            case "ArrowDown":
-                setSelectedSuggestion(loopNext(filteredSuggestions, selectedSuggestion))
-                break;
-            case "ArrowUp":
-                setSelectedSuggestion(loopPrevious(filteredSuggestions, selectedSuggestion))
-                break;
-            case "Enter":
+        const keysActions: Record<string, () => void> = {
+            ArrowDown: () => { setSelectedSuggestion(loopNext(filteredSuggestions, selectedSuggestion)) },
+            ArrowUp: () => { setSelectedSuggestion(loopPrevious(filteredSuggestions, selectedSuggestion)) },
+            Enter: () => {
                 handleSuggestionValidation(selectedSuggestion);
                 reset()
-                break;
-            case "Escape":
-                reset()
-                break;
+            },
+            Escape: () => { reset() }
         }
-        onInputKeyDown && onInputKeyDown(e.key)
+        keysActions[e.key]()
+        onInputKeyDown(e.key)
     }
 
     function handleSuggestionClick(suggestion: string) {
@@ -102,17 +97,17 @@ export function AutoSuggestTextInput({
 
     return <Container>
         <TextInput onChange={handleInputChange}
-                   value={inputValue}
-                   id={id}
-                   onKeyDown={handleInputKeyDown}/>
+            value={inputValue}
+            id={id}
+            onKeyDown={handleInputKeyDown} />
         {hasSuggestions &&
             <SuggestionsContainer data-testid="suggestions">
                 <SuggestionsList>
                     {filteredSuggestions.map((suggestion) => {
                         return <SuggestionItem key={suggestion}
-                                               onClick={() => handleSuggestionClick(suggestion)}
-                                               isSelected={selectedSuggestion === suggestion}
-                                               data-testid={selectedSuggestion === suggestion && "selected-suggestion"}>
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            isSelected={selectedSuggestion === suggestion}
+                            data-testid={selectedSuggestion === suggestion && "selected-suggestion"}>
                             {suggestion}
                         </SuggestionItem>
                     })}
