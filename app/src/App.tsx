@@ -6,7 +6,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { IoAlbums, IoTrash } from "react-icons/io5";
 import { MdAllInbox } from "react-icons/md";
-import { AddBookmarkData, UpdateBookmarkData } from "../types/bookmarks";
+import { AddBookmarkData, BookmarkData, UpdateBookmarkData } from "../types/bookmarks";
 import { IdDroppedItem } from "../types/dragAndDrop";
 import { createDefaultBookmark } from "../utils/bookmarks";
 import {
@@ -31,6 +31,10 @@ import { GlobalStyle } from "./styles/GlobalStyle";
 import { theme } from "./styles/Theme";
 import Menu from "./components/Menu";
 import { isInSpecialCollection } from "../utils/collections";
+import { TextInput } from "./components/TextInput";
+import Fuse from "fuse.js";
+import { useFuzzySearch } from "./hooks/useFuzzySearch";
+import { Copy } from "../types/helpersTypes";
 
 
 const Layout = styled.div`
@@ -60,12 +64,15 @@ export function App() {
     }, actions: apiActions
     } = useMyApi(API)
 
+
     const [selectedCollectionId, setSelectedCollectionId] = useState<string>(VirtualCollections.ALL);
     const [nameEditedCollectionId, setNameEditedCollectionId] = useState<string | undefined>(undefined);
 
     const [isEditModalOpen, editModalBookmarkId, openEditModal, closeEditModal] = useModal<string>();
     const editModalBookmark = editModalBookmarkId ? getBookmark(editModalBookmarkId) : undefined
     const [isNewModalOpen, newModalBookmark, openNewModal, closeNewModal] = useModal<AddBookmarkData>();
+
+    const [searchText, setSearchText] = useState("")
 
     const allTags = useMemo(() => uniq(flatten(bookmarks.map(bookmark => bookmark.tags ?? []))), [bookmarks])
     const selectedCollectionPath = getPathToCollection(selectedCollectionId)
@@ -84,6 +91,8 @@ export function App() {
         }
         return selectedBookmarks
     }, [allBookmarks, selectedBookmarks, selectedCollectionId]);
+
+    const searchBookmarksResults = useFuzzySearch<Copy<BookmarkData>>(searchText, bookmarksToShow, { keys: ["tags", "siteName", "linkTitle", "description", "url"], ignoreLocation: true, threshold: 0.3 })
 
     async function handleAddCollection(name: string) {
         const collectionParentId = getNewCollectionParentId(selectedCollectionPath)
@@ -202,6 +211,10 @@ export function App() {
         setNameEditedCollectionId(undefined)
     }
 
+    function handleSearchTextInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+        setSearchText(e.currentTarget.value)
+    }
+
     const trashCollectionsTreeMenu = useCallback(({ position, isOpened, closeMenu, collectionId }: CollectionsTreeRightMenuRenderProps) => {
         return <Menu position={position} onClose={closeMenu} isShow={isOpened}>
             <Menu.Item onClick={() => {
@@ -289,12 +302,13 @@ export function App() {
                             }
                         />
                         <Main>
+                            <TextInput value={searchText} onChange={handleSearchTextInputChange} />
                             <TopBar onAdd={handleAddBookmark} />
                             <CollectionsBreadCrumb>
                                 {collectionNames}
                             </CollectionsBreadCrumb>
                             <BookmarksLayout
-                                bookmarks={bookmarksToShow}
+                                bookmarks={searchBookmarksResults}
                                 onTagRemove={handleRemoveBookmarkTag}
                                 onDelete={handleRemoveBookmark}
                                 onEdit={handleBookmarkEdit} />
