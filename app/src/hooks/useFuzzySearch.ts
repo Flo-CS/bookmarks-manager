@@ -9,7 +9,7 @@ interface SearchOptions<Item> {
     minMatchCharLength: number,
 }
 
-export function useFuzzySearch<Item extends GenericObject | string>(searchTerm: string, items: Item[], options?: Partial<SearchOptions<Item>>, limit: number = Number.MAX_SAFE_INTEGER): Item[] {
+export function useFuzzySearch<Item extends GenericObject | string>(searchText: string, items: Item[], options?: Partial<SearchOptions<Item>>, limit: number = Number.MAX_SAFE_INTEGER): Item[] {
     const fuse = useMemo(() => {
         return new Fuse<Item>([], { ...options as Fuse.IFuseOptions<Item> });
     }, []);
@@ -19,10 +19,10 @@ export function useFuzzySearch<Item extends GenericObject | string>(searchTerm: 
     }, [items])
 
     const searchResults = useMemo(() => {
-        if (!searchTerm) return items;
-        const results = fuse.search(searchTerm, { limit: limit })
+        if (!searchText) return items;
+        const results = fuse.search(searchText, { limit: limit })
         return results.map(result => result.item)
-    }, [searchTerm, fuse, items])
+    }, [searchText, fuse, items])
 
     return searchResults
 }

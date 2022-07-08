@@ -34,6 +34,7 @@ import { isInSpecialCollection } from "../utils/collections";
 import { TextInput } from "./components/TextInput";
 import { useFuzzySearch } from "./hooks/useFuzzySearch";
 import { Copy } from "../types/helpersTypes";
+import useNaturalLanguageDateSearch from "./hooks/useNaturalLanguageDateSearch";
 
 
 const Layout = styled.div`
@@ -91,7 +92,8 @@ export function App() {
         return selectedBookmarks
     }, [allBookmarks, selectedBookmarks, selectedCollectionId]);
 
-    const searchBookmarksResults = useFuzzySearch<Copy<BookmarkData>>(searchText, bookmarksToShow, { keys: ["tags", "siteName", "linkTitle", "description", "url"], ignoreLocation: true, threshold: 0.3 })
+    let [searchBookmarksResults, match] = useNaturalLanguageDateSearch(searchText, bookmarksToShow, "modificationDate")
+    searchBookmarksResults = useFuzzySearch<Copy<BookmarkData>>(searchText.replace(match, ""), searchBookmarksResults, { keys: ["tags", "siteName", "linkTitle", "description", "url"], ignoreLocation: true, threshold: 0.3 })
 
     async function handleAddCollection(name: string) {
         const collectionParentId = getNewCollectionParentId(selectedCollectionPath)
