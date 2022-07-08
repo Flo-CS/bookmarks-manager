@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import { TextInput } from "./TextInput";
-import React, { useEffect, useMemo, useState } from "react";
-import Fuse from "fuse.js"
+import React, { useMemo, useState } from "react";
 import { loopNext, loopPrevious } from "../../utils/arrays";
 import WithLabel from "./WithLabel";
+import { useFuzzySearch } from "../hooks/useFuzzySearch";
 
 const Container = styled.div`
   position: relative;
@@ -45,55 +45,43 @@ export function AutoSuggestTextInput({
     inputValue = "",
     id
 }: Props) {
-    const fuse = useMemo(() => {
-        return new Fuse(suggestions)
-    }, [suggestions]);
-
-    const [filteredSuggestions, setFilteredSuggestions] = useState(suggestions)
+    const filteredSuggestions = useFuzzySearch<string>(inputValue, suggestions, {}, 5)
     const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null);
 
-    useEffect(() => {
-        const results = fuse.search(inputValue, { limit: 5 })
-        setFilteredSuggestions(results.map(val => val.item));
-    }, [inputValue]);
+    const keysActions: Record<string, () => void> = useMemo(() => ({
+        ArrowDown: () => {
+            setSelectedSuggestion(loopNext(filteredSuggestions, selectedSuggestion))
+        },
+        ArrowUp: () => {
+            setSelectedSuggestion(loopPrevious(filteredSuggestions, selectedSuggestion))
+        },
+        Enter: () => {
+            handleSuggestionValidation(selectedSuggestion)
+        },
+        Escape: () => {
+            reset()
+        }
+    }), [setSelectedSuggestion, handleSuggestionValidation, reset, filteredSuggestions, selectedSuggestion])
 
     function reset() {
         setSelectedSuggestion(null)
-        setFilteredSuggestions([])
     }
 
-    function handleChange(value: string) {
-        onInputChange && onInputChange(value)
-    }
-
-    function handleSuggestionValidation(value: string | null) {
-        onSuggestionValidation && onSuggestionValidation(value)
-    }
-
-    function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-        handleChange(e.target.value)
-    }
-
-    function handleInputKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-        const keysActions: Record<string, () => void> = {
-            ArrowDown: () => { setSelectedSuggestion(loopNext(filteredSuggestions, selectedSuggestion)) },
-            ArrowUp: () => { setSelectedSuggestion(loopPrevious(filteredSuggestions, selectedSuggestion)) },
-            Enter: () => {
-                handleSuggestionValidation(selectedSuggestion);
-                reset()
-            },
-            Escape: () => { reset() }
-        }
-        keysActions[e.key]()
-        onInputKeyDown(e.key)
-    }
-
-    function handleSuggestionClick(suggestion: string) {
-        handleSuggestionValidation(suggestion);
+    function handleSuggestionValidation(suggestion: string | null) {
+        onSuggestionValidation(suggestion)
         reset()
     }
 
-    const hasSuggestions = useMemo(() => filteredSuggestions.length !== 0, [filteredSuggestions]);
+    function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+        onInputChange(e.target.value)
+    }
+
+    function handleInputKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (keysActions[e.key]) keysActions[e.key]()
+        onInputKeyDown(e.key)
+    }
+
+    const hasSuggestions = useMemo(() => inputValue !== "", [filteredSuggestions]);
 
     return <Container>
         <TextInput onChange={handleInputChange}
@@ -105,7 +93,7 @@ export function AutoSuggestTextInput({
                 <SuggestionsList>
                     {filteredSuggestions.map((suggestion) => {
                         return <SuggestionItem key={suggestion}
-                            onClick={() => handleSuggestionClick(suggestion)}
+                            onClick={() => handleSuggestionValidation(suggestion)}
                             isSelected={selectedSuggestion === suggestion}
                             data-testid={selectedSuggestion === suggestion && "selected-suggestion"}>
                             {suggestion}
