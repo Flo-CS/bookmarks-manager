@@ -32,7 +32,6 @@ import { theme } from "./styles/Theme";
 import Menu from "./components/Menu";
 import { isInSpecialCollection } from "../utils/collections";
 import { TextInput } from "./components/TextInput";
-import Fuse from "fuse.js";
 import { useFuzzySearch } from "./hooks/useFuzzySearch";
 import { Copy } from "../types/helpersTypes";
 
