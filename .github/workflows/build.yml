@@ -17,12 +17,11 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 18.x
+        cache: "npm"
         
-    - run: yarn
+    - run: npm ci
     
-    - run: yarn make
-    
-    - run: yarn test
+    - run: npm run test
       if: success() || failure()
 
     - name: SonarQube Scan
