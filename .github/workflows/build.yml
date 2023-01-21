@@ -23,6 +23,7 @@ jobs:
     - run: yarn make
     
     - run: yarn test
+      if: success() || failure()
 
     - name: SonarQube Scan
       if: success() || failure()
