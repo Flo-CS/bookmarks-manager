@@ -31,10 +31,10 @@ import { GlobalStyle } from "./styles/GlobalStyle";
 import { theme } from "./styles/Theme";
 import Menu from "./components/Menu";
 import { isInSpecialCollection } from "../utils/collections";
-import { TextInput } from "./components/TextInput";
 import { useFuzzySearch } from "./hooks/useFuzzySearch";
 import { Copy } from "../types/helpersTypes";
 import useNaturalLanguageDateSearch from "./hooks/useNaturalLanguageDateSearch";
+import HighlightTextInput from "./components/SearchTextInput";
 
 
 const Layout = styled.div`
@@ -93,7 +93,7 @@ export function App() {
     }, [allBookmarks, selectedBookmarks, selectedCollectionId]);
 
     let [searchBookmarksResults, match] = useNaturalLanguageDateSearch(searchText, bookmarksToShow, "modificationDate")
-    searchBookmarksResults = useFuzzySearch<Copy<BookmarkData>>(searchText.replace(match, ""), searchBookmarksResults, { keys: ["tags", "siteName", "linkTitle", "description", "url"], ignoreLocation: true, threshold: 0.3 })
+    searchBookmarksResults = useFuzzySearch<Copy<BookmarkData>>(searchText.replace(match, "").trim(), searchBookmarksResults, { keys: ["tags", "siteName", "linkTitle", "description", "url"], ignoreLocation: true, threshold: 0.3 })
 
     async function handleAddCollection(name: string) {
         const collectionParentId = getNewCollectionParentId(selectedCollectionPath)
@@ -187,6 +187,7 @@ export function App() {
         const bookmark = getBookmark(id)
         if (!bookmark) return;
 
+        // TODO: Handle that on back
         if (bookmark.collection === TopCollections.TRASH) {
             return await apiActions.removeBookmark(id)
         }
@@ -212,8 +213,8 @@ export function App() {
         setNameEditedCollectionId(undefined)
     }
 
-    function handleSearchTextInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-        setSearchText(e.currentTarget.value)
+    function handleSearchTextInputChange(newValue: string) {
+        setSearchText(newValue)
     }
 
     const trashCollectionsTreeMenu = useCallback(({ position, isOpened, closeMenu, collectionId }: CollectionsTreeRightMenuRenderProps) => {
@@ -303,7 +304,7 @@ export function App() {
                             }
                         />
                         <Main>
-                            <TextInput value={searchText} onChange={handleSearchTextInputChange} />
+                            <HighlightTextInput value={searchText} onChange={handleSearchTextInputChange} highlights={[match]} />
                             <TopBar onAdd={handleAddBookmark} />
                             <CollectionsBreadCrumb>
                                 {collectionNames}
